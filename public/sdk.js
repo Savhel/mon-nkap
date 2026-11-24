@@ -41,6 +41,8 @@
         return call('/v1/analyze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: text, lang: lang, channel: channel }) });
       },
       languages: function () { return call('/v1/languages'); },
+      /** Libellés d'interface dans la langue (menu_balance, menu_transfer…), avec leur qualité. */
+      labels: function (l) { return call('/v1/labels?lang=' + encodeURIComponent(l || lang)); },
       reset: function () { session = 'sdk-' + Math.random().toString(36).slice(2, 10); },
     };
   }

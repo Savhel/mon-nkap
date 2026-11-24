@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-<title>Mon Nkap · application mobile</title>
+<title>Mon Nkap</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/tokens.css">
@@ -12,125 +12,353 @@
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--nk-bg); color: var(--nk-ink); }
-  .device { height: 100%; max-width: 430px; margin: 0 auto; display: flex; flex-direction: column; background: var(--nk-card); }
+  body { --top: env(safe-area-inset-top, 0px); --bottom: env(safe-area-inset-bottom, 0px); }
+  button { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+  .device { position: relative; height: 100%; max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; background: var(--nk-bg); overflow: hidden; }
   @media (min-width: 600px) {
     body { padding: 24px 0; background: var(--nk-soft); }
-    .device { height: min(860px, calc(100vh - 48px)); border-radius: 28px; overflow: hidden; border: 1px solid var(--nk-line); box-shadow: 0 24px 64px rgba(2, 6, 23, .18); }
+    .device { height: min(880px, calc(100vh - 48px)); border-radius: 32px; border: 1px solid var(--nk-line); box-shadow: 0 24px 64px rgba(2, 6, 23, .18); }
   }
-  .appbar { display: flex; align-items: center; gap: 12px; padding: calc(12px + max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px))) 16px 12px; background: #0f172a; color: #fff; }
-  .appbar svg { flex: none; }
-  .appbar .title { flex: 1; min-width: 0; }
-  .appbar b { display: block; font-size: 17px; font-weight: 600; letter-spacing: .01em; }
-  .appbar small { display: block; font-size: 13px; color: #cbd5e1; }
-  .appbar .set { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: #e2e8f0; }
-  .appbar .set:hover { background: rgba(255, 255, 255, .08); }
-  #app { flex: 1; min-height: 0; }
+  .screen { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .navy { background: #0f172a; color: #fff; }
+  .icon-btn { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; background: transparent; color: #e2e8f0; cursor: pointer; }
+  .icon-btn:hover { background: rgba(255, 255, 255, .08); }
+  .icon-btn[aria-pressed="true"] { background: rgba(250, 204, 21, .16); color: #fde68a; }
+  .mark { flex: none; width: 32px; height: 32px; }
+
+  /* Accueil */
+  .home { overflow-y: auto; overscroll-behavior: contain; }
+  .home > * { flex-shrink: 0; }
+  .hero { position: relative; padding: calc(10px + var(--top)) 16px 20px; border-radius: 0 0 28px 28px; overflow: hidden; }
+  .hero-top { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; min-height: 48px; }
+  .brand { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; letter-spacing: .01em; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: rgba(255, 255, 255, .06); color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .pill:hover { background: rgba(255, 255, 255, .12); }
+  .greet { position: relative; z-index: 1; margin: 18px 4px 14px; }
+  .greet small { display: block; color: #cbd5e1; font-size: 14px; }
+  .greet b { display: block; font-size: 22px; font-weight: 600; line-height: 1.3; }
+  .card { position: relative; z-index: 1; padding: 18px 18px 16px; border-radius: 20px; color: #fff;
+    background: linear-gradient(135deg, #b45309 0%, #a16207 55%, #854d0e 100%); box-shadow: 0 12px 28px rgba(133, 77, 14, .35); overflow: hidden; }
+  .card::before { content: ""; position: absolute; right: -40px; bottom: -70px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255, 255, 255, .08); }
+  .card-row { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; color: #fef3c7; }
+  .card-amount { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; min-height: 48px; }
+  .card-amount output { font-size: 30px; font-weight: 600; letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+  .card .icon-btn { color: #fff; background: rgba(255, 255, 255, .14); }
+  .card .icon-btn:hover { background: rgba(255, 255, 255, .24); }
+  .card-foot { position: relative; margin-top: 4px; font-size: 13px; color: #fef3c7; }
+  .body { padding: 20px 16px calc(24px + var(--bottom)); display: flex; flex-direction: column; gap: 16px; }
+  .sec { margin: 4px 4px 0; font-size: 16px; font-weight: 600; color: var(--nk-primary); }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tile { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; min-height: 108px; padding: 14px 6px 10px; border: 1px solid var(--nk-line); border-radius: 16px; background: var(--nk-card); text-align: center; cursor: pointer; transition: border-color 150ms, transform 100ms, box-shadow 150ms; }
+  .tile:hover { border-color: color-mix(in srgb, var(--nk-secondary) 45%, var(--nk-line)); box-shadow: 0 4px 12px rgba(15, 23, 42, .06); }
+  .tile:active { transform: scale(.97); }
+  .tile-ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: color-mix(in srgb, var(--nk-secondary) 10%, var(--nk-card)); color: var(--nk-secondary); }
+  .tile b { font-size: 14px; font-weight: 600; line-height: 1.25; color: var(--nk-ink); overflow-wrap: anywhere; }
+  .tile small { font-size: 12px; line-height: 1.2; color: var(--nk-muted); }
+  .assist { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 14px 14px 16px; border: 0; border-radius: 18px; background: #0f172a; color: #fff; text-align: left; cursor: pointer; transition: transform 100ms; }
+  .assist:active { transform: scale(.98); }
+  .assist-ico { flex: none; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: #a16207; color: #fff; }
+  .assist-txt { flex: 1; min-width: 0; }
+  .assist b { display: block; font-size: 16px; font-weight: 600; }
+  .assist small { display: block; font-size: 14px; color: #cbd5e1; }
+  .trust { display: flex; gap: 12px; align-items: flex-start; margin: 0; padding: 14px 16px; border-radius: 16px; background: color-mix(in srgb, var(--nk-ok) 8%, var(--nk-card)); border: 1px solid color-mix(in srgb, var(--nk-ok) 22%, var(--nk-line)); font-size: 14px; color: var(--nk-ink); }
+  .trust svg { flex: none; margin-top: 1px; color: var(--nk-ok); }
+  .demo { margin: 0; text-align: center; font-size: 12px; color: var(--nk-muted); }
+
+  /* Assistant */
+  .chat-bar { display: flex; align-items: center; gap: 4px; padding: calc(6px + var(--top)) 8px 6px; }
+  .chat-title { flex: 1; min-width: 0; padding-left: 2px; }
+  .chat-title b { display: block; font-size: 17px; font-weight: 600; }
+  .chat-title small { display: block; font-size: 13px; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #assistant { flex: 1; min-height: 0; }
+
+  /* Choix de la langue */
+  .scrim { position: absolute; inset: 0; z-index: 10; display: flex; align-items: flex-end; background: rgba(2, 6, 23, .5); animation: fade 200ms ease; }
+  .sheet { width: 100%; max-height: 85%; overflow-y: auto; padding: 8px 16px calc(16px + var(--bottom)); border-radius: 24px 24px 0 0; background: var(--nk-card); animation: rise 220ms cubic-bezier(.2, .8, .2, 1); }
+  .handle { width: 40px; height: 4px; margin: 4px auto 12px; border-radius: 2px; background: var(--nk-line); }
+  .sheet-head { display: flex; align-items: flex-start; gap: 8px; }
+  .sheet-head div { flex: 1; }
+  .sheet h2 { margin: 0; font-size: 20px; font-weight: 600; color: var(--nk-primary); }
+  .sheet p { margin: 4px 0 0; font-size: 14px; color: var(--nk-muted); }
+  .sheet .icon-btn { color: var(--nk-muted); }
+  .sheet .icon-btn:hover { background: var(--nk-soft); }
+  .langs { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .lang { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 14px; border: 1px solid var(--nk-line); border-radius: 14px; background: var(--nk-card); text-align: left; cursor: pointer; }
+  .lang:hover { border-color: color-mix(in srgb, var(--nk-secondary) 45%, var(--nk-line)); }
+  .lang[aria-checked="true"] { border-color: var(--nk-secondary); background: color-mix(in srgb, var(--nk-secondary) 7%, var(--nk-card)); }
+  .lang-txt { flex: 1; min-width: 0; }
+  .lang b { display: block; font-size: 16px; font-weight: 600; }
+  .lang small { display: block; font-size: 13px; color: var(--nk-muted); }
+  .tick { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--nk-line); color: transparent; }
+  .lang[aria-checked="true"] .tick { background: var(--nk-secondary); border-color: var(--nk-secondary); color: var(--nk-on-secondary); }
+  .badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; vertical-align: 2px; }
+  .badge.ok { background: color-mix(in srgb, var(--nk-ok) 14%, transparent); color: var(--nk-ok); }
+  .badge.warn { background: color-mix(in srgb, var(--nk-warn) 16%, transparent); color: var(--nk-warn); }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes rise { from { transform: translateY(24px); opacity: .6; } }
 
   /* Application installée : connexion au serveur de la banque. */
-  .setup[hidden] { display: none; }
-  .setup { flex: 1; overflow: auto; padding: 24px 20px calc(24px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); display: flex; flex-direction: column; gap: 16px; }
-  .setup h1 { margin: 8px 0 0; font-size: 22px; line-height: 1.3; font-weight: 600; color: var(--nk-primary); }
-  .setup p { margin: 0; color: var(--nk-muted); font-size: 15px; }
-  .setup form { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-  .setup label { font-weight: 600; font-size: 15px; color: var(--nk-ink); }
-  .setup input { height: 48px; padding: 0 14px; font: inherit; font-size: 16px; color: var(--nk-ink); background: var(--nk-bg); border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); }
+  .setup-hero { padding: calc(20px + var(--top)) 20px 28px; border-radius: 0 0 28px 28px; }
+  .setup-hero .brand { margin-bottom: 20px; }
+  .setup-hero h1 { margin: 0; font-size: 24px; line-height: 1.3; font-weight: 600; }
+  .setup-hero p { margin: 8px 0 0; color: #cbd5e1; font-size: 15px; }
+  .setup form { padding: 24px 20px calc(24px + var(--bottom)); display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+  .setup label { font-weight: 600; font-size: 15px; }
+  .setup input { height: 52px; padding: 0 16px; font: inherit; font-size: 16px; color: var(--nk-ink); background: var(--nk-card); border: 1px solid var(--nk-line); border-radius: 14px; }
+  .setup input:focus { outline: none; border-color: var(--nk-secondary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--nk-secondary) 18%, transparent); }
   .setup input[aria-invalid="true"] { border-color: var(--nk-bad); }
-  .setup .hint { font-size: 14px; }
-  .setup .err { color: var(--nk-bad); font-size: 14px; min-height: 1.5em; }
-  .setup button[type="submit"] { height: 48px; margin-top: 8px; border: 0; border-radius: var(--nk-radius-sm); background: var(--nk-accent); color: var(--nk-on-accent); font: inherit; font-weight: 600; font-size: 16px; }
-  .setup button[type="submit"]:disabled { opacity: .6; }
-  .setup .cancel { height: 44px; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); background: transparent; color: var(--nk-ink); font: inherit; }
+  .setup .hint { margin: 0; font-size: 14px; color: var(--nk-muted); }
+  .setup .err { margin: 0; color: var(--nk-bad); font-size: 14px; min-height: 1.5em; }
+  .btn { height: 52px; border: 0; border-radius: 14px; font-weight: 600; font-size: 16px; cursor: pointer; }
+  .btn-gold { background: var(--nk-accent); color: var(--nk-on-accent); }
+  .btn-gold:disabled { opacity: .6; cursor: wait; }
+  .btn-ghost { background: transparent; border: 1px solid var(--nk-line); color: var(--nk-ink); }
 </style>
 </head>
 <body>
 <div class="device">
-  <header class="appbar">
-    <svg width="36" height="36" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#a16207"/><path d="M128 352V176l64 96 64-96 64 96 64-96v176" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="title"><b>Mon Nkap</b><small>Votre argent, dans votre langue · démonstration, données fictives</small></div>
-    <button class="set" id="settings" type="button" aria-label="Adresse du serveur" hidden>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-  </header>
-  <main id="app"></main>
-  <section class="setup" id="setup" hidden aria-labelledby="setup-title">
-    <h1 id="setup-title">Connexion au serveur</h1>
-    <p>Mon Nkap comprend votre langue sur le serveur de la banque. Indiquez son adresse une seule fois : elle est gardée sur ce téléphone.</p>
+  <!-- Accueil -->
+  <section class="screen home" id="home" aria-label="Accueil">
+    <header class="hero navy">
+      <div class="hero-top">
+        <div class="brand"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#a16207"/><path d="M128 352V176l64 96 64-96 64 96 64-96v176" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>Mon Nkap</div>
+        <button class="pill" id="lang-btn" type="button" aria-haspopup="dialog"><span data-ico="globe"></span><span id="lang-name">Français</span></button>
+        <button class="icon-btn" id="settings" type="button" aria-label="Adresse du serveur" hidden><span data-ico="settings" data-size="22"></span></button>
+      </div>
+      <div class="greet"><small>Bienvenue</small><b>Votre argent, dans votre langue</b></div>
+      <div class="card">
+        <div class="card-row"><span id="lbl-balance">Solde</span><span>Compte courant</span></div>
+        <div class="card-amount">
+          <output id="balance" aria-live="polite">•••••• FCFA</output>
+          <button class="icon-btn" id="eye" type="button" aria-label="Afficher le solde" aria-pressed="false"><span data-ico="eye" data-size="22"></span></button>
+        </div>
+        <div class="card-foot" id="balance-note">Touchez l’œil pour afficher le solde</div>
+      </div>
+    </header>
+    <div class="body">
+      <h2 class="sec">Que voulez-vous faire ?</h2>
+      <div class="grid" id="grid"></div>
+      <button class="assist" id="open-chat" type="button">
+        <span class="assist-ico"><span data-ico="mic" data-size="22"></span></span>
+        <span class="assist-txt"><b>Parlez dans votre langue</b><small id="assist-sub">Écrivez ou dites votre demande, Mon Nkap vous répond.</small></span>
+        <span data-ico="chevronRight" data-size="20"></span>
+      </button>
+      <p class="trust"><span data-ico="shield" data-size="20"></span><span>Aucune opération n’est faite sans votre confirmation. Montants, noms et numéros ne sont jamais traduits.</span></p>
+      <p class="demo">Démonstration · données fictives</p>
+    </div>
+  </section>
+
+  <!-- Assistant -->
+  <section class="screen chat" id="chat" aria-label="Assistant" hidden>
+    <header class="chat-bar navy">
+      <button class="icon-btn" id="back" type="button" aria-label="Retour à l’accueil"><span data-ico="chevronLeft" data-size="24"></span></button>
+      <div class="chat-title"><b>Assistant</b><small id="chat-lang">Français</small></div>
+      <button class="icon-btn" id="chat-lang-btn" type="button" aria-label="Changer de langue" aria-haspopup="dialog"><span data-ico="globe" data-size="22"></span></button>
+      <button class="icon-btn" id="details" type="button" aria-label="Détails techniques" aria-pressed="false"><span data-ico="code" data-size="22"></span></button>
+    </header>
+    <div id="assistant"></div>
+  </section>
+
+  <!-- Application installée : adresse du serveur -->
+  <section class="screen setup" id="setup" aria-labelledby="setup-title" hidden>
+    <div class="setup-hero navy">
+      <div class="brand"><svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#a16207"/><path d="M128 352V176l64 96 64-96 64 96 64-96v176" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>Mon Nkap</div>
+      <h1 id="setup-title">Connexion au serveur</h1>
+      <p>Mon Nkap comprend votre langue sur le serveur de la banque. Indiquez son adresse une seule fois : elle reste sur ce téléphone.</p>
+    </div>
     <form id="setup-form" novalidate>
       <label for="srv">Adresse du serveur</label>
       <input id="srv" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://192.168.1.20:8080" aria-describedby="srv-hint srv-err">
-      <p class="hint" id="srv-hint">Pour la démonstration : l'ordinateur qui fait tourner Mon Nkap, connecté au même Wi-Fi que ce téléphone.</p>
+      <p class="hint" id="srv-hint">Pour la démonstration : l’ordinateur qui fait tourner Mon Nkap, sur le même Wi-Fi que ce téléphone.</p>
       <p class="err" id="srv-err" role="alert"></p>
-      <button type="submit" id="srv-go">Se connecter</button>
-      <button type="button" class="cancel" id="srv-cancel" hidden>Annuler</button>
+      <button class="btn btn-gold" type="submit" id="srv-go">Se connecter</button>
+      <button class="btn btn-ghost" type="button" id="srv-cancel" hidden>Annuler</button>
     </form>
   </section>
+
+  <!-- Choix de la langue -->
+  <div class="scrim" id="scrim" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div class="handle" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <div><h2 id="sheet-title">Choisissez votre langue</h2><p>Pour lire, écrire et écouter vos opérations.</p></div>
+        <button class="icon-btn" id="sheet-close" type="button" aria-label="Fermer"><span data-ico="x" data-size="22"></span></button>
+      </div>
+      <ul class="langs" id="langs" role="radiogroup" aria-labelledby="sheet-title"></ul>
+    </div>
+  </div>
 </div>
 <script src="/sdk.js"></script>
 <script src="/assistant.js"></script>
 <script>
 (function () {
-  var lang = new URLSearchParams(location.search).get('lang') || 'fr';
-  var app = document.getElementById('app'), setup = document.getElementById('setup');
-  // MONNKAP_CONFIG n'existe que dans l'application installée (APK) : les pages y sont embarquées,
-  // le moteur reste sur le serveur dont l'utilisateur donne l'adresse.
-  var CFG = window.MONNKAP_CONFIG;
+  var A = window.MonNkapAssistant, $ = function (id) { return document.getElementById(id); };
+  document.querySelectorAll('[data-ico]').forEach(function (s) { s.replaceWith(A.icon(s.dataset.ico, Number(s.dataset.size) || 18)); });
+  function make(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  var CFG = window.MONNKAP_CONFIG; // n'existe que dans l'application installée (APK)
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+  var lang = new URLSearchParams(location.search).get('lang') || store.get('nk-lang') || 'fr';
+  var assistant = null, home = null, languages = [];
+
+  // Services de l'accueil : libellé traduit par le serveur (/v1/labels), demande envoyée au moteur.
+  var SERVICES = [
+    ['menu_balance', 'Solde', 'solde', 'wallet'],
+    ['menu_transfer', 'Envoyer', 'envoyer de l’argent', 'send'],
+    ['menu_bill', 'Facture', 'payer une facture', 'bolt'],
+    ['menu_airtime', 'Crédit', 'acheter du crédit', 'phone'],
+    ['menu_fees', 'Frais', 'frais', 'receipt'],
+    ['menu_history', 'Historique', 'historique', 'clock'],
+  ];
+  var labels = {};
+  function translated(id, fr) { var l = labels[id]; return l && l.quality !== 'fallback' && l.quality !== 'reference' && l.text !== fr ? l.text : null; }
+  function label(s) { return translated(s[0], s[1]) || s[1]; }
+  function langName(code) { var l = languages.find(function (x) { return x.code === code; }); return l ? (l.native || l.name) : (code === 'fr' ? 'Français' : code); }
+  function langStatus(l) {
+    var st = l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status;
+    return st === 'available' ? ['Complet', 'ok', 'Compréhension et réponses complètes'] : ['Brouillon', 'warn', 'Réponses en cours de relecture par des natifs'];
+  }
+
+  function renderGrid() {
+    var grid = $('grid'); grid.textContent = '';
+    SERVICES.forEach(function (s) {
+      var b = make('button', 'tile'); b.type = 'button';
+      var ico = make('span', 'tile-ico'); ico.append(A.icon(s[3], 22));
+      b.append(ico, make('b', null, label(s)));
+      if (translated(s[0], s[1])) b.append(make('small', null, s[1]));
+      b.onclick = function () { openChat(); assistant.send(s[2], label(s)); };
+      grid.append(b);
+    });
+    if (assistant) assistant.setQuick(SERVICES.map(function (s) { return [label(s), s[2], s[3]]; }));
+    var tb = translated('menu_balance', 'Solde'); $('lbl-balance').textContent = tb ? tb + ' · Solde' : 'Solde';
+  }
+  function applyLang(code, fromEngine) {
+    lang = code; store.set('nk-lang', code);
+    $('lang-name').textContent = langName(code);
+    $('chat-lang').textContent = 'Répond en ' + langName(code);
+    $('assist-sub').textContent = 'Écrivez ou dites votre demande : Mon Nkap vous répond en ' + langName(code) + '.';
+    if (assistant && !fromEngine) assistant.setLang(code);
+    home.labels(code).then(function (l) { labels = l; renderGrid(); }).catch(function () { labels = {}; renderGrid(); });
+  }
+
+  // Solde masqué par défaut (comme dans les applications bancaires) ; demandé au moteur à l'affichage.
+  var shown = false;
+  function refreshBalance() {
+    $('balance-note').textContent = 'Mise à jour…';
+    home.message('solde').then(function (r) {
+      var v = r.params && r.params.balance;
+      if (typeof v !== 'number') throw new Error('solde indisponible');
+      $('balance').textContent = A.money(v);
+      $('balance-note').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }).catch(function () { $('balance').textContent = '—'; $('balance-note').textContent = 'Solde indisponible pour le moment'; });
+  }
+  $('eye').onclick = function () {
+    shown = !shown;
+    this.setAttribute('aria-pressed', String(shown)); this.setAttribute('aria-label', shown ? 'Masquer le solde' : 'Afficher le solde');
+    this.replaceChildren(A.icon(shown ? 'eyeOff' : 'eye', 22));
+    if (shown) refreshBalance(); else { $('balance').textContent = '•••••• FCFA'; $('balance-note').textContent = 'Touchez l’œil pour afficher le solde'; }
+  };
+
+  // Navigation : accueil ⇄ assistant (le bouton retour d'Android ramène à l'accueil).
+  function openChat() {
+    if (!$('chat').hidden) return;
+    $('home').hidden = true; $('chat').hidden = false;
+    history.pushState({ chat: true }, '');
+  }
+  function closeChat() { $('chat').hidden = true; $('home').hidden = false; if (shown) refreshBalance(); }
+  window.addEventListener('popstate', function () { if (!$('chat').hidden) closeChat(); });
+  $('back').onclick = function () { history.back(); };
+  $('open-chat').onclick = function () { openChat(); setTimeout(function () { assistant.focus(); }, 50); };
+  var details = false;
+  $('details').onclick = function () { details = !details; this.setAttribute('aria-pressed', String(details)); assistant.setDetails(details); };
+
+  // Feuille de choix de la langue.
+  var opener = null;
+  function openSheet() {
+    opener = document.activeElement;
+    var ul = $('langs'); ul.textContent = '';
+    languages.forEach(function (l) {
+      var st = langStatus(l), li = make('li'), b = make('button', 'lang');
+      b.type = 'button'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(l.code === lang));
+      var txt = make('span', 'lang-txt'), name = make('b', null, l.native || l.name);
+      name.append(make('span', 'badge ' + st[1], st[0]));
+      txt.append(name, make('small', null, st[2]));
+      var tick = make('span', 'tick'); tick.append(A.icon('check', 14));
+      b.append(txt, tick);
+      b.onclick = function () { applyLang(l.code); closeSheet(); };
+      li.append(b); ul.append(li);
+    });
+    $('scrim').hidden = false;
+    var cur = ul.querySelector('[aria-checked="true"]') || ul.querySelector('button'); if (cur) cur.focus();
+  }
+  function closeSheet() { $('scrim').hidden = true; if (opener && opener.focus) opener.focus(); }
+  $('lang-btn').onclick = openSheet; $('chat-lang-btn').onclick = openSheet; $('sheet-close').onclick = closeSheet;
+  $('scrim').onclick = function (e) { if (e.target === this) closeSheet(); };
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('scrim').hidden) closeSheet(); });
+
+  function start(server) {
+    $('setup').hidden = true; $('home').hidden = false;
+    if (assistant) return;
+    home = MonNkap.connect(server, { channel: 'mobile', lang: 'fr', sessionId: 'accueil-' + Math.random().toString(36).slice(2, 10) });
+    assistant = A.mount($('assistant'), {
+      server: server, channel: 'mobile', lang: lang, bare: true,
+      empty: { title: 'Comment puis-je vous aider ?', text: 'Écrivez ou dites votre demande dans votre langue, ou choisissez une action ci-dessous.' },
+      onLang: function (code) { applyLang(code, true); },
+    });
+    renderGrid();
+    home.languages().then(function (reg) {
+      languages = (reg.languages || []).filter(function (l) { return l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status !== 'unavailable'; });
+      if (!languages.some(function (l) { return l.code === lang; })) lang = 'fr';
+      applyLang(lang);
+    }).catch(function () { applyLang('fr'); });
+  }
+
   if (!CFG) {
-    MonNkapAssistant.mount(app, { channel: 'mobile', lang: lang });
+    start('');
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
     return;
   }
 
-  var KEY = 'nk-server', mounted = false;
-  var form = document.getElementById('setup-form'), input = document.getElementById('srv'), err = document.getElementById('srv-err');
-  var go = document.getElementById('srv-go'), cancel = document.getElementById('srv-cancel'), settings = document.getElementById('settings');
-  function read() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
-  function save(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
-  function normalize(v) {
-    v = String(v || '').trim().replace(/\/+$/, '');
-    if (v && !/^https?:\/\//i.test(v)) v = 'http://' + v;
-    return v;
-  }
-  /** Le serveur répond-il ? 200 = prêt, 503 = joignable mais traduction en panne. */
-  function check(server) {
+  // Application installée : adresse du serveur demandée, vérifiée (/v1/health) et gardée sur le téléphone.
+  var KEY = 'nk-server', form = $('setup-form'), input = $('srv'), err = $('srv-err'), go = $('srv-go'), cancel = $('srv-cancel');
+  function normalize(v) { v = String(v || '').trim().replace(/\/+$/, ''); if (v && !/^https?:\/\//i.test(v)) v = 'http://' + v; return v; }
+  function check(srv) {
     var ctl = new AbortController(), t = setTimeout(function () { ctl.abort(); }, 6000);
-    return fetch(server + '/v1/health', { signal: ctl.signal })
-      .then(function (r) { clearTimeout(t); return { ok: r.status === 200 || r.status === 503 }; })
-      .catch(function () { clearTimeout(t); return { ok: false }; });
-  }
-  function start(server) {
-    setup.hidden = true; app.hidden = false;
-    if (!mounted) { MonNkapAssistant.mount(app, { server: server, channel: 'mobile', lang: lang }); mounted = true; }
+    return fetch(srv + '/v1/health', { signal: ctl.signal })
+      .then(function (r) { clearTimeout(t); return r.status === 200 || r.status === 503; })
+      .catch(function () { clearTimeout(t); return false; });
   }
   function ask(prefill, message) {
-    app.hidden = true; setup.hidden = false;
-    input.value = prefill || ''; input.removeAttribute('aria-invalid');
-    err.textContent = message || '';
-    cancel.hidden = !mounted;
+    $('home').hidden = true; $('chat').hidden = true; $('setup').hidden = false;
+    input.value = prefill || ''; input.removeAttribute('aria-invalid'); err.textContent = message || '';
+    cancel.hidden = !assistant;
     setTimeout(function () { input.focus(); }, 50);
   }
   var UNREACHABLE = 'Impossible de joindre ce serveur. Vérifiez l’adresse, que le téléphone et l’ordinateur sont sur le même Wi-Fi, et que Mon Nkap est lancé.';
-
   form.onsubmit = function (e) {
     e.preventDefault();
-    var server = normalize(input.value);
-    if (!server) { input.setAttribute('aria-invalid', 'true'); err.textContent = 'Indiquez l’adresse du serveur.'; return; }
+    var srv = normalize(input.value);
+    if (!srv) { input.setAttribute('aria-invalid', 'true'); err.textContent = 'Indiquez l’adresse du serveur.'; return; }
     go.disabled = true; go.textContent = 'Connexion…'; err.textContent = '';
-    check(server).then(function (s) {
+    check(srv).then(function (ok) {
       go.disabled = false; go.textContent = 'Se connecter';
-      if (!s.ok) { input.setAttribute('aria-invalid', 'true'); err.textContent = UNREACHABLE; return; }
-      var changed = mounted && server !== read();
-      save(server);
+      if (!ok) { input.setAttribute('aria-invalid', 'true'); err.textContent = UNREACHABLE; return; }
+      var changed = assistant && srv !== store.get(KEY);
+      store.set(KEY, srv);
       if (changed) { location.reload(); return; }
-      start(server);
+      start(srv);
     });
   };
-  cancel.onclick = function () { setup.hidden = true; app.hidden = false; };
-  settings.hidden = false;
-  settings.onclick = function () { ask(read() || normalize(CFG.server), ''); };
-
-  var known = read() || normalize(CFG.server);
+  cancel.onclick = function () { $('setup').hidden = true; $('home').hidden = false; };
+  $('settings').hidden = false;
+  $('settings').onclick = function () { ask(store.get(KEY) || normalize(CFG.server), ''); };
+  var known = store.get(KEY) || normalize(CFG.server);
   if (!known) { ask('', ''); return; }
-  check(known).then(function (s) { if (s.ok) { save(known); start(known); } else ask(known, UNREACHABLE); });
+  check(known).then(function (ok) { if (ok) { store.set(KEY, known); start(known); } else ask(known, UNREACHABLE); });
 })();
 </script>
 </body>
