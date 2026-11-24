@@ -10,6 +10,8 @@ Moteurs (tous en CTranslate2 int8, hors ligne) :
 - OPUS-MT tc-bible-big (Apache-2.0), paires « opus:francais-duala », « opus:duala-francais »… :
   fra→langues bantoues (models/opus/fra-bnt) et langues → fra (models/opus/mul-fra). La langue visée est donnée
   par un jeton (>>dua<<) ; une paire n'est proposée que si ce jeton existe dans le vocabulaire du modèle.
+- MADLAD-400 3B (Google, Apache-2.0), paires « madlad:francais-basaa », « madlad:basaa-francais »… :
+  un seul modèle, langue visée donnée par une étiquette (<2bas>, <2fr>) ; models/madlad400-3b-ct2-int8.
 Modèles Flagship : https://huggingface.co/flagship-ai/cameroon-int8 (licence à clarifier : CC BY-NC 4.0
 sur la fiche du dépôt, CC-BY-4.0 dans les README par paire). Démo uniquement tant que ce n'est pas clarifié.
 Téléchargement : python3 services/fetch_flagship.py
@@ -22,8 +24,11 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--port", type=int, default=8091)
 ap.add_argument("--models", default=os.path.join(os.path.dirname(__file__), "..", "models", "flagship-cameroon-int8"))
 ap.add_argument("--opus", default=os.path.join(os.path.dirname(__file__), "..", "models", "opus"))
+ap.add_argument("--madlad", default=os.path.join(os.path.dirname(__file__), "..", "models", "madlad400-3b-ct2-int8"))
 args = ap.parse_args()
-PAIR_RE = re.compile(r"^(opus:)?[a-z]+-[a-z]+$")
+PAIR_RE = re.compile(r"^((opus|madlad):)?[a-z]+-[a-z]+$")
+# Langues de MADLAD utiles ici (vérifiées dans son vocabulaire) : nom utilisé dans les paires → étiquette.
+MADLAD_LANGS = {"basaa": "bas", "bulu": "bum", "fufulde": "ff"}  # « fufulde » : même nom que la paire Flagship
 # Langues visées par OPUS : nom utilisé dans les paires → code ISO du jeton.
 OPUS_LANGS = {"duala": "dua", "ewondo": "ewo", "bulu": "bum", "eton": "eto", "basaa": "bas", "koonzime": "ozm", "bakaka": "bqz",
               "fulfulde": "fuv", "pidgin": "pcm", "ngiemboon": "nnh", "meta": "mgo"}
@@ -45,7 +50,28 @@ def opus_pairs():
                 out[f"opus:{name}-francais"] = (d, ">>fra<<")
     return out
 
+def madlad_pairs():
+    d = args.madlad
+    if not os.path.isfile(os.path.join(d, "model.bin")) or not os.path.isfile(os.path.join(d, "spiece.model")):
+        return {}
+    vocab = open(os.path.join(d, "shared_vocabulary.json"), encoding="utf8").read()
+    out = {}
+    if '"<2fr>"' not in vocab:
+        return out
+    for name, code in MADLAD_LANGS.items():
+        if f'"<2{code}>"' in vocab:
+            out[f"madlad:francais-{name}"] = f"<2{code}>"
+            out[f"madlad:{name}-francais"] = "<2fr>"
+    return out
+
 def load(pair):
+    if pair not in _cache and pair.startswith("madlad:"):
+        if "madlad" not in _cache:
+            d = args.madlad
+            sp = spm.SentencePieceProcessor(model_file=os.path.join(d, "spiece.model"))
+            _cache["madlad"] = (ctranslate2.Translator(d, device="cpu", compute_type="int8", inter_threads=1, intra_threads=4), sp, sp)
+        t, s, g = _cache["madlad"]
+        _cache[pair] = (t, s, g, ("madlad", madlad_pairs()[pair]))
     if pair not in _cache and pair.startswith("opus:"):
         d, token = opus_pairs()[pair]
         key = d
@@ -64,14 +90,18 @@ def load(pair):
 
 def translate(pair, texts):
     t, s, g, *rest = load(pair)
-    prefix = [rest[0]] if rest else []
-    toks = [prefix + s.encode(x, out_type=str)[:200] + ["</s>"] for x in texts]
+    if rest and isinstance(rest[0], tuple):          # MADLAD : l'étiquette fait partie du texte source
+        tag = rest[0][1]
+        toks = [s.encode(f"{tag} {x}", out_type=str)[:200] + ["</s>"] for x in texts]
+    else:
+        prefix = [rest[0]] if rest else []
+        toks = [prefix + s.encode(x, out_type=str)[:200] + ["</s>"] for x in texts]
     out = t.translate_batch(toks, beam_size=4, max_decoding_length=96, repetition_penalty=1.2, no_repeat_ngram_size=3)
     return [g.decode([p for p in o.hypotheses[0] if p != "</s>"]).replace("▁", " ").strip() for o in out]
 
 def pairs():
     flagship = [p for p in os.listdir(args.models) if os.path.isfile(os.path.join(args.models, p, "model.bin"))] if os.path.isdir(args.models) else []
-    return sorted(flagship) + sorted(opus_pairs())
+    return sorted(flagship) + sorted(opus_pairs()) + sorted(madlad_pairs())
 
 class H(BaseHTTPRequestHandler):
     def _send(self, code, data):
@@ -99,6 +129,7 @@ if __name__ == "__main__":
     # Chargement de toutes les paires AVANT d'écouter : la première demande d'un utilisateur ne doit
     # pas attendre le chargement d'un modèle (le moteur abandonne la traduction au bout de 4 s).
     for p in pairs():
-        load(p)
+        if not p.startswith("madlad:"):   # MADLAD (3 Go) : chargé seulement à la première demande
+            load(p)
     print(f"Service de traduction Flagship : http://127.0.0.1:{args.port} ({len(pairs())} paires)", flush=True)
     ThreadingHTTPServer(("127.0.0.1", args.port), H).serve_forever()

@@ -1,5 +1,5 @@
 {
- "measuredAt": "2026-11-24T06:53:20.007Z",
+ "measuredAt": "2026-11-24T07:08:53.962Z",
  "sentences": 20,
  "method": "aller-retour fr → langue → fr sur les réponses et définitions sans chiffre",
  "results": {
@@ -7,13 +7,13 @@
    "flagship": {
     "fidelity": 0.094,
     "accepted": 0,
-    "msPerSentence": 166,
+    "msPerSentence": 163,
     "n": 20
    },
    "opus": {
     "fidelity": 0.301,
     "accepted": 0,
-    "msPerSentence": 235,
+    "msPerSentence": 236,
     "n": 20
    }
   },
@@ -21,7 +21,7 @@
    "opus": {
     "fidelity": 0.281,
     "accepted": 0,
-    "msPerSentence": 263,
+    "msPerSentence": 267,
     "n": 20
    }
   },
@@ -29,7 +29,13 @@
    "flagship": {
     "fidelity": 0.265,
     "accepted": 0.15,
-    "msPerSentence": 170,
+    "msPerSentence": 168,
+    "n": 20
+   },
+   "madlad": {
+    "fidelity": 0.241,
+    "accepted": 0,
+    "msPerSentence": 1948,
     "n": 20
    }
   },
@@ -37,13 +43,19 @@
    "flagship": {
     "fidelity": 0.164,
     "accepted": 0,
-    "msPerSentence": 162,
+    "msPerSentence": 170,
     "n": 20
    },
    "opus": {
     "fidelity": 0.261,
     "accepted": 0,
-    "msPerSentence": 234,
+    "msPerSentence": 237,
+    "n": 20
+   },
+   "madlad": {
+    "fidelity": 0.191,
+    "accepted": 0,
+    "msPerSentence": 2282,
     "n": 20
    }
   },
@@ -59,7 +71,7 @@
    "flagship": {
     "fidelity": 0.034,
     "accepted": 0,
-    "msPerSentence": 315,
+    "msPerSentence": 317,
     "n": 20
    }
   },
@@ -67,7 +79,13 @@
    "opus": {
     "fidelity": 0.109,
     "accepted": 0,
-    "msPerSentence": 265,
+    "msPerSentence": 271,
+    "n": 20
+   },
+   "madlad": {
+    "fidelity": 0.313,
+    "accepted": 0,
+    "msPerSentence": 2665,
     "n": 20
    }
   },
@@ -75,7 +93,7 @@
    "opus": {
     "fidelity": 0.281,
     "accepted": 0,
-    "msPerSentence": 250,
+    "msPerSentence": 371,
     "n": 20
    }
   },
@@ -83,7 +101,7 @@
    "opus": {
     "fidelity": 0.015,
     "accepted": 0,
-    "msPerSentence": 472,
+    "msPerSentence": 702,
     "n": 20
    }
   },
@@ -91,7 +109,7 @@
    "opus": {
     "fidelity": 0.229,
     "accepted": 0,
-    "msPerSentence": 228,
+    "msPerSentence": 333,
     "n": 20
    }
   }

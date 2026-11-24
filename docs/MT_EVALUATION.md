@@ -187,3 +187,24 @@ sépulcre,`. Une telle sortie peut faire croire à un retrait : OPUS n'est donc 
 **Décision** : le service de traduction est obligatoire et toujours démarré ; Flagship reste la route pour l'ewondo,
 le fulfulde, le bulu, le ghomala' et le yemba (comprendre une demande, proposer une réponse sous garde) ; OPUS reste
 installé pour de futures mesures. Pour le duala et l'ewondo, la qualité vient des phrases des natifs (packs de langue).
+
+## Ajout de MADLAD-400 3B (24/11/2026)
+
+MADLAD-400 (Google, Apache-2.0, 492 langues) ne connaît, parmi nos langues, que le **basaa** (`<2bas>`), le **bulu**
+(`<2bum>`) et le **peul générique** (`<2ff>`) — ni le duala, ni l'ewondo, ni le pidgin, ni le ghomala', ni le yemba
+(vérifié dans son vocabulaire). Mesure avec la même méthode :
+
+| Langue | Flagship | OPUS | MADLAD |
+|---|---|---|---|
+| Fulfulde | **15 % acceptées** (fidélité 0,27) | — | 0 % (0,24) |
+| Basaa | — | 0 % (0,11) | 0 % (0,31) |
+| Bulu | 0 % (0,16) | 0 % (0,26) | 0 % (0,19) |
+
+Exemples bruts : basaa « Je veux envoyer de l'argent à Paul. » → `A yé a yé a yé a yé a yé a yé a yé.` ; « Quel est
+mon solde ? » → `Ki le mon solde ?` (copie du français, d'où une « fidélité » trompeuse) ; bulu → `Me ye'ele Paul na,
+me ye'ele nye mveane Zambe.` (retour : « je suis le don de Dieu ») ; peul → `Mi yiɗi mi jaɓa Paul ceede.` (retour :
+« Je voulais accepter Paul pour de l'argent »). Environ 2 s par phrase sur processeur, contre 0,2 s pour Flagship.
+
+**Décision** : MADLAD reste installé (chargé seulement à la demande) mais n'est routé pour aucune langue.
+Dès que les natifs auront fourni des phrases en basaa ou en bulu, l'identification de langue pourra vérifier ses
+sorties et la comparaison (`npm run mt:compare`) sera relancée.
