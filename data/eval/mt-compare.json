@@ -1,0 +1,99 @@
+{
+ "measuredAt": "2026-11-24T06:53:20.007Z",
+ "sentences": 20,
+ "method": "aller-retour fr → langue → fr sur les réponses et définitions sans chiffre",
+ "results": {
+  "ewo": {
+   "flagship": {
+    "fidelity": 0.094,
+    "accepted": 0,
+    "msPerSentence": 166,
+    "n": 20
+   },
+   "opus": {
+    "fidelity": 0.301,
+    "accepted": 0,
+    "msPerSentence": 235,
+    "n": 20
+   }
+  },
+  "dua": {
+   "opus": {
+    "fidelity": 0.281,
+    "accepted": 0,
+    "msPerSentence": 263,
+    "n": 20
+   }
+  },
+  "fub": {
+   "flagship": {
+    "fidelity": 0.265,
+    "accepted": 0.15,
+    "msPerSentence": 170,
+    "n": 20
+   }
+  },
+  "bum": {
+   "flagship": {
+    "fidelity": 0.164,
+    "accepted": 0,
+    "msPerSentence": 162,
+    "n": 20
+   },
+   "opus": {
+    "fidelity": 0.261,
+    "accepted": 0,
+    "msPerSentence": 234,
+    "n": 20
+   }
+  },
+  "bbj": {
+   "flagship": {
+    "fidelity": 0.136,
+    "accepted": 0,
+    "msPerSentence": 200,
+    "n": 20
+   }
+  },
+  "ybb": {
+   "flagship": {
+    "fidelity": 0.034,
+    "accepted": 0,
+    "msPerSentence": 315,
+    "n": 20
+   }
+  },
+  "bas": {
+   "opus": {
+    "fidelity": 0.109,
+    "accepted": 0,
+    "msPerSentence": 265,
+    "n": 20
+   }
+  },
+  "eto": {
+   "opus": {
+    "fidelity": 0.281,
+    "accepted": 0,
+    "msPerSentence": 250,
+    "n": 20
+   }
+  },
+  "ozm": {
+   "opus": {
+    "fidelity": 0.015,
+    "accepted": 0,
+    "msPerSentence": 472,
+    "n": 20
+   }
+  },
+  "bqz": {
+   "opus": {
+    "fidelity": 0.229,
+    "accepted": 0,
+    "msPerSentence": 228,
+    "n": 20
+   }
+  }
+ }
+}

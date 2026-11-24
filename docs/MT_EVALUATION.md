@@ -154,3 +154,36 @@ Les modèles ont été entraînés sur la **Bible**. Sur du vocabulaire bancaire
 == requête ewondo ->fr [('Ma yi lom mone a Paul', 'Et moi, je suis dans Paul, et je suis dans Paul, et je suis dans Paul.'), ('Mone wom ane ya?', '"Qu\'est-ce que votre œil?"')]
 == requête fufulde ->fr [('Mi yiɗi nelugo ceede haa Pol', 'Et je veux▁envoyer le prix à Paul.'), ('Ceede am njelu?', 'Quelle est mon témoignage?')]
 ```
+
+## Comparaison des moteurs (24/11/2026) : Flagship, OPUS-MT
+
+Mesure reproductible : `npm run mt:compare` (`data/eval/mt-compare.json`). Pour chaque langue et chaque moteur, les
+20 réponses et définitions du service sans chiffre font l'aller-retour français → langue → français. Une traduction
+est **acceptée** seulement si : l'aller-retour est fidèle (≥ 0,6), aucun chiffre n'est inventé, pas de boucle, pas de
+vocabulaire religieux absent de l'original, **et la langue produite est bien la langue demandée** (vérifiée par
+l'identification de langue apprise sur Common Voice ; refusée si la langue n'est pas vérifiable pour un modèle
+multilingue).
+
+| Langue | Moteur | Fidélité moyenne | Acceptées |
+|---|---|---|---|
+| Fulfulde | Flagship | 0,27 | **15 %** |
+| Ewondo | Flagship / OPUS | 0,09 / 0,30 | 0 % / 0 % |
+| Duala | OPUS | 0,28 | 0 % |
+| Bulu | Flagship / OPUS | 0,16 / 0,26 | 0 % / 0 % |
+| Ghomala', Yemba | Flagship | 0,14 / 0,03 | 0 % |
+| Basaa, Eton, Koonzime, Bakaka | OPUS | 0,11 / 0,28 / 0,02 / 0,23 | 0 % |
+
+**Pourquoi la vérification de la langue est indispensable.** Sans elle, OPUS « réussissait » 15 % des allers-retours en
+duala et 10 % en ewondo. Mais ce qu'il écrit n'est pas du duala : il produit une autre langue bantoue qu'il sait
+retraduire. Sortie brute pour « Je veux envoyer de l'argent à Paul. » demandé en duala :
+`Komme mme, ha, ke nyishaho polelo ya Paulo yokuza, mme Paulo yena aza kandi kandi kandi andi.` ; pour « Opération
+annulée. Aucun argent n'a été envoyé. » : `Bahati. ❤️`.
+
+**Compréhension (langue → français)**, sur les libellés Mboa dont le sens est connu (brouillons, indicatif) :
+« Lóma mɔ́ni » (duala, *envoyer de l'argent*) → OPUS `Romain d'aujourd'hui` ; « Mɔ́nə ó nə́ a kɔ́ntə » (ewondo, *solde*)
+→ OPUS `Et il les fit retirer de devant le siège judicial.`, Flagship `Heureux ce qu'il y a de plus grand dans le
+sépulcre,`. Une telle sortie peut faire croire à un retrait : OPUS n'est donc routé pour **aucune** langue.
+
+**Décision** : le service de traduction est obligatoire et toujours démarré ; Flagship reste la route pour l'ewondo,
+le fulfulde, le bulu, le ghomala' et le yemba (comprendre une demande, proposer une réponse sous garde) ; OPUS reste
+installé pour de futures mesures. Pour le duala et l'ewondo, la qualité vient des phrases des natifs (packs de langue).

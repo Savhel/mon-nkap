@@ -43,3 +43,11 @@ test('Flagship : une traduction hors domaine est refusée et le texte reste en f
   if (!r.reply.mt.accepted) assert.equal(r.reply.text, r.reply.fr);
   else assert.equal(r.reply.quality, 'machine');
 });
+
+test('une traduction dans la mauvaise langue est refusée, même si l’aller-retour paraît fidèle', async () => {
+  const { wrongLanguage } = await import('../src/mt/flagship.ts');
+  // Sortie réelle d'OPUS pour « Je veux envoyer de l'argent à Paul. » demandé en duala (24/11) : ce n'est pas du duala.
+  const opusDuala = 'Komme mme, ha, ke nyishaho polelo ya Paulo yokuza, mme Paulo yena aza kandi kandi kandi andi.';
+  assert.match(wrongLanguage('dua', opusDuala, 'opus') ?? '', /langue de sortie incorrecte/);
+  assert.equal(wrongLanguage('bas', 'texte quelconque', 'opus'), 'langue de sortie non vérifiable');
+});

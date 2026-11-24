@@ -1,0 +1,13 @@
+{
+ "chosenAt": "2026-11-24T06:53:20.007Z",
+ "rule": "meilleure part de traductions acceptées par le garde-fou, puis meilleure fidélité",
+ "routes": {
+  "fub": {
+   "engine": "flagship",
+   "fromFr": "francais-fufulde",
+   "toFr": "fufulde-francais",
+   "fidelity": 0.265,
+   "accepted": 0.15
+  }
+ }
+}
