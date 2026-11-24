@@ -1,0 +1,18 @@
+{
+ "lang": "ewo",
+ "model": "sherpa-onnx-omnilingual-asr-1600-languages-300M-ctc-int8-2025-11-12",
+ "corpus": "Common Voice 27.0, partie test (CC0)",
+ "clips": 150,
+ "speakers": 4,
+ "audioMinutes": 15.6,
+ "wer": {
+  "strict": 70.5,
+  "withoutTones": 66.3
+ },
+ "cer": {
+  "strict": 19.4,
+  "withoutTones": 16
+ },
+ "realTimeFactor": 0.175,
+ "measuredAt": "2026-11-24T01:47:43.112Z"
+}

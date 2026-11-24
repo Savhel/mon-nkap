@@ -1,0 +1,157 @@
+{
+ "status": "available",
+ "intents": {
+  "balance": [
+   "solde",
+   "mon solde",
+   "combien j'ai",
+   "combien il me reste",
+   "combien reste",
+   "argent sur mon compte",
+   "consulter mon compte",
+   "voir mon compte",
+   "combien ai-je",
+   "quel est le solde",
+   "de mon compte",
+   "sur mon compte",
+   "dans mon compte",
+   "mon compte"
+  ],
+  "transfer": [
+   "envoyer",
+   "envoie",
+   "envoyez",
+   "transférer",
+   "transfert",
+   "virer",
+   "virement",
+   "faire un dépôt à",
+   "donner à",
+   "payer à",
+   "transmettre"
+  ],
+  "fees": [
+   "frais",
+   "combien coûte",
+   "coûte",
+   "coût",
+   "commission",
+   "tarif",
+   "prix du transfert",
+   "ça coûte combien"
+  ],
+  "history": [
+   "historique",
+   "dernières transactions",
+   "dernières opérations",
+   "relevé",
+   "mouvements",
+   "mes opérations",
+   "mes transactions"
+  ],
+  "airtime": [
+   "crédit",
+   "recharge",
+   "recharger",
+   "unités",
+   "crédit de communication",
+   "forfait",
+   "acheter du crédit"
+  ],
+  "bill_payment": [
+   "facture",
+   "payer la facture",
+   "eneo",
+   "camwater",
+   "électricité",
+   "courant",
+   "eau",
+   "canal",
+   "abonnement"
+  ],
+  "explain_term": [
+   "c'est quoi",
+   "qu'est-ce que",
+   "que veut dire",
+   "ça veut dire quoi",
+   "explique",
+   "expliquer",
+   "signifie",
+   "définition"
+  ],
+  "help": [
+   "aide",
+   "aidez-moi",
+   "que peux-tu faire",
+   "menu"
+  ],
+  "greeting": [
+   "bonjour",
+   "bonsoir",
+   "salut",
+   "allô"
+  ],
+  "withdraw": [
+   "retirer",
+   "retrait",
+   "retire",
+   "faire un retrait",
+   "sortir de l'argent",
+   "cash"
+  ]
+ },
+ "confirm": [
+  "oui",
+  "d'accord",
+  "ok",
+  "okay",
+  "je confirme",
+  "confirme",
+  "confirmer",
+  "c'est bon",
+  "vas-y",
+  "valider",
+  "exactement",
+  "correct"
+ ],
+ "deny": [
+  "non",
+  "annule",
+  "annuler",
+  "arrête",
+  "stop",
+  "pas ça",
+  "laisse tomber"
+ ],
+ "correction": [
+  "non plutôt",
+  "plutôt",
+  "je voulais dire",
+  "je me suis trompé",
+  "corrige",
+  "correction",
+  "au lieu de",
+  "non c'est",
+  "finalement"
+ ],
+ "beneficiaryMarkers": [
+  "à",
+  "a",
+  "pour",
+  "au",
+  "chez"
+ ],
+ "terms": {
+  "frais": "fees",
+  "solde": "balance",
+  "transfert": "transfer",
+  "bénéficiaire": "beneficiary",
+  "crédit": "airtime",
+  "facture": "bill",
+  "historique": "history",
+  "code pin": "pin",
+  "plafond": "limit",
+  "commission": "fees",
+  "retrait": "withdraw"
+ }
+}

@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cameroun Translate · test vocal</title>
+<style>
+  :root { --bg:#f7f7f5; --card:#fff; --ink:#1c1f23; --muted:#5d6670; --line:#e3e5e8; --accent:#0f766e; --warn:#b45309; --bad:#b91c1c; --ok:#15803d; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width: 880px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 1.3rem; margin: 8px 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 16px; font-size: .95rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .row { display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
+  select, input[type=text] { font: inherit; padding: 10px; border:1px solid var(--line); border-radius: 8px; background:#fff; color:var(--ink); }
+  input[type=text] { flex: 1 1 240px; min-width: 0; }
+  button { font: inherit; border: 0; border-radius: 8px; padding: 10px 14px; background: var(--accent); color: #fff; cursor: pointer; }
+  button.secondary { background: #e7f3f1; color: var(--accent); }
+  #mic { width: 100%; padding: 22px; font-size: 1.15rem; border-radius: 14px; }
+  #mic.rec { background: var(--bad); }
+  .caps { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; font-size:.8rem; }
+  .cap { padding: 2px 8px; border-radius: 999px; border:1px solid var(--line); color: var(--muted); }
+  .cap.available { color: var(--ok); border-color: #bbe5c8; }
+  .cap.draft, .cap.unverified { color: var(--warn); border-color: #f5d7a8; }
+  .cap.unavailable { color: var(--bad); border-color: #f3c4c4; }
+  .msg { padding: 10px 12px; border-radius: 10px; margin: 8px 0; white-space: pre-wrap; }
+  .user { background: #eef2f6; }
+  .bot { background: #e9f6f3; }
+  .meta { font-size: .8rem; color: var(--muted); margin-top: 6px; overflow-wrap: anywhere; }
+  .badge { font-size: .75rem; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
+  .q-validated { background:#dcfce7; color:var(--ok); } .q-machine { background:#e0e7ff; color:#3730a3; } .q-draft { background:#fef3c7; color:var(--warn); } .q-fallback { background:#fee2e2; color:var(--bad); }
+  .menu { margin-top: 8px; display:flex; gap:8px; flex-wrap:wrap; }
+  table { width:100%; border-collapse: collapse; font-size: .8rem; }
+  th, td { text-align:left; padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tablewrap { overflow-x: auto; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111416; --card:#1a1e21; --ink:#e8eaec; --muted:#9aa3ab; --line:#2b3136; }
+    .user { background:#222a31; } .bot { background:#16302c; } select, input[type=text] { background:#111416; }
+    button.secondary { background:#16302c; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Cameroun Translate</h1>
+  <p class="sub">Parlez ou écrivez une demande bancaire. Le moteur comprend l'opération, puis répond dans la langue choisie. Données fictives uniquement.</p>
+
+  <div class="card">
+    <div class="row">
+      <label>Langue <select id="lang"></select></label>
+      <label>Canal <select id="channel"><option value="mobile">Application mobile</option><option value="web">Web</option><option value="ussd">USSD</option><option value="sms">SMS</option><option value="ivr">Serveur vocal</option></select></label>
+      <button class="secondary" id="reset">Nouvelle conversation</button>
+    </div>
+    <div class="caps" id="caps"></div>
+  </div>
+
+  <div class="card">
+    <button id="mic">🎙️ Appuyez pour parler</button>
+    <div class="row" style="margin-top:10px">
+      <input type="text" id="text" placeholder="…ou tapez : « envoie 5000 à Paul »">
+      <button id="send">Envoyer</button>
+    </div>
+    <div id="chat"></div>
+  </div>
+
+  <div class="card">
+    <strong>Journal (format du tableau de bord du jury)</strong>
+    <div class="tablewrap"><table><thead><tr><th>Canal</th><th>Langue</th><th>Requête</th><th>Intention</th><th>Paramètres</th><th>Statut</th><th>ms</th></tr></thead><tbody id="log"></tbody></table></div>
+  </div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let session = 's-' + Math.random().toString(36).slice(2, 8);
+let languages = [];
+const CAP_LABEL = { understanding: 'Compréhension', responses: 'Réponses', speechToText: 'Voix entrante', textToSpeech: 'Voix sortante' };
+const STATUS_FR = { available: 'disponible', draft: 'brouillon', unverified: 'non mesurée', unavailable: 'indisponible', 'research-only': 'recherche' };
+
+async function init() {
+  languages = (await (await fetch('/v1/languages')).json()).languages;
+  const order = ['fr', 'en', 'ewo', 'dua', 'fub', 'wes'];
+  languages.sort((a, b) => (order.indexOf(a.code) + 1 || 99) - (order.indexOf(b.code) + 1 || 99));
+  for (const l of languages) { const o = document.createElement('option'); o.value = l.code; o.textContent = l.name; $('lang').append(o); }
+  $('lang').onchange = showCaps; showCaps();
+}
+function showCaps() {
+  const l = languages.find((x) => x.code === $('lang').value); $('caps').innerHTML = '';
+  for (const [k, label] of Object.entries(CAP_LABEL)) {
+    const st = l.capabilities[k]?.status ?? 'unavailable';
+    const s = document.createElement('span'); s.className = 'cap ' + st; s.textContent = `${label} : ${STATUS_FR[st] ?? st}`; $('caps').append(s);
+  }
+}
+function add(cls, html) { const d = document.createElement('div'); d.className = 'msg ' + cls; d.innerHTML = html; $('chat').prepend(d); return d; }
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function showResult(r) {
+  const q = { validated: 'validé', draft: 'brouillon à valider', machine: 'traduction automatique', fallback: 'repli en français' }[r.reply.quality];
+  const d = add('bot', `${esc(r.reply.text)}<span class="badge q-${r.reply.quality}">${q}</span>` +
+    (r.reply.lang !== 'fr' ? `<div class="meta">FR : ${esc(r.reply.fr)}</div>` : '') +
+    (r.understanding.via === 'mt' ? `<div class="meta">Compris via Flagship : « ${esc(r.understanding.translation)} »</div>` : '') +
+    (r.reply.mt ? `<div class="meta">Flagship : ${r.reply.mt.accepted ? 'accepté' : 'refusé (' + esc(r.reply.mt.reason) + ')'}${r.reply.mt.text ? ` · « ${esc(r.reply.mt.text)} » ↩ « ${esc(r.reply.mt.back)} »` : ''}</div>` : '') +
+    `<div class="meta">intention : <b>${r.intent ?? '—'}</b> · statut : ${r.status} · ${esc(JSON.stringify(r.params))} · ${r.latencyMs} ms</div>`);
+  if (r.reply.menu) { const m = document.createElement('div'); m.className = 'menu'; for (const it of r.reply.menu) { const b = document.createElement('button'); b.className = 'secondary'; b.textContent = `${it.key}. ${it.label}`; b.onclick = () => sendText(it.key); m.append(b); } d.append(m); }
+  const playLang = ['fr', 'en'].includes(r.reply.lang) ? r.reply.lang : null;
+  const p = document.createElement('div'); p.className = 'meta';
+  if (playLang) { const b = document.createElement('button'); b.className = 'secondary'; b.textContent = '🔊 Écouter'; b.onclick = () => new Audio(`/v1/tts?lang=${playLang}&text=${encodeURIComponent(r.reply.text)}`).play(); p.append(b); }
+  else if (r.reply.speech?.length && r.reply.lang === r.lang) {
+    // Langue nationale : on la fait parler avec les enregistrements natifs, s'ils sont tous là.
+    const url = `/v1/native?lang=${r.reply.lang}&clips=${r.reply.speech.join(',')}`;
+    p.textContent = '…';
+    fetch(url).then(async (res) => {
+      if (res.ok) { p.textContent = ''; const b = document.createElement('button'); b.className = 'secondary'; b.textContent = '🔊 Écouter (voix native enregistrée)'; const blob = URL.createObjectURL(await res.blob()); b.onclick = () => new Audio(blob).play(); p.append(b); }
+      else { const j = await res.json(); p.textContent = `🔇 Pas de voix de synthèse dans cette langue. Il manque ${j.missing?.length ?? '?'} enregistrement(s) natif(s) pour dire cette réponse : ${(j.missing ?? []).join(', ')}.`; }
+    });
+  }
+  else p.textContent = '🔇 Pas encore de voix réelle dans cette langue : enregistrements natifs à fournir.';
+  d.append(p);
+  if ($('lang').value !== r.lang) { $('lang').value = r.lang; showCaps(); }
+  refreshLog();
+}
+async function sendText(text) {
+  if (!text.trim()) return;
+  add('user', esc(text));
+  const r = await (await fetch('/v1/message', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: session, channel: $('channel').value, lang: $('lang').value, text }) })).json();
+  if (r.error) return add('bot', 'Erreur : ' + esc(r.error));
+  showResult(r);
+}
+$('send').onclick = () => { sendText($('text').value); $('text').value = ''; };
+$('text').onkeydown = (e) => { if (e.key === 'Enter') $('send').click(); };
+$('reset').onclick = () => { session = 's-' + Math.random().toString(36).slice(2, 8); $('chat').innerHTML = ''; };
+
+let rec = null, chunks = [];
+$('mic').onclick = async () => {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    rec = new MediaRecorder(stream); chunks = [];
+    rec.ondataavailable = (e) => chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      $('mic').classList.remove('rec'); $('mic').textContent = '⏳ Reconnaissance…';
+      const blob = new Blob(chunks, { type: rec.mimeType });
+      const q = new URLSearchParams({ sessionId: session, channel: $('channel').value, lang: $('lang').value });
+      const r = await (await fetch('/v1/voice?' + q, { method: 'POST', body: blob })).json();
+      $('mic').textContent = '🎙️ Appuyez pour parler';
+      if (r.error) return add('bot', 'Erreur : ' + esc(r.error));
+      add('user', `🎙️ « ${esc(r.transcript.text || '…')} »<div class="meta">${r.transcript.engine} · ${r.transcript.audioSeconds} s d'audio · ${r.transcript.decodeMs} ms</div>`);
+      if (r.result) showResult(r.result); else add('bot', esc(r.note));
+    };
+    rec.start(); $('mic').classList.add('rec'); $('mic').textContent = '⏹️ Appuyez pour arrêter';
+  } catch (e) { add('bot', 'Micro indisponible : ' + esc(e.message)); }
+};
+async function refreshLog() {
+  const ev = await (await fetch('/v1/events')).json();
+  $('log').innerHTML = ev.slice(0, 15).map((e) => `<tr><td>${e.channel}</td><td>${e.lang}</td><td>${esc(e.request)}</td><td>${e.intent ?? '—'}</td><td>${esc(JSON.stringify(e.params))}</td><td>${e.status}</td><td>${e.latencyMs}</td></tr>`).join('');
+}
+init();
+</script>
+</body>
+</html>

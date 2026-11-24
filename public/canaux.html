@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cameroun Translate · canaux</title>
+<style>
+  :root { --bg:#f4f4f1; --card:#fff; --ink:#1c1f23; --muted:#5d6670; --line:#e3e5e8; --accent:#0f766e; --soft:#e7f3f1; --warn:#b45309; --bad:#b91c1c; --ok:#15803d; --screen:#d9e4d2; --screen-ink:#1b2a17; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--ink); }
+  header { max-width:1200px; margin:0 auto; padding:16px 16px 0; }
+  h1 { font-size:1.25rem; margin:4px 0; }
+  .sub { color:var(--muted); margin:0 0 12px; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .bar input { flex:1 1 260px; min-width:0; }
+  input, select { font:inherit; padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); }
+  button { font:inherit; border:0; border-radius:8px; padding:9px 13px; background:var(--accent); color:#fff; cursor:pointer; }
+  button.ghost { background:var(--soft); color:var(--accent); }
+  main { max-width:1200px; margin:0 auto; padding:12px 16px 24px; display:grid; gap:14px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; display:flex; flex-direction:column; min-width:0; }
+  .card h2 { font-size:1rem; margin:0 0 8px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .tag { font-size:.75rem; font-weight:500; color:var(--muted); }
+  /* Téléphone USSD */
+  .phone { background:#22262a; border-radius:22px; padding:14px; }
+  .screen { background:var(--screen); color:var(--screen-ink); font:14px/1.35 ui-monospace, "SF Mono", Menlo, Consolas, monospace; border-radius:6px; padding:10px; min-height:220px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .screen .end { display:block; margin-top:6px; font-weight:600; }
+  .ussdin { display:flex; gap:6px; margin-top:10px; }
+  .ussdin input { flex:1; min-width:0; background:#fff; color:#111; }
+  .keys { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:8px; }
+  .keys button { background:#3a4046; padding:8px 0; }
+  /* SMS */
+  .thread { flex:1; min-height:260px; max-height:420px; overflow:auto; display:flex; flex-direction:column; gap:6px; padding:4px; }
+  .bubble { max-width:85%; padding:8px 10px; border-radius:14px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .in { align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
+  .out { align-self:flex-start; background:#eceef0; border-bottom-left-radius:4px; }
+  .seg { font-size:.72rem; color:var(--muted); align-self:flex-start; }
+  .row { display:flex; gap:6px; margin-top:8px; }
+  .row input { flex:1; min-width:0; }
+  .mic { width:100%; padding:16px; font-size:1.05rem; border-radius:12px; margin-bottom:8px; }
+  .mic.rec { background:var(--bad); }
+  .call { display:flex; gap:6px; margin-bottom:8px; }
+  .call button { flex:1; }
+  button.hang { background:var(--bad); }
+  button:disabled { opacity:.45; cursor:default; }
+  .say { align-self:flex-start; background:#eceef0; }
+  .say small { display:block; color:var(--muted); font-size:.72rem; margin-top:2px; }
+  .ivrkeys { display:grid; grid-template-columns:repeat(5, 1fr); gap:5px; margin-top:8px; }
+  .ivrkeys button { padding:7px 0; background:#3a4046; }
+  .notice { font-size:.8rem; color:var(--warn); margin:4px 0 0; }
+  @media (prefers-color-scheme: dark) { .say { background:#262c31; } }
+  /* Journal */
+  .log { grid-column:1 / -1; }
+  .tablewrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  th, td { text-align:left; padding:6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  td.req { max-width:260px; overflow-wrap:anywhere; }
+  .ch { font-weight:600; }
+  .st-executed { color:var(--ok); } .st-failed { color:var(--bad); } .st-awaiting_confirmation, .st-needs_clarification { color:var(--warn); }
+  .same { background:#ecfdf5; }
+  .verdict { margin:8px 0 0; font-weight:600; }
+  .verdict.ok { color:var(--ok); } .verdict.ko { color:var(--bad); }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111416; --card:#1a1e21; --ink:#e8eaec; --muted:#9aa3ab; --line:#2b3136; --soft:#16302c; }
+    .out { background:#262c31; } .same { background:#123026; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Un moteur, plusieurs canaux</h1>
+  <p class="sub">USSD, SMS, web et serveur vocal parlent au même moteur. Une demande tapée ici part sur les trois canaux à la fois : le journal du jury montre qu'elle est comprise de la même façon partout. Données fictives.</p>
+  <div class="bar">
+    <select id="lang"></select>
+    <input id="same" type="text" value="envoie 5000 a Marie" aria-label="Demande à envoyer sur tous les canaux">
+    <button id="all">Envoyer sur les 3 canaux</button>
+    <button class="ghost" id="reset">Recommencer</button>
+    <a href="/" style="color:var(--accent)">Page micro</a>
+  </div>
+  <p class="verdict" id="verdict"></p>
+</header>
+<main>
+  <section class="card">
+    <h2>USSD <span class="tag">*126# · écran 182 caractères</span></h2>
+    <div class="phone">
+      <div class="screen" id="screen">Composez *126# pour commencer.</div>
+      <div class="ussdin"><input id="ukey" inputmode="numeric" placeholder="Votre choix"><button id="usend">OK</button></div>
+      <div class="keys" id="keys"></div>
+    </div>
+  </section>
+  <section class="card">
+    <h2>SMS <span class="tag" id="smsnum"></span></h2>
+    <div class="thread" id="thread"></div>
+    <div class="row"><input id="stext" placeholder="Écrivez un SMS"><button id="ssend">Envoyer</button></div>
+  </section>
+  <section class="card">
+    <h2>Web / application <span class="tag">même API /v1/message</span></h2>
+    <button id="mic" class="mic">🎙️ Appuyez pour parler</button>
+    <div class="thread" id="web"></div>
+    <div class="row"><input id="wtext" placeholder="Votre demande"><button id="wsend">Envoyer</button></div>
+  </section>
+  <section class="card">
+    <h2>Serveur vocal <span class="tag">appel · parole + clavier</span></h2>
+    <div class="call"><button id="call">📞 Appeler</button><button id="hang" class="hang" disabled>Raccrocher</button></div>
+    <button id="ivrmic" class="mic" disabled>🎙️ Parler après le bip</button>
+    <div class="thread" id="ivr"></div>
+    <p class="notice" id="ivrnote"></p>
+    <div class="ivrkeys" id="ivrkeys"></div>
+  </section>
+  <section class="card log">
+    <h2>Journal du jury <span class="tag">canal · langue · requête · intention · paramètres · statut · temps</span></h2>
+    <div class="tablewrap"><table><thead><tr><th>Heure</th><th>Canal</th><th>Langue</th><th>Requête</th><th>Intention</th><th>Paramètres</th><th>Réponse</th><th>Statut</th><th>ms</th></tr></thead><tbody id="log"></tbody></table></div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const rnd = () => Math.random().toString(36).slice(2, 8);
+let ussd, phone, web;
+function fresh() {
+  ussd = { id: 'sim-' + rnd(), keys: [], open: false };
+  phone = '+2376' + String(Math.floor(Math.random() * 1e8)).padStart(8, '0');
+  web = 'web-' + rnd();
+  $('smsnum').textContent = phone;
+  $('screen').textContent = 'Composez *126# pour commencer.';
+  $('thread').innerHTML = ''; $('web').innerHTML = ''; $('verdict').textContent = '';
+}
+const post = async (path, data) => {
+  const r = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
+  return path === '/ussd' ? r.text() : r.json();
+};
+
+// USSD : on reproduit la passerelle, qui renvoie toutes les saisies jointes par « * ».
+async function ussdSend(key) {
+  if (!ussd.open) { ussd = { id: 'sim-' + rnd(), keys: [], open: true }; }
+  else ussd.keys.push(key);
+  const res = await post('/ussd', { sessionId: ussd.id, phoneNumber: phone, serviceCode: '*126#', text: ussd.keys.join('*') });
+  const end = res.startsWith('END');
+  $('screen').innerHTML = esc(res.slice(4)) + (end ? '<span class="end">— Session terminée —</span>' : '');
+  if (end) ussd.open = false;
+  refreshLog();
+  return res;
+}
+$('usend').onclick = () => { const k = $('ukey').value.trim(); $('ukey').value = ''; if (!ussd.open || k) ussdSend(k); };
+$('ukey').onkeydown = (e) => { if (e.key === 'Enter') $('usend').click(); };
+for (const k of ['1','2','3','4','5','6','7','8','9','*126#','0','98']) {
+  const b = document.createElement('button'); b.textContent = k;
+  b.onclick = () => k === '*126#' ? (ussd.open = false, ussdSend('')) : ussdSend(k);
+  $('keys').append(b);
+}
+
+function bubble(box, cls, text, note) {
+  const d = document.createElement('div'); d.className = 'bubble ' + cls; d.textContent = text; $(box).append(d);
+  if (note) { const n = document.createElement('div'); n.className = 'seg'; n.textContent = note; $(box).append(n); }
+  $(box).scrollTop = $(box).scrollHeight;
+}
+async function smsSend(text) {
+  bubble('thread', 'in', text);
+  const r = await post('/sms', { from: phone, text, lang: $('lang').value });
+  if (r.error) return bubble('thread', 'out', 'Erreur : ' + r.error);
+  bubble('thread', 'out', r.reply, `${r.segments} SMS · ${r.reply.length} caractères`);
+  refreshLog(); return r.result;
+}
+$('ssend').onclick = () => { const t = $('stext').value.trim(); $('stext').value = ''; if (t) smsSend(t); };
+$('stext').onkeydown = (e) => { if (e.key === 'Enter') $('ssend').click(); };
+
+async function webSend(text) {
+  bubble('web', 'in', text);
+  const r = await post('/v1/message', { sessionId: web, channel: 'web', lang: $('lang').value, text });
+  if (r.error) return bubble('web', 'out', 'Erreur : ' + r.error);
+  bubble('web', 'out', r.reply.text + (r.reply.menu ? '\n' + r.reply.menu.map((m) => `[${m.key}] ${m.label}`).join('  ') : ''));
+  refreshLog(); return r;
+}
+$('wsend').onclick = () => { const t = $('wtext').value.trim(); $('wtext').value = ''; if (t) webSend(t); };
+// Voix : même circuit que la page micro (Omnilingual ASR hors ligne, puis le même moteur).
+function showWeb(r) {
+  bubble('web', 'out', r.reply.text + (r.reply.menu ? '\n' + r.reply.menu.map((m) => `[${m.key}] ${m.label}`).join('  ') : ''));
+  if (['fr', 'en'].includes(r.reply.lang)) new Audio(`/v1/tts?lang=${r.reply.lang}&text=${encodeURIComponent(r.reply.text)}`).play().catch(() => {});
+  refreshLog();
+}
+let rec = null, chunks = [];
+$('mic').onclick = async () => {
+  if (rec && rec.state === 'recording') { rec.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    rec = new MediaRecorder(stream); chunks = [];
+    rec.ondataavailable = (e) => chunks.push(e.data);
+    rec.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      $('mic').classList.remove('rec'); $('mic').textContent = '⏳ Reconnaissance…';
+      const q = new URLSearchParams({ sessionId: web, channel: 'web', lang: $('lang').value });
+      const r = await (await fetch('/v1/voice?' + q, { method: 'POST', body: new Blob(chunks, { type: rec.mimeType }) })).json();
+      $('mic').textContent = '🎙️ Appuyez pour parler';
+      if (r.error) return bubble('web', 'out', 'Erreur : ' + r.error);
+      bubble('web', 'in', '🎙️ « ' + (r.transcript.text || '…') + ' »', `${r.transcript.audioSeconds} s d'audio · reconnu en ${r.transcript.decodeMs} ms`);
+      if (r.result) showWeb(r.result); else bubble('web', 'out', r.note);
+    };
+    rec.start(); $('mic').classList.add('rec'); $('mic').textContent = '⏹️ Appuyez pour arrêter';
+  } catch (e) { bubble('web', 'out', 'Micro indisponible : ' + e.message); }
+};
+$('wtext').onkeydown = (e) => { if (e.key === 'Enter') $('wsend').click(); };
+
+// Scénario 9 du brief : la même demande sur plusieurs canaux.
+$('all').onclick = async () => {
+  const text = $('same').value.trim(); if (!text) return;
+  ussd.open = false; await ussdSend('');
+  const ussdLangKey = { fr: '1', en: '2', ewo: '3', dua: '4', fub: '5', wes: '6', bum: '7', bas: '8' }[$('lang').value] ?? '1';
+  await ussdSend(ussdLangKey); await ussdSend(text);
+  const [s, w] = await Promise.all([smsSend(text), webSend(text)]);
+  const ev = await (await fetch('/v1/events')).json();
+  const u = ev.find((e) => e.channel === 'ussd');
+  const sig = (e) => JSON.stringify([e.intent, e.params, e.status]);
+  const ok = u && s && w && sig(u) === sig(s) && sig(s) === sig(w);
+  $('verdict').className = 'verdict ' + (ok ? 'ok' : 'ko');
+  $('verdict').textContent = ok ? `✓ Même intention (${w.intent}), mêmes paramètres et même statut sur USSD, SMS et web.` : '✗ Les canaux divergent : voir le journal.';
+  refreshLog(true);
+};
+$('reset').onclick = fresh;
+
+// Serveur vocal : chaque invite est un vrai fichier audio de notre synthèse (fr/en uniquement).
+let call = null, ivrRec = null, ivrChunks = [];
+function ivrBubble(cls, text, small) {
+  const d = document.createElement('div'); d.className = 'bubble ' + cls; d.textContent = text;
+  if (small) { const s = document.createElement('small'); s.textContent = small; d.append(s); }
+  $('ivr').append(d); $('ivr').scrollTop = $('ivr').scrollHeight;
+}
+async function playPrompts(turn) {
+  for (const p of turn.prompts) ivrBubble('say', '🔊 ' + p.text, `voix ${p.voice === 'fr' ? 'française' : 'anglaise'}`);
+  $('ivrnote').textContent = turn.nativeVoice === false ? 'Compris dans votre langue, réponses lues en français : aucune voix native n’est encore disponible.' : '';
+  $('ivrmic').disabled = turn.expect !== 'speech';
+  if (turn.result) refreshLog();
+  for (const p of turn.prompts) {
+    if (!call) return;
+    await new Promise((ok) => { const a = new Audio(p.audio); call.audio = a; a.onended = ok; a.onerror = ok; a.onpause = ok; a.play().catch(ok); });
+  }
+}
+async function ivr(q, body) {
+  const r = await (await fetch(`/v1/ivr?sessionId=${call.id}&${q}`, { method: 'POST', body })).json();
+  if (r.error) return ivrBubble('say', 'Erreur : ' + r.error);
+  if (r.transcript) ivrBubble('in', '🎙️ « ' + (r.transcript.text || '…') + ' »', `reconnu en ${r.transcript.decodeMs} ms`);
+  return playPrompts(r);
+}
+$('call').onclick = async () => {
+  if (call) return;
+  call = { id: 'call-' + rnd() }; $('ivr').innerHTML = ''; $('hang').disabled = false; $('call').disabled = true;
+  await ivr('action=start');
+};
+$('hang').onclick = async () => {
+  if (!call) return;
+  call.audio?.pause(); await fetch(`/v1/ivr?sessionId=${call.id}&action=hangup`, { method: 'POST' });
+  call = null; $('hang').disabled = true; $('call').disabled = false; $('ivrmic').disabled = true;
+  ivrBubble('say', '📴 Appel terminé');
+};
+for (const k of ['1','2','3','4','5','6','7','8','9','0']) {
+  const b = document.createElement('button'); b.textContent = k;
+  b.onclick = () => { if (!call) return; call.audio?.pause(); ivrBubble('in', '⌨️ ' + k); ivr('digits=' + k); };
+  $('ivrkeys').append(b);
+}
+$('ivrmic').onclick = async () => {
+  if (!call) return;
+  if (ivrRec && ivrRec.state === 'recording') { ivrRec.stop(); return; }
+  call.audio?.pause();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    ivrRec = new MediaRecorder(stream); ivrChunks = [];
+    ivrRec.ondataavailable = (e) => ivrChunks.push(e.data);
+    ivrRec.onstop = async () => {
+      stream.getTracks().forEach((t) => t.stop());
+      $('ivrmic').classList.remove('rec'); $('ivrmic').textContent = '🎙️ Parler après le bip';
+      await ivr('', new Blob(ivrChunks, { type: ivrRec.mimeType }));
+    };
+    ivrRec.start(); $('ivrmic').classList.add('rec'); $('ivrmic').textContent = '⏹️ J’ai fini de parler';
+  } catch (e) { ivrBubble('say', 'Micro indisponible : ' + e.message); }
+};
+
+async function refreshLog(highlight) {
+  const ev = await (await fetch('/v1/events')).json();
+  const top = ev.slice(0, 3).map((e) => JSON.stringify([e.intent, e.params, e.status]));
+  const same = highlight && new Set(top).size === 1;
+  $('log').innerHTML = ev.slice(0, 20).map((e, i) => `<tr class="${same && i < 3 ? 'same' : ''}"><td>${esc(new Date(e.at).toLocaleTimeString('fr-FR'))}</td><td class="ch">${esc(e.channel)}</td><td>${esc(e.lang)}</td><td class="req">${esc(e.request)}</td><td>${esc(e.intent ?? '—')}</td><td class="req">${esc(JSON.stringify(e.params))}</td><td class="req">${esc(e.reply?.text ?? '')}</td><td class="st-${esc(e.status)}">${esc(e.status)}</td><td>${esc(e.latencyMs)}</td></tr>`).join('');
+}
+
+(async () => {
+  const langs = (await (await fetch('/v1/languages')).json()).languages;
+  const order = ['fr', 'en', 'ewo', 'dua', 'fub', 'wes', 'bum', 'bas'];
+  for (const code of order) { const l = langs.find((x) => x.code === code); if (!l) continue; const o = document.createElement('option'); o.value = code; o.textContent = l.name; $('lang').append(o); }
+  fresh(); refreshLog();
+})();
+</script>
+</body>
+</html>

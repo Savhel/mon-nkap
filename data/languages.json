@@ -1,0 +1,755 @@
+{
+ "version": 1,
+ "updated": "2026-11-24",
+ "languages": [
+  {
+   "code": "fr",
+   "name": "Français",
+   "native": "Français",
+   "official": true,
+   "capabilities": {
+    "understanding": {
+     "status": "available",
+     "source": "lexicon:fr"
+    },
+    "responses": {
+     "status": "available"
+    },
+    "speechToText": {
+     "status": "available",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "fra_Latn",
+     "publishedCer7B": 2.2,
+     "alt": "whisper-base"
+    },
+    "textToSpeech": {
+     "status": "available",
+     "engine": "piper:fr_FR-siwis-medium"
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "en",
+   "name": "English",
+   "native": "English",
+   "official": true,
+   "capabilities": {
+    "understanding": {
+     "status": "available",
+     "source": "lexicon:en"
+    },
+    "responses": {
+     "status": "available"
+    },
+    "speechToText": {
+     "status": "available",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "eng_Latn",
+     "publishedCer7B": 3.0,
+     "alt": "whisper-base"
+    },
+    "textToSpeech": {
+     "status": "available",
+     "engine": "piper:en_US-amy-low"
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "ewo",
+   "name": "Ewondo",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "draft",
+     "source": "lexicon:ewo",
+     "note": "Lexique brouillon tiré de Mboa, à valider par des natifs"
+    },
+    "responses": {
+     "status": "draft",
+     "source": "mboa-pack"
+    },
+    "speechToText": {
+     "status": "measured",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "ewo_Latn",
+     "publishedCer7B": 17.0,
+     "note": "Mesuré par nous sur 150 enregistrements de 4 locuteurs : peu de locuteurs, chiffre indicatif.",
+     "measured": {
+      "model": "omnilingual-300M-int8",
+      "corpus": "Common Voice 27.0, partie test (CC0)",
+      "clips": 150,
+      "speakers": 4,
+      "cerWithoutTones": 16,
+      "cerStrict": 19.4,
+      "werWithoutTones": 66.3,
+      "date": "2026-11-24"
+     }
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:ewondo",
+      "opus-mt-bnt:ewo"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "bum",
+   "name": "Bulu",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "bum_Latn",
+     "publishedCer7B": 8.8,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:bulu",
+      "opus-mt-bnt:bum"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "eto",
+   "name": "Eton",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "eto_Latn",
+     "publishedCer7B": 15.1,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "opus-mt-bnt:eto"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "bas",
+   "name": "Bassa'a",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "bas_Latn",
+     "publishedCer7B": 9.7,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "opus-mt-bnt:bas"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "dua",
+   "name": "Duala",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "draft",
+     "source": "lexicon:dua",
+     "note": "Lexique brouillon tiré de Mboa, à valider par des natifs"
+    },
+    "responses": {
+     "status": "draft",
+     "source": "mboa-pack"
+    },
+    "speechToText": {
+     "status": "measured",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "dua_Latn",
+     "publishedCer7B": 5.4,
+     "note": "Mesuré par nous sur 150 enregistrements de 5 locuteurs : peu de locuteurs, chiffre indicatif.",
+     "measured": {
+      "model": "omnilingual-300M-int8",
+      "corpus": "Common Voice 27.0, partie test (CC0)",
+      "clips": 150,
+      "speakers": 5,
+      "cerWithoutTones": 4.3,
+      "cerStrict": 10.5,
+      "werWithoutTones": 46.7,
+      "date": "2026-11-24"
+     }
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "opus-mt-bnt:dua"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "fub",
+   "name": "Fulfulde",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "draft",
+     "source": "lexicon:fub",
+     "note": "Lexique brouillon tiré de Mboa, à valider par des natifs"
+    },
+    "responses": {
+     "status": "draft",
+     "source": "mboa-pack"
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "fub_Latn",
+     "publishedCer7B": 5.2,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:fufulde"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "fmp",
+   "name": "Fe'efe'e (Nufi)",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "fmp_Latn",
+     "publishedCer7B": 19.0,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "unavailable",
+     "sources": []
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "bbj",
+   "name": "Ghomala'",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "bbj_Latn",
+     "publishedCer7B": 17.7,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:ghomala"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "byv",
+   "name": "Medumba",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "byv_Latn",
+     "publishedCer7B": 57.3,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:medumba"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "ybb",
+   "name": "Yemba",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "ybb_Latn",
+     "publishedCer7B": 4.2,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:yemba"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "nnh",
+   "name": "Ngiemboon",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "nnh_Latn",
+     "publishedCer7B": 9.2,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:ngienboum",
+      "mimba"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "bax",
+   "name": "Bamoun (Shupamem)",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "bax_Latn",
+     "publishedCer7B": 8.0,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "unavailable",
+     "sources": []
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "mhk",
+   "name": "Mungaka",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "mhk_Latn",
+     "publishedCer7B": 4.6,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "unavailable",
+     "sources": []
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "azo",
+   "name": "Awing",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unavailable",
+     "note": "Absente d'Omnilingual ASR et de MMS"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:awing"
+     ]
+    },
+    "offline": false
+   }
+  },
+  {
+   "code": "nnz",
+   "name": "Nda'nda'",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unavailable",
+     "note": "Absente d'Omnilingual ASR et de MMS"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "unavailable",
+     "sources": []
+    },
+    "offline": false
+   }
+  },
+  {
+   "code": "yas",
+   "name": "Yambassa (Nugunu)",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "yas_Latn",
+     "publishedCer7B": 3.1,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:nugunu (à confirmer)"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "ozm",
+   "name": "Badwe'e (Koonzime)",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "ozm_Latn",
+     "publishedCer7B": 4.8,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:koonzime",
+      "opus-mt-bnt:ozm"
+     ]
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "bqz",
+   "name": "Bakaka",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unavailable",
+     "note": "Absente d'Omnilingual ASR et de MMS"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "opus-mt-bnt:bqz"
+     ]
+    },
+    "offline": false
+   }
+  },
+  {
+   "code": "wes",
+   "name": "Cameroon Pidgin (Kamtok)",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "draft",
+     "source": "lexicon:wes",
+     "note": "Lexique brouillon tiré de Mboa, à valider par des natifs"
+    },
+    "responses": {
+     "status": "draft",
+     "source": "mboa-pack"
+    },
+    "speechToText": {
+     "status": "measured",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "wes_Latn",
+     "publishedCer7B": 3.1,
+     "note": "Mesuré par nous sur 150 enregistrements de 2 locuteurs : peu de locuteurs, chiffre indicatif.",
+     "measured": {
+      "model": "omnilingual-300M-int8",
+      "corpus": "Common Voice 27.0, partie test (CC0)",
+      "clips": 150,
+      "speakers": 2,
+      "cerWithoutTones": 25.1,
+      "cerStrict": 25.5,
+      "werWithoutTones": 57.8,
+      "date": "2026-11-24"
+     }
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "unavailable",
+     "sources": []
+    },
+    "offline": true
+   }
+  },
+  {
+   "code": "mgo",
+   "name": "Meta'",
+   "official": false,
+   "capabilities": {
+    "understanding": {
+     "status": "unavailable",
+     "source": null,
+     "note": "Aucun lexique financier"
+    },
+    "responses": {
+     "status": "unavailable",
+     "source": null
+    },
+    "speechToText": {
+     "status": "unverified",
+     "engine": "omnilingual-asr-ctc",
+     "engineLang": "mgo_Latn",
+     "publishedCer7B": 3.1,
+     "note": "CER publié par Meta pour le modèle 7B ; non mesuré sur le modèle 300M embarqué"
+    },
+    "textToSpeech": {
+     "status": "unavailable",
+     "note": "Aucune voix de synthèse réelle. Enregistrements natifs à fournir."
+    },
+    "machineTranslation": {
+     "status": "research-only",
+     "sources": [
+      "flagship:meta"
+     ]
+    },
+    "offline": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,75 @@
+{
+ "status": "draft",
+ "note": "Brouillon : mots tirés du pack Mboa (non validé) + emprunts au français courants à l'oral. Les natifs doivent compléter oui/non, correction, nombres.",
+ "intents": {
+  "balance": [
+   "mone wo",
+   "konte",
+   "solde",
+   "mɔ́nə wɔ́",
+   "kɔ́ntə wɔ́"
+  ],
+  "transfer": [
+   "lom",
+   "lom mone",
+   "lóm mɔ́nə",
+   "transfert",
+   "envoyer"
+  ],
+  "fees": [
+   "frais",
+   "mɔ́nə ma frais"
+  ],
+  "history": [
+   "historique"
+  ],
+  "airtime": [
+   "crédit",
+   "recharge",
+   "credit"
+  ],
+  "bill_payment": [
+   "facture",
+   "eneo",
+   "camwater"
+  ],
+  "explain_term": [],
+  "help": [
+   "aide",
+   "help"
+  ],
+  "greeting": [
+   "mbembe amos"
+  ]
+ },
+ "confirm": [
+  "oui",
+  "ok",
+  "d'accord"
+ ],
+ "deny": [
+  "non",
+  "annuler"
+ ],
+ "correction": [
+  "plutôt"
+ ],
+ "beneficiaryMarkers": [
+  "a",
+  "à"
+ ],
+ "terms": {
+  "frais": "fees",
+  "solde": "balance",
+  "transfert": "transfer",
+  "crédit": "airtime",
+  "facture": "bill"
+ },
+ "missing": [
+  "confirm",
+  "deny",
+  "correction",
+  "nombres en langue nationale",
+  "explain_term"
+ ]
+}

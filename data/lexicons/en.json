@@ -1,0 +1,124 @@
+{
+ "status": "available",
+ "intents": {
+  "balance": [
+   "balance",
+   "my balance",
+   "how much do i have",
+   "how much money",
+   "check my account",
+   "account balance",
+   "how much is left",
+   "my account",
+   "in my account"
+  ],
+  "transfer": [
+   "send",
+   "transfer",
+   "pay to",
+   "give to",
+   "wire",
+   "move money"
+  ],
+  "fees": [
+   "fee",
+   "fees",
+   "charges",
+   "how much does it cost",
+   "cost",
+   "commission",
+   "price"
+  ],
+  "history": [
+   "history",
+   "last transactions",
+   "recent transactions",
+   "statement",
+   "my transactions"
+  ],
+  "airtime": [
+   "airtime",
+   "credit",
+   "top up",
+   "recharge",
+   "bundle",
+   "units"
+  ],
+  "bill_payment": [
+   "bill",
+   "pay the bill",
+   "electricity",
+   "water",
+   "eneo",
+   "camwater",
+   "subscription"
+  ],
+  "explain_term": [
+   "what is",
+   "what does",
+   "meaning of",
+   "explain",
+   "define",
+   "what's"
+  ],
+  "help": [
+   "help",
+   "menu",
+   "what can you do"
+  ],
+  "greeting": [
+   "hello",
+   "hi",
+   "good morning",
+   "good evening"
+  ],
+  "withdraw": [
+   "withdraw",
+   "withdrawal",
+   "cash out",
+   "take out money"
+  ]
+ },
+ "confirm": [
+  "yes",
+  "yeah",
+  "ok",
+  "okay",
+  "confirm",
+  "i confirm",
+  "correct",
+  "go ahead",
+  "sure"
+ ],
+ "deny": [
+  "no",
+  "cancel",
+  "stop",
+  "forget it"
+ ],
+ "correction": [
+  "no make it",
+  "make it",
+  "i meant",
+  "instead",
+  "actually",
+  "correction"
+ ],
+ "beneficiaryMarkers": [
+  "to",
+  "for"
+ ],
+ "terms": {
+  "fees": "fees",
+  "fee": "fees",
+  "balance": "balance",
+  "transfer": "transfer",
+  "beneficiary": "beneficiary",
+  "airtime": "airtime",
+  "bill": "bill",
+  "history": "history",
+  "pin": "pin",
+  "limit": "limit",
+  "withdrawal": "withdraw"
+ }
+}

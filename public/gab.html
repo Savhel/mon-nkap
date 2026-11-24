@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guichet automatique · simulateur</title>
+<style>
+  :root { --bg:#d9dde2; --body:#2b3138; --screen:#0b3d2e; --ink:#d8f5e6; --key:#454d56; --ok:#15803d; --bad:#b91c1c; --warn:#d97706; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .atm { width:min(760px,100vw); background:var(--body); border-radius:18px; padding:20px; color:#fff; box-shadow:0 20px 60px rgba(0,0,0,.35); }
+  .atm h1 { font-size:.9rem; letter-spacing:.08em; text-transform:uppercase; color:#aab3bd; margin:0 0 12px; }
+  .front { display:grid; grid-template-columns:120px 1fr 120px; gap:10px; align-items:stretch; }
+  .side { display:flex; flex-direction:column; justify-content:space-around; gap:8px; }
+  .side button { min-height:52px; border:0; border-radius:8px; background:var(--key); color:#fff; font:inherit; font-size:.85rem; padding:4px 6px; cursor:pointer; }
+  .side button:disabled { opacity:.25; cursor:default; }
+  .screen { background:var(--screen); color:var(--ink); border-radius:10px; padding:16px; min-height:300px; display:flex; flex-direction:column; gap:8px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .msg { white-space:pre-wrap; overflow-wrap:anywhere; flex:1; }
+  .entry { font-size:1.6rem; letter-spacing:.06em; min-height:2rem; }
+  .meta { font-size:.75rem; opacity:.8; }
+  .keypad { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-width:420px; margin:14px auto 0; }
+  .keypad button { min-height:52px; border:0; border-radius:8px; background:var(--key); color:#fff; font:600 1.1rem system-ui,sans-serif; cursor:pointer; }
+  .keypad .v { background:var(--ok); } .keypad .c { background:var(--bad); } .keypad .e { background:var(--warn); }
+  button:focus-visible { outline:3px solid #f59e0b; outline-offset:2px; }
+</style>
+</head>
+<body>
+<div class="atm" aria-label="Guichet automatique simulé">
+  <h1>Guichet automatique · Banque Démo · simulateur (données fictives)</h1>
+  <div class="front">
+    <div class="side" id="left"></div>
+    <div class="screen" role="status" aria-live="polite">
+      <div class="msg" id="msg">Chargement…</div>
+      <div class="entry" id="entry" aria-label="Saisie"></div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="side" id="right"></div>
+  </div>
+  <div class="keypad" id="keypad"></div>
+</div>
+<script src="/sdk.js"></script>
+<script>
+  // Le GAB n'a aucune intelligence : un bouton devient une phrase canonique envoyée au moteur commun (canal « atm »),
+  // exactement comme le menu USSD. Les libellés viennent de /v1/labels, dans la langue choisie.
+  var LANGS = [['fr', 'Français'], ['en', 'English'], ['ewo', 'Ewondo'], ['dua', 'Duala'], ['fub', 'Fulfulde'], ['wes', 'Pidgin']];
+  var MAIN = [['menu_balance', 'solde'], ['menu_withdraw', 'retirer'], ['menu_transfer', 'envoyer de l’argent'], ['menu_fees', 'frais'], ['menu_history', 'historique'], ['menu_language', null]];
+  var ct = CamerounTranslate.connect('', { channel: 'atm', lang: 'fr' });
+  var $ = function (id) { return document.getElementById(id); };
+  var labels = {}, entry = '', state = 'lang';
+
+  function side(btns) {
+    var all = [$('left'), $('right')]; all.forEach(function (x) { x.textContent = ''; });
+    for (var i = 0; i < 8; i++) {
+      var b = document.createElement('button'); b.type = 'button';
+      var spec = btns[i];
+      if (spec) { b.textContent = spec[0]; b.onclick = spec[1]; } else { b.disabled = true; b.setAttribute('aria-hidden', 'true'); }
+      all[i < 4 ? 0 : 1].append(b);
+    }
+  }
+  function show(text, meta) { $('msg').textContent = text; $('meta').textContent = meta || ''; }
+  function chooseLanguage() {
+    state = 'lang'; entry = ''; $('entry').textContent = '';
+    show('Choisissez votre langue\nChoose your language');
+    side(LANGS.map(function (l) { return [l[1], function () { ct.setLang(l[0]); loadMenu(l[0]); }]; }));
+  }
+  function loadMenu(lang) {
+    fetch('/v1/labels?lang=' + lang).then(function (r) { return r.json(); }).then(function (l) { labels = l; mainMenu(); });
+  }
+  function L(id) { return (labels[id] && labels[id].text) || id; }
+  function mainMenu() {
+    state = 'main';
+    show('Banque Démo\n\n' + L('menu_balance') + ' · ' + L('menu_withdraw') + ' · ' + L('menu_transfer'), '');
+    side(MAIN.map(function (m) { return [L(m[0]), function () { if (m[1] === null) chooseLanguage(); else send(m[1]); }]; }));
+  }
+  var Q = { validated: 'validé par des natifs', draft: 'brouillon non relu', machine: 'traduction automatique', fallback: 'phrase en français : pas encore traduite' };
+  function send(text) {
+    ct.message(text).then(function (r) {
+      var qual = r.lang === 'fr' || r.lang === 'en' ? 'langue de référence' : (Q[r.reply.quality] || '');
+      show(r.reply.text, 'Langue : ' + r.lang + ' · ' + qual + ' · ' + (r.canonical.operation || '') + ' ' + r.canonical.act);
+      entry = ''; $('entry').textContent = '';
+      if (r.status === 'awaiting_confirmation') { state = 'confirm'; side([null, null, null, [L('menu_cancel'), function () { send('2'); }], null, null, null, [L('menu_confirm'), function () { send('1'); }]]); }
+      else if (r.status === 'needs_clarification') { state = 'input'; side(r.reply.menu ? r.reply.menu.map(function (x) { return [x.label, function () { send(x.key); }]; }) : [[L('menu_cancel'), function () { send('2'); mainMenu(); }]]); }
+      else { state = 'done'; side([[L('menu_balance'), function () { send('solde'); }], null, null, [L('menu_language'), chooseLanguage], null, null, null, ['OK', mainMenu]]); }
+    }).catch(function (e) { show('Service indisponible. Aucune opération effectuée.', e.message); });
+  }
+  var keys = ['1', '2', '3', 'C', '4', '5', '6', 'E', '7', '8', '9', '', '00', '0', '000', 'V'];
+  keys.forEach(function (k) {
+    var b = document.createElement('button'); b.type = 'button';
+    b.textContent = k === 'C' ? 'Annuler' : k === 'E' ? 'Effacer' : k === 'V' ? 'Valider' : k;
+    if (k === 'C') b.className = 'c'; if (k === 'E') b.className = 'e'; if (k === 'V') b.className = 'v';
+    if (!k) { b.disabled = true; b.setAttribute('aria-hidden', 'true'); }
+    b.onclick = function () {
+      if (k === 'C') { send('2'); return; }
+      if (k === 'E') { entry = ''; }
+      else if (k === 'V') { if (entry) send(entry); return; }
+      else if (entry.length < 9) entry += k;
+      $('entry').textContent = entry ? Number(entry).toLocaleString('fr-FR') + ' FCFA' : '';
+    };
+    $('keypad').append(b);
+  });
+  chooseLanguage();
+</script>
+</body>
+</html>

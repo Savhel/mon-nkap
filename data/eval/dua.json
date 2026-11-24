@@ -1,0 +1,19 @@
+{
+ "lang": "dua",
+ "split": "test",
+ "includesDrafts": false,
+ "n": 0,
+ "intentAccuracy": null,
+ "perIntent": {},
+ "amountAccuracy": null,
+ "amountN": 0,
+ "beneficiaryAccuracy": null,
+ "beneficiaryN": 0,
+ "clarificationRate": null,
+ "clarificationN": 0,
+ "crossChannelConsistency": null,
+ "latencyMs": null,
+ "items": [],
+ "note": "Aucune phrase de test validée par un second natif.",
+ "at": "2026-11-24T01:27:14.242Z"
+}

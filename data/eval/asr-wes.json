@@ -1,0 +1,18 @@
+{
+ "lang": "wes",
+ "model": "sherpa-onnx-omnilingual-asr-1600-languages-300M-ctc-int8-2025-11-12",
+ "corpus": "Common Voice 27.0, partie test (CC0)",
+ "clips": 150,
+ "speakers": 2,
+ "audioMinutes": 7.6,
+ "wer": {
+  "strict": 58,
+  "withoutTones": 57.8
+ },
+ "cer": {
+  "strict": 25.5,
+  "withoutTones": 25.1
+ },
+ "realTimeFactor": 0.167,
+ "measuredAt": "2026-11-24T01:49:13.088Z"
+}

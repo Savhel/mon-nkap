@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord · Cameroun Translate</title>
+<style>
+  :root { --bg:#f4f5f7; --card:#fff; --ink:#1c1f23; --muted:#5d6670; --line:#e3e5e8; --accent:#0f766e; --ok:#15803d; --warn:#b45309; --bad:#b91c1c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1214; --card:#181c1f; --ink:#e8eaec; --muted:#9aa3ab; --line:#2b3136; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header, main { max-width:1280px; margin:0 auto; padding:16px; }
+  h1 { font-size:1.2rem; margin:0; } .sub { color:var(--muted); margin:4px 0 0; }
+  .tabs { display:flex; gap:6px; margin-top:12px; flex-wrap:wrap; }
+  .tabs button { font:inherit; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:8px 14px; min-height:40px; cursor:pointer; }
+  .tabs button[aria-selected="true"] { border-color:var(--accent); color:var(--accent); font-weight:600; }
+  .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .kpi b { display:block; font-size:1.6rem; } .kpi span { color:var(--muted); font-size:.8rem; }
+  .langblock { margin-bottom:16px; } .langblock h2 { font-size:1rem; margin:0 0 8px; }
+  .note { color:var(--muted); }
+  .tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; }
+  table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; position:sticky; top:0; background:var(--card); }
+  td.wrap { max-width:280px; overflow-wrap:anywhere; white-space:pre-wrap; }
+  .st-executed, .ok { color:var(--ok); } .st-failed, .bad { color:var(--bad); } .st-awaiting_confirmation, .st-needs_clarification, .warn { color:var(--warn); }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tableau de bord · Cameroun Translate</h1>
+  <p class="sub">Mesures réelles, recalculées à la demande. Chaque langue est mesurée séparément, sur des phrases de test écrites par des natifs et jamais utilisées pour l'apprentissage.</p>
+  <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="eval">Évaluation par langue</button>
+    <button role="tab" aria-selected="false" data-tab="log">Journal des requêtes</button>
+    <button role="tab" aria-selected="false" data-tab="audit">Audit des opérations</button>
+  </div>
+</header>
+<main>
+  <section id="eval" role="tabpanel"></section>
+  <section id="log" role="tabpanel" hidden><div class="tablewrap"><table><thead><tr><th>Heure</th><th>Canal</th><th>Langue</th><th>Requête</th><th>Interprétation</th><th>Paramètres</th><th>Réponse</th><th>Qualité</th><th>Statut</th><th>ms</th><th>Erreurs</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+  <section id="audit" role="tabpanel" hidden></section>
+</main>
+<script>
+  var $ = function (s) { return document.querySelector(s); };
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  var P = function (x) { return x === null || x === undefined ? '—' : Math.round(x * 100) + ' %'; };
+  document.querySelectorAll('[role=tab]').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('[role=tab]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      document.querySelectorAll('[role=tabpanel]').forEach(function (p) { p.hidden = p.id !== b.dataset.tab; });
+      if (b.dataset.tab === 'audit') loadAudit();
+    };
+  });
+  function kpi(v, label) { var c = el('div', 'card kpi'); c.append(el('b', null, v), el('span', null, label)); return c; }
+  function loadEval() {
+    var box = $('#eval'); box.textContent = '';
+    ['ewo', 'dua', 'fub', 'wes'].forEach(function (lang) {
+      fetch('/v1/eval?lang=' + lang).then(function (r) { return r.json(); }).then(function (ev) {
+        var b = el('div', 'langblock'); b.append(el('h2', null, ev.lang + (ev.n ? ' · ' + ev.n + ' phrases de test' : '')));
+        if (!ev.n) { b.append(el('p', 'note', ev.note || 'Aucune donnée.')); box.append(b); return; }
+        var g = el('div', 'grid');
+        g.append(kpi(P(ev.intentAccuracy), 'Intention exacte'), kpi(P(ev.amountAccuracy), 'Montant exact (' + ev.amountN + ')'), kpi(P(ev.beneficiaryAccuracy), 'Bénéficiaire exact (' + ev.beneficiaryN + ')'),
+          kpi(P(ev.clarificationRate), 'Clarification pertinente (' + ev.clarificationN + ')'), kpi(P(ev.crossChannelConsistency), 'Cohérence mobile / web / USSD'), kpi(ev.latencyMs ? ev.latencyMs.p50 + ' ms' : '—', 'Latence médiane'));
+        b.append(g);
+        var t = el('table'); var h = el('tr'); ['Intention', 'Précision', 'Rappel', 'F1', 'Phrases'].forEach(function (x) { h.append(el('th', null, x)); }); t.append(h);
+        Object.keys(ev.perIntent).forEach(function (k) { var v = ev.perIntent[k], r = el('tr'); [k, P(v.precision), P(v.recall), P(v.f1), v.support].forEach(function (x) { r.append(el('td', null, String(x))); }); t.append(r); });
+        var w = el('div', 'tablewrap'); w.style.marginTop = '10px'; w.append(t); b.append(w);
+        box.append(b);
+      });
+    });
+  }
+  var Q = { validated: ['validé', 'ok'], draft: ['brouillon', 'warn'], machine: ['trad. auto', 'warn'], fallback: ['repli fr', 'bad'] };
+  function loadLog() {
+    fetch('/v1/events').then(function (r) { return r.json(); }).then(function (evs) {
+      var tb = $('#rows'); tb.textContent = '';
+      evs.forEach(function (e) {
+        var c = e.canonical || {}, tr = el('tr'), q = e.lang === 'fr' || e.lang === 'en' ? ['référence', ''] : Q[e.reply.quality] || ['', ''];
+        [e.at.slice(11, 19), e.channel, e.lang].forEach(function (x) { tr.append(el('td', null, x)); });
+        tr.append(el('td', 'wrap', e.request));
+        tr.append(el('td', null, (c.operation || '—') + ' · ' + c.act));
+        tr.append(el('td', 'wrap', JSON.stringify(c.entities)));
+        tr.append(el('td', 'wrap', e.reply.text));
+        tr.append(el('td', q[1], q[0]));
+        tr.append(el('td', 'st-' + e.status, e.status));
+        tr.append(el('td', null, String(e.latencyMs)));
+        tr.append(el('td', 'bad', (e.errors || []).join(' ; ')));
+        tb.append(tr);
+      });
+    }).catch(function () {});
+  }
+  function loadAudit() {
+    fetch('/v1/audit').then(function (r) { return r.json(); }).then(function (a) {
+      var box = $('#audit'); box.textContent = '';
+      box.append(el('p', a.chainIntact ? 'ok' : 'bad', a.chainIntact ? 'Chaîne d’audit intacte : aucun événement modifié ni supprimé.' : 'ALERTE : la chaîne d’audit est rompue.'));
+      var w = el('div', 'tablewrap'), t = el('table'), h = el('tr');
+      ['Heure', 'Institution', 'Canal', 'Langue', 'Opération', 'Acte', 'Statut', 'Montant', 'Bénéficiaire', 'Référence', 'Empreinte'].forEach(function (x) { h.append(el('th', null, x)); }); t.append(h);
+      a.events.slice().reverse().forEach(function (e) {
+        var r = el('tr');
+        [e.at.slice(11, 19), e.institution, e.channel, e.language, e.operation, e.act, e.status, e.amount == null ? '' : e.amount, e.beneficiary || '', e.reference || '', e.hash.slice(0, 12)].forEach(function (x) { r.append(el('td', null, String(x))); });
+        t.append(r);
+      });
+      w.append(t); box.append(w);
+    });
+  }
+  loadEval(); loadLog(); setInterval(loadLog, 3000);
+</script>
+</body>
+</html>

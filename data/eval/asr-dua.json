@@ -1,0 +1,18 @@
+{
+ "lang": "dua",
+ "model": "sherpa-onnx-omnilingual-asr-1600-languages-300M-ctc-int8-2025-11-12",
+ "corpus": "Common Voice 27.0, partie test (CC0)",
+ "clips": 150,
+ "speakers": 5,
+ "audioMinutes": 19.8,
+ "wer": {
+  "strict": 57.3,
+  "withoutTones": 46.7
+ },
+ "cer": {
+  "strict": 10.5,
+  "withoutTones": 4.3
+ },
+ "realTimeFactor": 0.185,
+ "measuredAt": "2026-11-24T01:44:43.176Z"
+}

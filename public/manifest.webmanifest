@@ -1,0 +1,10 @@
+{
+  "name": "Ma Banque — assistant dans votre langue",
+  "short_name": "Ma Banque",
+  "start_url": "/mobile",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "lang": "fr",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

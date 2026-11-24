@@ -1,0 +1,72 @@
+{
+ "status": "draft",
+ "note": "Brouillon : mots tirés du pack Mboa (non validé) + emprunts au français courants à l'oral. Les natifs doivent compléter oui/non, correction, nombres.",
+ "intents": {
+  "balance": [
+   "ceede maa",
+   "konte",
+   "solde"
+  ],
+  "transfer": [
+   "nelde",
+   "nelde ceede",
+   "neldu",
+   "transfert"
+  ],
+  "fees": [
+   "njoɓdi",
+   "frais"
+  ],
+  "history": [
+   "historique"
+  ],
+  "airtime": [
+   "crédit",
+   "recharge",
+   "credit"
+  ],
+  "bill_payment": [
+   "facture",
+   "eneo",
+   "camwater"
+  ],
+  "explain_term": [],
+  "help": [
+   "aide",
+   "help"
+  ],
+  "greeting": [
+   "jam waali"
+  ]
+ },
+ "confirm": [
+  "oui",
+  "ok",
+  "d'accord"
+ ],
+ "deny": [
+  "non",
+  "annuler"
+ ],
+ "correction": [
+  "plutôt"
+ ],
+ "beneficiaryMarkers": [
+  "a",
+  "à"
+ ],
+ "terms": {
+  "frais": "fees",
+  "solde": "balance",
+  "transfert": "transfer",
+  "crédit": "airtime",
+  "facture": "bill"
+ },
+ "missing": [
+  "confirm",
+  "deny",
+  "correction",
+  "nombres en langue nationale",
+  "explain_term"
+ ]
+}

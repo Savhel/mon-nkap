@@ -1,0 +1,28 @@
+{
+  "name": "cameroun-translate",
+  "version": "0.1.0",
+  "description": "Moteur linguistique financier multicanal pour les langues nationales du Cameroun",
+  "scripts": {
+    "start": "node src/api/server.ts",
+    "test": "node --test tests/*.test.ts",
+    "typecheck": "tsc",
+    "models": "node tools/fetch-models.ts",
+    "import-mboa": "node tools/import-mboa-pack.mjs",
+    "collecte": "node tools/collecte.ts",
+    "import-collecte": "node tools/import-collecte.ts",
+    "evaluate": "node tools/evaluate.ts"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "sherpa-onnx-node": "1.13.8"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.18"
+  }
+}

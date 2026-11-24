@@ -1,0 +1,100 @@
+{
+ "status": "draft",
+ "note": "Kamtok : brouillon rédigé à partir de Mboa et de l'anglais, à valider par des locuteurs natifs.",
+ "intents": {
+  "balance": [
+   "my money",
+   "how much i get",
+   "how much money i get",
+   "balance",
+   "the money wey i get",
+   "check my account",
+   "how much remain"
+  ],
+  "transfer": [
+   "send",
+   "send money",
+   "transfer",
+   "give",
+   "sen"
+  ],
+  "fees": [
+   "charges",
+   "how much e cost",
+   "how much e go cost",
+   "fee",
+   "price"
+  ],
+  "history": [
+   "history",
+   "the transaction dem",
+   "wetin i don do",
+   "my transaction"
+  ],
+  "airtime": [
+   "credit",
+   "airtime",
+   "recharge",
+   "call credit"
+  ],
+  "bill_payment": [
+   "bill",
+   "light bill",
+   "water bill",
+   "pay bill",
+   "eneo"
+  ],
+  "explain_term": [
+   "wetin be",
+   "wetin mean",
+   "explain",
+   "wetin e mean"
+  ],
+  "help": [
+   "help",
+   "help me",
+   "menu"
+  ],
+  "greeting": [
+   "how na",
+   "hello",
+   "good morning"
+  ]
+ },
+ "confirm": [
+  "yes",
+  "na so",
+  "correct",
+  "ok",
+  "i confirm",
+  "go ahead",
+  "e correct"
+ ],
+ "deny": [
+  "no",
+  "cancel",
+  "stop",
+  "no do am",
+  "leave am"
+ ],
+ "correction": [
+  "no na",
+  "i mean",
+  "make e be",
+  "instead",
+  "no be dat"
+ ],
+ "beneficiaryMarkers": [
+  "to",
+  "for",
+  "give"
+ ],
+ "terms": {
+  "charges": "fees",
+  "balance": "balance",
+  "transfer": "transfer",
+  "credit": "airtime",
+  "bill": "bill",
+  "pin": "pin"
+ }
+}

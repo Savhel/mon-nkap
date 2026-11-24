@@ -1,0 +1,38 @@
+[
+ {
+  "id": "fr-solde",
+  "lang": "fr",
+  "text": "Quel est le solde de mon compte ?",
+  "synthetic": true
+ },
+ {
+  "id": "fr-transfert",
+  "lang": "fr",
+  "text": "Je veux envoyer cinq mille francs à Marie.",
+  "synthetic": true
+ },
+ {
+  "id": "fr-frais",
+  "lang": "fr",
+  "text": "Combien coûtent les frais pour un transfert de vingt mille francs ?",
+  "synthetic": true
+ },
+ {
+  "id": "fr-historique",
+  "lang": "fr",
+  "text": "Montre-moi mon historique.",
+  "synthetic": true
+ },
+ {
+  "id": "en-balance",
+  "lang": "en",
+  "text": "What is my balance?",
+  "synthetic": true
+ },
+ {
+  "id": "en-transfer",
+  "lang": "en",
+  "text": "Send two thousand francs to Aminatou.",
+  "synthetic": true
+ }
+]

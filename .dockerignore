@@ -1,0 +1,7 @@
+node_modules
+models
+collecte
+tests
+data/audit
+*.wav
+!tests/fixtures/*.wav
