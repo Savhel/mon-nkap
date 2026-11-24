@@ -5,3 +5,4 @@ models/
 .env
 data/audit/
 .venv/
+mobile-android/www/

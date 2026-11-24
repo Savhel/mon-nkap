@@ -41,7 +41,7 @@
 .ca-chip { flex: none; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--ca-line); background: var(--ca-bg); color: var(--ca-ink); padding: 0 14px; border-radius: 999px; font-size: 15px; }
 .ca-chip:hover { border-color: var(--ca-brand); color: var(--ca-brand); }
 .ca-chip svg { color: var(--ca-brand); }
-.ca-form { display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--ca-line); }
+.ca-form { display: flex; gap: 8px; padding: 10px 12px calc(10px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); border-top: 1px solid var(--ca-line); }
 .ca-input { flex: 1; min-width: 0; border: 1px solid var(--ca-line); background: var(--ca-bg); color: var(--ca-ink); padding: 0 14px; font-size: 16px; }
 .ca-input:focus { border-color: var(--ca-brand); }
 .ca-mic { width: 48px; border: 1px solid var(--ca-line); background: var(--ca-bg); color: var(--ca-brand); display: grid; place-items: center; }

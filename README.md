@@ -27,7 +27,7 @@ Prérequis : Node.js 22.18 ou plus récent (TypeScript exécuté directement), P
 
 | Page | Canal |
 |---|---|
-| `/mobile` | Application mobile (installable, fonctionne en PWA) |
+| `/mobile` | Application mobile : PWA installable, ou APK Android (`npm run apk`, voir docs/DEPLOIEMENT.md) |
 | `/banque` | Site d'une banque fictive : assistant ajouté en **une ligne** (`widget.js`) |
 | `/canaux` | USSD (*126#), SMS et serveur vocal côte à côte |
 | `/gab` | Guichet automatique simulé |
@@ -86,6 +86,7 @@ src/backend/      types (contrat FinancialBackend), mock (backend simulé)
 src/channels/     ussd, sms, ivr
 src/voice/        speech (ASR, TTS), native (enregistrements natifs)
 src/api/          server (REST + pages)
+mobile-android/   application Android (Capacitor) : pages de public/ embarquées, moteur sur le serveur
 public/           mobile, banque, gab, canaux, dashboard, assistant (composant partagé), widget, sdk
 collecte/         tableurs des natifs + guide
 data/             languages.json, lexicons/, packs/, langid/, eval/, mboa-pack.json

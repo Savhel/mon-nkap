@@ -17,26 +17,121 @@
     body { padding: 24px 0; background: var(--nk-soft); }
     .device { height: min(860px, calc(100vh - 48px)); border-radius: 28px; overflow: hidden; border: 1px solid var(--nk-line); box-shadow: 0 24px 64px rgba(2, 6, 23, .18); }
   }
-  .appbar { display: flex; align-items: center; gap: 12px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; background: #0f172a; color: #fff; }
+  .appbar { display: flex; align-items: center; gap: 12px; padding: calc(12px + max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px))) 16px 12px; background: #0f172a; color: #fff; }
   .appbar svg { flex: none; }
+  .appbar .title { flex: 1; min-width: 0; }
   .appbar b { display: block; font-size: 17px; font-weight: 600; letter-spacing: .01em; }
   .appbar small { display: block; font-size: 13px; color: #cbd5e1; }
+  .appbar .set { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 10px; background: transparent; color: #e2e8f0; }
+  .appbar .set:hover { background: rgba(255, 255, 255, .08); }
   #app { flex: 1; min-height: 0; }
+
+  /* Application installée : connexion au serveur de la banque. */
+  .setup[hidden] { display: none; }
+  .setup { flex: 1; overflow: auto; padding: 24px 20px calc(24px + max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))); display: flex; flex-direction: column; gap: 16px; }
+  .setup h1 { margin: 8px 0 0; font-size: 22px; line-height: 1.3; font-weight: 600; color: var(--nk-primary); }
+  .setup p { margin: 0; color: var(--nk-muted); font-size: 15px; }
+  .setup form { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .setup label { font-weight: 600; font-size: 15px; color: var(--nk-ink); }
+  .setup input { height: 48px; padding: 0 14px; font: inherit; font-size: 16px; color: var(--nk-ink); background: var(--nk-bg); border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); }
+  .setup input[aria-invalid="true"] { border-color: var(--nk-bad); }
+  .setup .hint { font-size: 14px; }
+  .setup .err { color: var(--nk-bad); font-size: 14px; min-height: 1.5em; }
+  .setup button[type="submit"] { height: 48px; margin-top: 8px; border: 0; border-radius: var(--nk-radius-sm); background: var(--nk-accent); color: var(--nk-on-accent); font: inherit; font-weight: 600; font-size: 16px; }
+  .setup button[type="submit"]:disabled { opacity: .6; }
+  .setup .cancel { height: 44px; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); background: transparent; color: var(--nk-ink); font: inherit; }
 </style>
 </head>
 <body>
 <div class="device">
   <header class="appbar">
     <svg width="36" height="36" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="112" fill="#a16207"/><path d="M128 352V176l64 96 64-96 64 96 64-96v176" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div><b>Mon Nkap</b><small>Votre argent, dans votre langue · démonstration, données fictives</small></div>
+    <div class="title"><b>Mon Nkap</b><small>Votre argent, dans votre langue · démonstration, données fictives</small></div>
+    <button class="set" id="settings" type="button" aria-label="Adresse du serveur" hidden>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
   </header>
   <main id="app"></main>
+  <section class="setup" id="setup" hidden aria-labelledby="setup-title">
+    <h1 id="setup-title">Connexion au serveur</h1>
+    <p>Mon Nkap comprend votre langue sur le serveur de la banque. Indiquez son adresse une seule fois : elle est gardée sur ce téléphone.</p>
+    <form id="setup-form" novalidate>
+      <label for="srv">Adresse du serveur</label>
+      <input id="srv" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="http://192.168.1.20:8080" aria-describedby="srv-hint srv-err">
+      <p class="hint" id="srv-hint">Pour la démonstration : l'ordinateur qui fait tourner Mon Nkap, connecté au même Wi-Fi que ce téléphone.</p>
+      <p class="err" id="srv-err" role="alert"></p>
+      <button type="submit" id="srv-go">Se connecter</button>
+      <button type="button" class="cancel" id="srv-cancel" hidden>Annuler</button>
+    </form>
+  </section>
 </div>
 <script src="/sdk.js"></script>
 <script src="/assistant.js"></script>
 <script>
-  MonNkapAssistant.mount(document.getElementById('app'), { channel: 'mobile', lang: new URLSearchParams(location.search).get('lang') || 'fr' });
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
+(function () {
+  var lang = new URLSearchParams(location.search).get('lang') || 'fr';
+  var app = document.getElementById('app'), setup = document.getElementById('setup');
+  // MONNKAP_CONFIG n'existe que dans l'application installée (APK) : les pages y sont embarquées,
+  // le moteur reste sur le serveur dont l'utilisateur donne l'adresse.
+  var CFG = window.MONNKAP_CONFIG;
+  if (!CFG) {
+    MonNkapAssistant.mount(app, { channel: 'mobile', lang: lang });
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
+    return;
+  }
+
+  var KEY = 'nk-server', mounted = false;
+  var form = document.getElementById('setup-form'), input = document.getElementById('srv'), err = document.getElementById('srv-err');
+  var go = document.getElementById('srv-go'), cancel = document.getElementById('srv-cancel'), settings = document.getElementById('settings');
+  function read() { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+  function save(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+  function normalize(v) {
+    v = String(v || '').trim().replace(/\/+$/, '');
+    if (v && !/^https?:\/\//i.test(v)) v = 'http://' + v;
+    return v;
+  }
+  /** Le serveur répond-il ? 200 = prêt, 503 = joignable mais traduction en panne. */
+  function check(server) {
+    var ctl = new AbortController(), t = setTimeout(function () { ctl.abort(); }, 6000);
+    return fetch(server + '/v1/health', { signal: ctl.signal })
+      .then(function (r) { clearTimeout(t); return { ok: r.status === 200 || r.status === 503 }; })
+      .catch(function () { clearTimeout(t); return { ok: false }; });
+  }
+  function start(server) {
+    setup.hidden = true; app.hidden = false;
+    if (!mounted) { MonNkapAssistant.mount(app, { server: server, channel: 'mobile', lang: lang }); mounted = true; }
+  }
+  function ask(prefill, message) {
+    app.hidden = true; setup.hidden = false;
+    input.value = prefill || ''; input.removeAttribute('aria-invalid');
+    err.textContent = message || '';
+    cancel.hidden = !mounted;
+    setTimeout(function () { input.focus(); }, 50);
+  }
+  var UNREACHABLE = 'Impossible de joindre ce serveur. Vérifiez l’adresse, que le téléphone et l’ordinateur sont sur le même Wi-Fi, et que Mon Nkap est lancé.';
+
+  form.onsubmit = function (e) {
+    e.preventDefault();
+    var server = normalize(input.value);
+    if (!server) { input.setAttribute('aria-invalid', 'true'); err.textContent = 'Indiquez l’adresse du serveur.'; return; }
+    go.disabled = true; go.textContent = 'Connexion…'; err.textContent = '';
+    check(server).then(function (s) {
+      go.disabled = false; go.textContent = 'Se connecter';
+      if (!s.ok) { input.setAttribute('aria-invalid', 'true'); err.textContent = UNREACHABLE; return; }
+      var changed = mounted && server !== read();
+      save(server);
+      if (changed) { location.reload(); return; }
+      start(server);
+    });
+  };
+  cancel.onclick = function () { setup.hidden = true; app.hidden = false; };
+  settings.hidden = false;
+  settings.onclick = function () { ask(read() || normalize(CFG.server), ''); };
+
+  var known = read() || normalize(CFG.server);
+  if (!known) { ask('', ''); return; }
+  check(known).then(function (s) { if (s.ok) { save(known); start(known); } else ask(known, UNREACHABLE); });
+})();
 </script>
 </body>
 </html>
