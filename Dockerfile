@@ -13,6 +13,7 @@ RUN python3 -m venv .venv && .venv/bin/pip install --no-cache-dir -r services/re
 COPY src ./src
 COPY public ./public
 COPY data ./data
+RUN mkdir -p data/audit && chown -R node:node data
 ENV NODE_ENV=production PORT=8080
 USER node
 EXPOSE 8080

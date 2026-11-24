@@ -138,8 +138,10 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
 
       if (req.method === 'POST' && url.pathname === '/v1/confirm') {
         const b = JSON.parse((await body(req, 4 * 1024)).toString('utf8') || '{}');
-        if (typeof b.sessionId !== 'string' || typeof b.token !== 'string') return json(res, 400, { error: 'sessionId et token requis' });
-        const run = () => engine!.confirmWithToken(b.sessionId, b.token, channelOf(b.channel), institution ?? undefined);
+        if (typeof b.token !== 'string' || (typeof b.sessionId !== 'string' && typeof b.userPhone !== 'string')) return json(res, 400, { error: 'token et sessionId (ou userPhone) requis' });
+        // Même session que /v1/message : si l'opération a été présentée avec userPhone, la confirmation y est rattachée.
+        const sid = continuity && typeof b.userPhone === 'string' ? userSession(b.userPhone) : b.sessionId;
+        const run = () => engine!.confirmWithToken(sid, b.token, channelOf(b.channel), institution ?? undefined);
         const { value, replayed } = idemKey ? idem.run(`confirm:${idemKey}`, run) : { value: run(), replayed: false };
         res.setHeader('idempotent-replayed', String(replayed));
         const r = await value as Awaited<ReturnType<typeof run>>;
