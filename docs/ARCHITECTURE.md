@@ -55,7 +55,7 @@ institutions financières branchent leur propre backend derrière une interface 
 | Dialogue | `src/core/engine.ts` | Collecte, clarification, correction, confirmation, annulation, changement de langue |
 | Réponses | `src/core/respond.ts` | Phrases des natifs (pack), sinon libellés Mboa (brouillons), sinon français annoncé |
 | Représentation commune | `src/core/canonical.ts` | `cmfi.v1` |
-| Traduction automatique | `src/mt/flagship.ts` | Secours sous garde uniquement (aller-retour, jamais de chiffre) |
+| Traduction automatique | `src/mt/flagship.ts`, `src/mt/service.ts` | Service **obligatoire**, démarré par le moteur et surveillé par `/v1/health` ; utilisé sous garde (aller-retour fidèle, jamais de chiffre, montants repris du texte d'origine) |
 | Voix | `src/voice/speech.ts`, `native.ts` | ASR Omnilingual (hors ligne) ; voix sortante : enregistrements natifs, sinon français annoncé |
 
 ## Ressources linguistiques

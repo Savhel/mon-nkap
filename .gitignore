@@ -4,3 +4,4 @@ models/
 !tests/fixtures/*.wav
 .env
 data/audit/
+.venv/

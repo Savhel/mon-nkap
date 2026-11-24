@@ -77,10 +77,16 @@ test('Avec les enregistrements : le serveur vocal parle avec eux, assemblés dan
     // La reconnaissance varie un peu d'un essai à l'autre (« cinqt mille ») : on vérifie que les
     // repères attendus apparaissent DANS L'ORDRE, en tolérant au plus un repère mal entendu.
     // (« cent », mot très court, ressort parfois « cant » ou « cint ».)
-    const marks = [/envoyer/y, /mille/y, /c[aei]n?t\b/y, /total/y, /mille/y, /c[aei]n?t\b/y, /confirm/y].map((r) => new RegExp(r.source, 'g'));
-    let pos = 0, found = 0;
-    for (const m of marks) { m.lastIndex = pos; const x = m.exec(heard); if (x) { found++; pos = x.index + x[0].length; } }
-    assert.ok(found >= marks.length - 1, `ordre ou contenu inattendu : « ${heard} »`);
+    // Plus longue suite de repères trouvés DANS L'ORDRE (alignement), et non une recherche gloutonne qui, après
+    // un repère mal entendu, sauterait à une occurrence plus loin et en perdrait plusieurs.
+    const marks = [/^envoyer/, /^mille/, /^c[aei]n?t$/, /^total/, /^mille/, /^c[aei]n?t$/, /^confirm/];
+    const words = heard.split(/\s+/);
+    const L: number[][] = Array.from({ length: marks.length + 1 }, () => new Array(words.length + 1).fill(0));
+    for (let i = 1; i <= marks.length; i++) for (let j = 1; j <= words.length; j++) {
+      L[i][j] = marks[i - 1].test(words[j - 1]) ? L[i - 1][j - 1] + 1 : Math.max(L[i - 1][j], L[i][j - 1]);
+    }
+    const found = L[marks.length][words.length];
+    assert.ok(found >= marks.length - 1, `ordre ou contenu inattendu (${found}/${marks.length}) : « ${heard} »`);
     const miss = await fetch(`${base}/v1/native?lang=ewo&clips=balance_is,n_5000,fcfa`);
     assert.equal(miss.status, 404);
     assert.deepEqual((await miss.json()).missing, ['balance_is']);

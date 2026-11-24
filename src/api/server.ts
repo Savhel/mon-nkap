@@ -40,6 +40,7 @@ import { toCanonical } from '../core/canonical.ts';
 import { evaluateLanguage } from '../eval/evaluate.ts';
 import { uiLabels } from '../core/respond.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
+import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
 
 const CHANNELS = new Set<Channel>(['mobile', 'web', 'ussd', 'sms', 'ivr', 'atm', 'api']);
@@ -116,7 +117,11 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
       if (req.method === 'GET' && url.pathname === '/sdk.js') { res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' }); return res.end(page('sdk.js')); }
       const asset = STATIC[url.pathname];
       if (req.method === 'GET' && asset) { res.writeHead(200, { 'content-type': asset[1], 'cache-control': 'no-cache' }); return res.end(page(asset[0])); }
-      if (req.method === 'GET' && url.pathname === '/v1/health') return json(res, 200, { ok: true });
+      if (req.method === 'GET' && url.pathname === '/v1/health') {
+        // La traduction est une dépendance obligatoire : sans elle, le service est déclaré en panne (503).
+        const mt = await mtStatus();
+        return json(res, mt.up ? 200 : 503, { ok: mt.up, translation: mt });
+      }
       if (req.method === 'GET' && url.pathname === '/v1/languages') return json(res, 200, languages);
       if (req.method === 'GET' && url.pathname === '/v1/events') return json(res, 200, engine.log.slice(-200).reverse());
 
@@ -261,5 +266,9 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const port = Number(process.env.PORT ?? 8080);
+  const mt = await ensureMtService();
+  if (mt.up) console.log(`Traduction Flagship : ${mt.pairs.length} paires prêtes (${mt.url})${mt.started ? ', service démarré par le moteur' : ''}`);
+  else console.error(`ATTENTION : service de traduction INDISPONIBLE (${mt.error ?? 'raison inconnue'}). /v1/health répond 503. Installation : npm run mt:install && npm run mt:models`);
+  for (const sig of ['SIGINT', 'SIGTERM'] as const) process.on(sig, () => { stopMtService(); process.exit(0); });
   createApp().server.listen(port, () => console.log(`Mon Nkap : http://localhost:${port}`));
 }

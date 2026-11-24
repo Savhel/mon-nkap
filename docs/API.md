@@ -90,6 +90,10 @@ Menus (solde, envoyer, frais…) dans la langue, avec leur provenance (`referenc
 
 Capacités **réelles** de chaque langue (compréhension, réponses, voix entrante, voix sortante), avec leur statut.
 
+### `GET /v1/health` — état
+
+`200 { ok: true, translation: { up, pairs, url } }` ; `503` si le service de traduction (obligatoire) est indisponible.
+
 ### `GET /v1/eval?lang=` — évaluation mesurée
 
 Métriques sur les phrases de test des natifs : intention, montants, bénéficiaires, clarification, cohérence

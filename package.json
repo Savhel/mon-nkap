@@ -10,7 +10,10 @@
     "import-mboa": "node tools/import-mboa-pack.mjs",
     "collecte": "node tools/collecte.ts",
     "import-collecte": "node tools/import-collecte.ts",
-    "evaluate": "node tools/evaluate.ts"
+    "evaluate": "node tools/evaluate.ts",
+    "mt:install": "python3 -m venv .venv && .venv/bin/pip install -r services/requirements.txt",
+    "mt:models": ".venv/bin/python services/fetch_flagship.py",
+    "mt": ".venv/bin/python services/mt_server.py"
   },
   "license": "UNLICENSED",
   "devDependencies": {

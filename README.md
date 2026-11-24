@@ -19,9 +19,11 @@ npm test            # tests automatiques (scénarios SAFINUM, canaux, sécurité
 npm run models      # facultatif : reconnaissance vocale Omnilingual (≈ 350 Mo) et voix fr/en
 ```
 
-Prérequis : Node.js 22.18 ou plus récent (TypeScript exécuté directement) et `ffmpeg` pour la voix.
-Facultatif, traduction Flagship de secours : `pip install -r services/requirements.txt`,
-`python3 services/fetch_flagship.py`, puis `python3 services/mt_server.py &`.
+**Traduction (obligatoire)** : `npm run mt:install && npm run mt:models` (environnement Python local `.venv`,
+modèles Flagship ≈ 800 Mo). `npm start` démarre lui-même le service de traduction ; `/v1/health` répond 503 s'il
+est indisponible.
+
+Prérequis : Node.js 22.18 ou plus récent (TypeScript exécuté directement), Python 3.10 ou plus récent et `ffmpeg`.
 
 | Page | Canal |
 |---|---|
@@ -60,6 +62,7 @@ l'apprentissage.
 | Sécurité | Une prédiction n'est jamais une autorisation : jeton de confirmation à usage unique lié à l'opération exacte ; idempotence ; journal d'audit chaîné (SHA-256) ; clés d'API par institution ; limitation de débit ; CORS restreint |
 | Identification de langue | Profils appris sur Common Voice (CC0), mesurés sur des phrases mises de côté : ewondo 94 %, duala 95 %, pidgin 75 % (phrase entière) ; « inconnue » plutôt qu'une supposition |
 | Réponses | Phrases des natifs (pack), sinon libellés Mboa (brouillons), sinon français ; le statut est toujours affiché (`reference`, `validated`, `draft`, `fallback`). Chaque montant est vérifié dans la réponse |
+| Traduction | Service Flagship obligatoire (ewondo, fulfulde, bulu, ghomala', yemba ↔ français), démarré par le moteur : comprend une demande en langue nationale par le français quand le lexique ne suffit pas, et propose une réponse traduite seulement si l'aller-retour est fidèle et sans chiffre, toujours marquée « traduction automatique ». Duala et pidgin : non couverts par Flagship |
 | Voix | Reconnaissance Omnilingual hors ligne ; voix sortante fr/en (Piper) et enregistrements natifs assemblés pour les langues nationales — jamais une voix française pour une langue nationale |
 | Évaluation | Exactitude des intentions, précision / rappel / F1 par intention, exactitude des montants et des bénéficiaires, clarification, cohérence mobile / web / USSD, latence — par langue, jamais mélangée avec le français |
 

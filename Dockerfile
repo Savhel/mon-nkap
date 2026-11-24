@@ -1,12 +1,15 @@
 # Image du moteur Mon Nkap (API + canaux + pages de démonstration).
 #   docker build -t mon-nkap .
 #   docker run -p 8080:8080 -e CT_API_KEYS="banqueA:<cle-longue>" -v $PWD/models:/app/models -v ct-audit:/app/data/audit mon-nkap
-# Les modèles vocaux (environ 450 Mo) ne sont pas dans l'image : `npm run models` sur l'hôte, puis montage de models/.
+# Les modèles (voix ≈ 450 Mo, traduction Flagship ≈ 800 Mo) ne sont pas dans l'image : `npm run models` et
+# `npm run mt:models` sur l'hôte, puis montage de models/. Le service de traduction (obligatoire) est démarré par le moteur.
 FROM node:22-slim
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates && apt-get clean
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates python3 python3-venv && apt-get clean
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
+COPY services ./services
+RUN python3 -m venv .venv && .venv/bin/pip install --no-cache-dir -r services/requirements.txt
 COPY src ./src
 COPY public ./public
 COPY data ./data

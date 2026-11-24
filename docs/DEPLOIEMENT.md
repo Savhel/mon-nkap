@@ -4,8 +4,9 @@
 
 ```bash
 npm install
-npm start                      # http://localhost:8080
-npm run models                 # facultatif : reconnaissance vocale (≈ 350 Mo) et voix fr/en
+npm run mt:install && npm run mt:models   # traduction Flagship (OBLIGATOIRE) : Python local + modèles ≈ 800 Mo
+npm run models                 # reconnaissance vocale (≈ 350 Mo) et voix fr/en
+npm start                      # http://localhost:8080 — démarre aussi le service de traduction
 ```
 
 Pages : `/mobile` (application), `/banque` (site bancaire + widget), `/gab` (guichet automatique),
@@ -33,7 +34,8 @@ docker run -p 8080:8080 \
 | `CT_AUDIT_FILE` | fichier du journal d'audit chaîné | `data/audit/audit.jsonl` |
 | `CT_CONTINUITY` | `0` pour désactiver la continuité entre canaux par numéro de téléphone | activée |
 | `CT_ALLOW_DRAFT` | `1` pour utiliser aussi les phrases non relues (démonstration interne, marquées « brouillon ») | désactivé |
-| `CT_MT_URL` | service de traduction Flagship (facultatif) | `http://127.0.0.1:8091` |
+| `CT_MT_URL` | service de traduction Flagship **obligatoire** ; défini = service distant (pas de démarrage local) | `http://127.0.0.1:8091`, démarré par le moteur |
+| `CT_MT_AUTOSTART` | `0` : ne pas démarrer le service local (il doit alors tourner ailleurs) | activé |
 | `CT_ASR_MODEL` | modèle de reconnaissance vocale | Omnilingual 300M int8 |
 
 ## Passerelles opérateurs
