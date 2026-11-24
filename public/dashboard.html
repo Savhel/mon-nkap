@@ -4,23 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tableau de bord · Mon Nkap</title>
+<link rel="stylesheet" href="/tokens.css">
 <style>
-  :root { --bg:#f4f5f7; --card:#fff; --ink:#1c1f23; --muted:#5d6670; --line:#e3e5e8; --accent:#0f766e; --ok:#15803d; --warn:#b45309; --bad:#b91c1c; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0f1214; --card:#181c1f; --ink:#e8eaec; --muted:#9aa3ab; --line:#2b3136; } }
+  :root { --bg:var(--nk-bg); --card:var(--nk-card); --ink:var(--nk-ink); --muted:var(--nk-muted); --line:var(--nk-line); --accent:var(--nk-secondary); --ok:var(--nk-ok); --warn:var(--nk-warn); --bad:var(--nk-bad); }
   * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  body { margin:0; font:15px/1.5 var(--nk-font); background:var(--bg); color:var(--ink); }
   header, main { max-width:1280px; margin:0 auto; padding:16px; }
   h1 { font-size:1.2rem; margin:0; } .sub { color:var(--muted); margin:4px 0 0; }
   .tabs { display:flex; gap:6px; margin-top:12px; flex-wrap:wrap; }
-  .tabs button { font:inherit; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:8px 14px; min-height:40px; cursor:pointer; }
+  .tabs button { font:inherit; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:8px 16px; min-height:44px; }
   .tabs button[aria-selected="true"] { border-color:var(--accent); color:var(--accent); font-weight:600; }
   .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; }
-  .kpi b { display:block; font-size:1.6rem; } .kpi span { color:var(--muted); font-size:.8rem; }
+  .kpi b { display:block; font-size:28px; font-weight:600; font-variant-numeric:tabular-nums; } .kpi span { color:var(--muted); font-size:13px; }
   .langblock { margin-bottom:16px; } .langblock h2 { font-size:1rem; margin:0 0 8px; }
   .note { color:var(--muted); }
   .tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; }
-  table { width:100%; border-collapse:collapse; font-size:.82rem; }
+  table { width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
   th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
   th { color:var(--muted); font-weight:600; position:sticky; top:0; background:var(--card); }
   td.wrap { max-width:280px; overflow-wrap:anywhere; white-space:pre-wrap; }
@@ -72,6 +72,20 @@
       });
     });
   }
+  var STATUS = { answered: 'Répondu', needs_clarification: 'Précision demandée', awaiting_confirmation: 'En attente de confirmation', executed: 'Exécuté', failed: 'Échec', cancelled: 'Annulé', analyzed: 'Analysé' };
+  var F = function (n) { return Number(n).toLocaleString('fr-FR') + ' FCFA'; };
+  function entities(e) {
+    if (!e) return '';
+    var out = [];
+    if (e.amount != null) out.push('Montant ' + F(e.amount));
+    if (e.fee != null) out.push('Frais ' + F(e.fee));
+    if (e.total != null) out.push('Total ' + F(e.total));
+    if (e.beneficiary) out.push([e.beneficiary.name, e.beneficiary.phone].filter(Boolean).join(' · '));
+    if (e.biller) out.push('Fournisseur ' + e.biller);
+    if (e.term) out.push('Terme : ' + e.term);
+    if (e.reference) out.push('Réf. ' + e.reference);
+    return out.join('\n');
+  }
   var Q = { validated: ['validé', 'ok'], draft: ['brouillon', 'warn'], machine: ['trad. auto', 'warn'], fallback: ['repli fr', 'bad'] };
   function loadLog() {
     fetch('/v1/events').then(function (r) { return r.json(); }).then(function (evs) {
@@ -81,10 +95,10 @@
         [e.at.slice(11, 19), e.channel, e.lang].forEach(function (x) { tr.append(el('td', null, x)); });
         tr.append(el('td', 'wrap', e.request));
         tr.append(el('td', null, (c.operation || '—') + ' · ' + c.act));
-        tr.append(el('td', 'wrap', JSON.stringify(c.entities)));
+        tr.append(el('td', 'wrap', entities(c.entities)));
         tr.append(el('td', 'wrap', e.reply.text));
         tr.append(el('td', q[1], q[0]));
-        tr.append(el('td', 'st-' + e.status, e.status));
+        tr.append(el('td', 'st-' + e.status, STATUS[e.status] || e.status));
         tr.append(el('td', null, String(e.latencyMs)));
         tr.append(el('td', 'bad', (e.errors || []).join(' ; ')));
         tb.append(tr);
@@ -99,7 +113,7 @@
       ['Heure', 'Institution', 'Canal', 'Langue', 'Opération', 'Acte', 'Statut', 'Montant', 'Bénéficiaire', 'Référence', 'Empreinte'].forEach(function (x) { h.append(el('th', null, x)); }); t.append(h);
       a.events.slice().reverse().forEach(function (e) {
         var r = el('tr');
-        [e.at.slice(11, 19), e.institution, e.channel, e.language, e.operation, e.act, e.status, e.amount == null ? '' : e.amount, e.beneficiary || '', e.reference || '', e.hash.slice(0, 12)].forEach(function (x) { r.append(el('td', null, String(x))); });
+        [e.at.slice(11, 19), e.institution, e.channel, e.language, e.operation, e.act, STATUS[e.status] || e.status, e.amount == null ? '' : F(e.amount), e.beneficiary || '', e.reference || '', e.hash.slice(0, 12)].forEach(function (x) { r.append(el('td', null, String(x))); });
         t.append(r);
       });
       w.append(t); box.append(w);

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mon Nkap · test vocal</title>
+<link rel="stylesheet" href="/tokens.css">
 <style>
   :root { --bg:#f7f7f5; --card:#fff; --ink:#1c1f23; --muted:#5d6670; --line:#e3e5e8; --accent:#0f766e; --warn:#b45309; --bad:#b91c1c; --ok:#15803d; }
   * { box-sizing: border-box; }
@@ -56,7 +57,7 @@
   </div>
 
   <div class="card">
-    <button id="mic">🎙️ Appuyez pour parler</button>
+    <button id="mic">Appuyez pour parler</button>
     <div class="row" style="margin-top:10px">
       <input type="text" id="text" placeholder="…ou tapez : « envoie 5000 à Paul »">
       <button id="send">Envoyer</button>
@@ -103,17 +104,17 @@ function showResult(r) {
   if (r.reply.menu) { const m = document.createElement('div'); m.className = 'menu'; for (const it of r.reply.menu) { const b = document.createElement('button'); b.className = 'secondary'; b.textContent = `${it.key}. ${it.label}`; b.onclick = () => sendText(it.key); m.append(b); } d.append(m); }
   const playLang = ['fr', 'en'].includes(r.reply.lang) ? r.reply.lang : null;
   const p = document.createElement('div'); p.className = 'meta';
-  if (playLang) { const b = document.createElement('button'); b.className = 'secondary'; b.textContent = '🔊 Écouter'; b.onclick = () => new Audio(`/v1/tts?lang=${playLang}&text=${encodeURIComponent(r.reply.text)}`).play(); p.append(b); }
+  if (playLang) { const b = document.createElement('button'); b.className = 'secondary'; b.textContent = 'Écouter'; b.onclick = () => new Audio(`/v1/tts?lang=${playLang}&text=${encodeURIComponent(r.reply.text)}`).play(); p.append(b); }
   else if (r.reply.speech?.length && r.reply.lang === r.lang) {
     // Langue nationale : on la fait parler avec les enregistrements natifs, s'ils sont tous là.
     const url = `/v1/native?lang=${r.reply.lang}&clips=${r.reply.speech.join(',')}`;
     p.textContent = '…';
     fetch(url).then(async (res) => {
-      if (res.ok) { p.textContent = ''; const b = document.createElement('button'); b.className = 'secondary'; b.textContent = '🔊 Écouter (voix native enregistrée)'; const blob = URL.createObjectURL(await res.blob()); b.onclick = () => new Audio(blob).play(); p.append(b); }
-      else { const j = await res.json(); p.textContent = `🔇 Pas de voix de synthèse dans cette langue. Il manque ${j.missing?.length ?? '?'} enregistrement(s) natif(s) pour dire cette réponse : ${(j.missing ?? []).join(', ')}.`; }
+      if (res.ok) { p.textContent = ''; const b = document.createElement('button'); b.className = 'secondary'; b.textContent = 'Écouter (voix native enregistrée)'; const blob = URL.createObjectURL(await res.blob()); b.onclick = () => new Audio(blob).play(); p.append(b); }
+      else { const j = await res.json(); p.textContent = `Pas de voix de synthèse dans cette langue. Il manque ${j.missing?.length ?? '?'} enregistrement(s) natif(s) pour dire cette réponse : ${(j.missing ?? []).join(', ')}.`; }
     });
   }
-  else p.textContent = '🔇 Pas encore de voix réelle dans cette langue : enregistrements natifs à fournir.';
+  else p.textContent = 'Pas encore de voix réelle dans cette langue : enregistrements natifs à fournir.';
   d.append(p);
   if ($('lang').value !== r.lang) { $('lang').value = r.lang; showCaps(); }
   refreshLog();
@@ -142,9 +143,9 @@ $('mic').onclick = async () => {
       const blob = new Blob(chunks, { type: rec.mimeType });
       const q = new URLSearchParams({ sessionId: session, channel: $('channel').value, lang: $('lang').value });
       const r = await (await fetch('/v1/voice?' + q, { method: 'POST', body: blob })).json();
-      $('mic').textContent = '🎙️ Appuyez pour parler';
+      $('mic').textContent = 'Appuyez pour parler';
       if (r.error) return add('bot', 'Erreur : ' + esc(r.error));
-      add('user', `🎙️ « ${esc(r.transcript.text || '…')} »<div class="meta">${r.transcript.engine} · ${r.transcript.audioSeconds} s d'audio · ${r.transcript.decodeMs} ms</div>`);
+      add('user', `Entendu : « ${esc(r.transcript.text || '…')} »<div class="meta">${r.transcript.engine} · ${r.transcript.audioSeconds} s d'audio · ${r.transcript.decodeMs} ms</div>`);
       if (r.result) showResult(r.result); else add('bot', esc(r.note));
     };
     rec.start(); $('mic').classList.add('rec'); $('mic').textContent = '⏹️ Appuyez pour arrêter';

@@ -1,0 +1,45 @@
+/* Mon Nkap — jetons de design communs à tous les canaux (application mobile, widget web, guichet, tableau de bord).
+   Style : minimaliste et sobre (confiance bancaire). Bleu marine pour la structure, or pour l'action principale.
+   Police : IBM Plex Sans si elle est installée, sinon police du système — aucun téléchargement (fonctionne hors ligne). */
+:root {
+  --nk-font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --nk-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --nk-primary: #0f172a;        /* marine : en-têtes, texte fort */
+  --nk-secondary: #1e3a8a;      /* bleu : liens, éléments actifs */
+  --nk-on-secondary: #ffffff;
+  --nk-accent: #a16207;         /* or : action principale (contraste 4,9:1 sur blanc) */
+  --nk-on-accent: #ffffff;
+  --nk-bg: #f8fafc;
+  --nk-card: #ffffff;
+  --nk-ink: #020617;
+  --nk-muted: #475569;          /* texte secondaire (7,5:1 sur blanc) */
+  --nk-soft: #e8ecf1;
+  --nk-line: #e2e8f0;
+  --nk-ok: #15803d;
+  --nk-warn: #b45309;
+  --nk-bad: #dc2626;
+  --nk-focus: #f59e0b;
+  --nk-radius: 12px;
+  --nk-radius-sm: 8px;
+  --nk-space-1: 4px; --nk-space-2: 8px; --nk-space-3: 12px; --nk-space-4: 16px; --nk-space-5: 24px; --nk-space-6: 32px;
+  --nk-fast: 150ms; --nk-base: 200ms;
+  --nk-ease: cubic-bezier(.2, .8, .2, 1);
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --nk-primary: #e2e8f0; --nk-secondary: #93c5fd; --nk-on-secondary: #0b1120; --nk-accent: #facc15; --nk-on-accent: #1c1917;
+    --nk-bg: #0b1120; --nk-card: #111827; --nk-ink: #f1f5f9; --nk-muted: #a3b0c2; --nk-soft: #1e293b; --nk-line: #263244;
+    --nk-ok: #4ade80; --nk-warn: #fbbf24; --nk-bad: #f87171;
+  }
+}
+html { -webkit-text-size-adjust: 100%; }
+body { font-family: var(--nk-font); font-size: 16px; line-height: 1.5; }
+button, [role="button"], [role="tab"], select, summary, a { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+button, a, input, select { transition: background-color var(--nk-fast) var(--nk-ease), border-color var(--nk-fast) var(--nk-ease), color var(--nk-fast) var(--nk-ease), opacity var(--nk-fast); }
+:focus-visible { outline: 3px solid var(--nk-focus); outline-offset: 2px; }
+.nk-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

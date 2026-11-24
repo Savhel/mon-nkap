@@ -50,7 +50,7 @@ const MAX_AUDIO = 10 * 1024 * 1024;
 const HTML = 'text/html; charset=utf-8', JS = 'text/javascript; charset=utf-8';
 const STATIC: Record<string, [string, string]> = {
   '/mobile': ['mobile.html', HTML], '/banque': ['banque.html', HTML], '/gab': ['gab.html', HTML], '/tableau': ['dashboard.html', HTML],
-  '/assistant.js': ['assistant.js', JS], '/assistant.css': ['assistant.css', 'text/css; charset=utf-8'], '/widget.js': ['widget.js', JS],
+  '/assistant.js': ['assistant.js', JS], '/assistant.css': ['assistant.css', 'text/css; charset=utf-8'], '/tokens.css': ['tokens.css', 'text/css; charset=utf-8'], '/widget.js': ['widget.js', JS],
   '/sw.js': ['sw.js', JS], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'],
 };
 

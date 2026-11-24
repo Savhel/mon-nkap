@@ -1,7 +1,7 @@
 // Service worker minimal : l'interface de l'application reste disponible hors connexion.
 // Les requêtes vers l'API (/v1/…) ne sont JAMAIS mises en cache : un solde ou une confirmation périmés seraient dangereux.
-const SHELL = 'mon-nkap-v1';
-const FILES = ['/mobile', '/assistant.css', '/assistant.js', '/sdk.js', '/icon.svg', '/manifest.webmanifest'];
+const SHELL = 'mon-nkap-v2';
+const FILES = ['/mobile', '/tokens.css', '/assistant.css', '/assistant.js', '/sdk.js', '/icon.svg', '/manifest.webmanifest'];
 self.addEventListener('install', (e) => e.waitUntil(caches.open(SHELL).then((c) => c.addAll(FILES))));
 self.addEventListener('fetch', (e) => {
   const u = new URL(e.request.url);

@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mon Nkap · canaux</title>
+<link rel="stylesheet" href="/tokens.css">
 <style>
   :root { --bg:#f4f4f1; --card:#fff; --ink:#1c1f23; --muted:#5d6670; --line:#e3e5e8; --accent:#0f766e; --soft:#e7f3f1; --warn:#b45309; --bad:#b91c1c; --ok:#15803d; --screen:#d9e4d2; --screen-ink:#1b2a17; }
   * { box-sizing:border-box; }
-  body { margin:0; font:15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--ink); }
+  body { margin:0; font:15px/1.5 var(--nk-font); background:var(--bg); color:var(--ink); }
   header { max-width:1200px; margin:0 auto; padding:16px 16px 0; }
   h1 { font-size:1.25rem; margin:4px 0; }
   .sub { color:var(--muted); margin:0 0 12px; }
@@ -33,7 +34,7 @@
   .bubble { max-width:85%; padding:8px 10px; border-radius:14px; white-space:pre-wrap; overflow-wrap:anywhere; }
   .in { align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
   .out { align-self:flex-start; background:#eceef0; border-bottom-left-radius:4px; }
-  .seg { font-size:.72rem; color:var(--muted); align-self:flex-start; }
+  .seg { font-size:.75rem; color:var(--muted); align-self:flex-start; }
   .row { display:flex; gap:6px; margin-top:8px; }
   .row input { flex:1; min-width:0; }
   .mic { width:100%; padding:16px; font-size:1.05rem; border-radius:12px; margin-bottom:8px; }
@@ -43,7 +44,7 @@
   button.hang { background:var(--bad); }
   button:disabled { opacity:.45; cursor:default; }
   .say { align-self:flex-start; background:#eceef0; }
-  .say small { display:block; color:var(--muted); font-size:.72rem; margin-top:2px; }
+  .say small { display:block; color:var(--muted); font-size:.75rem; margin-top:2px; }
   .ivrkeys { display:grid; grid-template-columns:repeat(5, 1fr); gap:5px; margin-top:8px; }
   .ivrkeys button { padding:7px 0; background:#3a4046; }
   .notice { font-size:.8rem; color:var(--warn); margin:4px 0 0; }
@@ -95,14 +96,14 @@
   </section>
   <section class="card">
     <h2>Web / application <span class="tag">même API /v1/message</span></h2>
-    <button id="mic" class="mic">🎙️ Appuyez pour parler</button>
+    <button id="mic" class="mic">Appuyez pour parler</button>
     <div class="thread" id="web"></div>
     <div class="row"><input id="wtext" placeholder="Votre demande"><button id="wsend">Envoyer</button></div>
   </section>
   <section class="card">
     <h2>Serveur vocal <span class="tag">appel · parole + clavier</span></h2>
-    <div class="call"><button id="call">📞 Appeler</button><button id="hang" class="hang" disabled>Raccrocher</button></div>
-    <button id="ivrmic" class="mic" disabled>🎙️ Parler après le bip</button>
+    <div class="call"><button id="call">Appeler</button><button id="hang" class="hang" disabled>Raccrocher</button></div>
+    <button id="ivrmic" class="mic" disabled>Parler après le bip</button>
     <div class="thread" id="ivr"></div>
     <p class="notice" id="ivrnote"></p>
     <div class="ivrkeys" id="ivrkeys"></div>
@@ -190,9 +191,9 @@ $('mic').onclick = async () => {
       $('mic').classList.remove('rec'); $('mic').textContent = '⏳ Reconnaissance…';
       const q = new URLSearchParams({ sessionId: web, channel: 'web', lang: $('lang').value });
       const r = await (await fetch('/v1/voice?' + q, { method: 'POST', body: new Blob(chunks, { type: rec.mimeType }) })).json();
-      $('mic').textContent = '🎙️ Appuyez pour parler';
+      $('mic').textContent = 'Appuyez pour parler';
       if (r.error) return bubble('web', 'out', 'Erreur : ' + r.error);
-      bubble('web', 'in', '🎙️ « ' + (r.transcript.text || '…') + ' »', `${r.transcript.audioSeconds} s d'audio · reconnu en ${r.transcript.decodeMs} ms`);
+      bubble('web', 'in', 'Entendu : « ' + (r.transcript.text || '…') + ' »', `${r.transcript.audioSeconds} s d'audio · reconnu en ${r.transcript.decodeMs} ms`);
       if (r.result) showWeb(r.result); else bubble('web', 'out', r.note);
     };
     rec.start(); $('mic').classList.add('rec'); $('mic').textContent = '⏹️ Appuyez pour arrêter';
@@ -225,7 +226,7 @@ function ivrBubble(cls, text, small) {
   $('ivr').append(d); $('ivr').scrollTop = $('ivr').scrollHeight;
 }
 async function playPrompts(turn) {
-  for (const p of turn.prompts) ivrBubble('say', '🔊 ' + p.text, `voix ${p.voice === 'fr' ? 'française' : 'anglaise'}`);
+  for (const p of turn.prompts) ivrBubble('say', 'Annonce : ' + p.text, `voix ${p.voice === 'fr' ? 'française' : 'anglaise'}`);
   $('ivrnote').textContent = turn.nativeVoice === false ? 'Compris dans votre langue, réponses lues en français : aucune voix native n’est encore disponible.' : '';
   $('ivrmic').disabled = turn.expect !== 'speech';
   if (turn.result) refreshLog();
@@ -237,7 +238,7 @@ async function playPrompts(turn) {
 async function ivr(q, body) {
   const r = await (await fetch(`/v1/ivr?sessionId=${call.id}&${q}`, { method: 'POST', body })).json();
   if (r.error) return ivrBubble('say', 'Erreur : ' + r.error);
-  if (r.transcript) ivrBubble('in', '🎙️ « ' + (r.transcript.text || '…') + ' »', `reconnu en ${r.transcript.decodeMs} ms`);
+  if (r.transcript) ivrBubble('in', 'Entendu : « ' + (r.transcript.text || '…') + ' »', `reconnu en ${r.transcript.decodeMs} ms`);
   return playPrompts(r);
 }
 $('call').onclick = async () => {
@@ -249,7 +250,7 @@ $('hang').onclick = async () => {
   if (!call) return;
   call.audio?.pause(); await fetch(`/v1/ivr?sessionId=${call.id}&action=hangup`, { method: 'POST' });
   call = null; $('hang').disabled = true; $('call').disabled = false; $('ivrmic').disabled = true;
-  ivrBubble('say', '📴 Appel terminé');
+  ivrBubble('say', 'Appel terminé');
 };
 for (const k of ['1','2','3','4','5','6','7','8','9','0']) {
   const b = document.createElement('button'); b.textContent = k;
@@ -266,7 +267,7 @@ $('ivrmic').onclick = async () => {
     ivrRec.ondataavailable = (e) => ivrChunks.push(e.data);
     ivrRec.onstop = async () => {
       stream.getTracks().forEach((t) => t.stop());
-      $('ivrmic').classList.remove('rec'); $('ivrmic').textContent = '🎙️ Parler après le bip';
+      $('ivrmic').classList.remove('rec'); $('ivrmic').textContent = 'Parler après le bip';
       await ivr('', new Blob(ivrChunks, { type: ivrRec.mimeType }));
     };
     ivrRec.start(); $('ivrmic').classList.add('rec'); $('ivrmic').textContent = '⏹️ J’ai fini de parler';
