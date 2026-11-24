@@ -1,6 +1,6 @@
 # Architecture et intégration
 
-Cameroun Translate est une **couche linguistique réutilisable** : un seul moteur comprend une demande
+Mon Nkap est une **couche linguistique réutilisable** : un seul moteur comprend une demande
 financière dans une langue nationale et la transforme en une représentation métier commune. Les canaux
 (mobile, web, USSD, SMS, serveur vocal, guichet automatique) ne sont que des adaptateurs fins ; les
 institutions financières branchent leur propre backend derrière une interface unique.
@@ -85,7 +85,7 @@ Puis déclarer ses capacités réelles dans `data/languages.json`. Aucune ligne 
 | Besoin | Moyen | Code à écrire chez l'institution |
 |---|---|---|
 | Ajouter l'assistant à un site existant | `<script src="https://<serveur>/widget.js" data-lang="fr" async></script>` | **une ligne** |
-| Application mobile ou web existante | SDK `CamerounTranslate.connect(url).message(texte)` puis `.confirm(jeton)` | quelques lignes |
+| Application mobile ou web existante | SDK `MonNkap.connect(url).message(texte)` puis `.confirm(jeton)` | quelques lignes |
 | Garder son propre parcours | `POST /v1/analyze` → représentation canonique | appel REST |
 | Passerelle USSD / SMS / vocale | `POST /ussd`, `/sms`, `/ivr/at` (format Africa's Talking) | configuration de la passerelle |
 | Brancher son backend | implémenter l'interface `FinancialBackend` (`src/backend/types.ts`) : solde, contacts, frais, transfert, crédit, facture, retrait, historique | un adaptateur |

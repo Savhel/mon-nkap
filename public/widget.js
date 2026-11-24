@@ -20,7 +20,7 @@
     btn.setAttribute('aria-expanded', 'false');
     var panel = document.createElement('div'); panel.className = 'ctw-panel'; panel.hidden = true; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Assistant dans votre langue');
     document.body.append(panel, btn);
-    window.CamerounAssistant.mount(panel, { server: base, channel: 'web', lang: lang });
+    window.MonNkapAssistant.mount(panel, { server: base, channel: 'web', lang: lang });
     btn.onclick = function () { panel.hidden = !panel.hidden; btn.setAttribute('aria-expanded', String(!panel.hidden)); };
   }).catch(function () { /* le site de la banque continue de fonctionner sans l'assistant */ });
 })();

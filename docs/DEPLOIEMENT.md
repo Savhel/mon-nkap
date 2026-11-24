@@ -14,12 +14,12 @@ Pages : `/mobile` (application), `/banque` (site bancaire + widget), `/gab` (gui
 ## Avec Docker
 
 ```bash
-docker build -t cameroun-translate .
+docker build -t mon-nkap .
 docker run -p 8080:8080 \
   -e CT_API_KEYS="banqueA:<clé d'au moins 16 caractères>" \
   -e CT_CORS_ORIGINS="https://banque-a.example" \
   -v "$PWD/models:/app/models" -v ct-audit:/app/data/audit \
-  cameroun-translate
+  mon-nkap
 ```
 
 ## Variables d'environnement

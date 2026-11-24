@@ -1,4 +1,4 @@
-# Cameroun Translate
+# Mon Nkap
 
 Une **infrastructure linguistique réutilisable** pour les langues nationales du Cameroun, conçue pour la finale du
 SAFINUM Innovate Challenge 2026 (équipe GIFA).

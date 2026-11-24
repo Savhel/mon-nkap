@@ -261,5 +261,5 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const port = Number(process.env.PORT ?? 8080);
-  createApp().server.listen(port, () => console.log(`Cameroun Translate : http://localhost:${port}`));
+  createApp().server.listen(port, () => console.log(`Mon Nkap : http://localhost:${port}`));
 }

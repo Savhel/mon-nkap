@@ -1,4 +1,4 @@
-# API linguistique Cameroun Translate — v1
+# API linguistique Mon Nkap — v1
 
 Une seule API pour tous les canaux. Une institution financière l'appelle depuis son application mobile, son
 site web, sa passerelle USSD ou SMS, son serveur vocal ou ses guichets automatiques. Elle n'a pas à construire

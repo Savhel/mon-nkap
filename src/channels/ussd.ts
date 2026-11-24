@@ -31,7 +31,7 @@ const FALLBACK_LABELS: Record<string, Record<string, string>> = {
   airtime: { fr: 'Crédit', en: 'Airtime' },
   bill: { fr: 'Facture', en: 'Pay a bill' },
   step_balance: { en: 'Balance' }, transfer_title: { en: 'Send money' }, step_fees: { en: 'Fees' }, history: { en: 'History' }, language: { en: 'Language' },
-  menu_title: { fr: 'Cameroun Translate', en: 'Cameroun Translate' },
+  menu_title: { fr: 'Mon Nkap', en: 'Mon Nkap' },
   free_text: { fr: 'Ou écrivez votre demande', en: 'Or type your request' },
   next: { fr: 'Suite', en: 'More' },
   choose_lang: { fr: 'Choisissez votre langue', en: 'Choose your language' },

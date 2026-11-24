@@ -1,6 +1,6 @@
-// SDK navigateur Cameroun Translate : une page web ou l'extension Mboa appelle le moteur commun.
+// SDK navigateur Mon Nkap : une page web ou l'extension Mboa appelle le moteur commun.
 //   <script src="https://<serveur>/sdk.js"></script>
-//   const ct = CamerounTranslate.connect('https://<serveur>', { channel: 'web', lang: 'ewo' });
+//   const ct = MonNkap.connect('https://<serveur>', { channel: 'web', lang: 'ewo' });
 //   const r = await ct.message('envoie 5000 a Marie');   // r.reply.text, r.reply.menu, r.intent, r.params…
 //   const v = await ct.voice(blobAudio);                 // { transcript, result }
 //   await ct.confirm(r.canonical.confirmationToken);     // exécute l'opération présentée (jeton à usage unique)
@@ -44,5 +44,5 @@
       reset: function () { session = 'sdk-' + Math.random().toString(36).slice(2, 10); },
     };
   }
-  g.CamerounTranslate = { connect: connect };
+  g.MonNkap = { connect: connect };
 })(typeof window !== 'undefined' ? window : globalThis);

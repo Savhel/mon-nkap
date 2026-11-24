@@ -1,6 +1,6 @@
-# Image du moteur Cameroun Translate (API + canaux + pages de démonstration).
-#   docker build -t cameroun-translate .
-#   docker run -p 8080:8080 -e CT_API_KEYS="banqueA:<cle-longue>" -v $PWD/models:/app/models -v ct-audit:/app/data/audit cameroun-translate
+# Image du moteur Mon Nkap (API + canaux + pages de démonstration).
+#   docker build -t mon-nkap .
+#   docker run -p 8080:8080 -e CT_API_KEYS="banqueA:<cle-longue>" -v $PWD/models:/app/models -v ct-audit:/app/data/audit mon-nkap
 # Les modèles vocaux (environ 450 Mo) ne sont pas dans l'image : `npm run models` sur l'hôte, puis montage de models/.
 FROM node:22-slim
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates && apt-get clean

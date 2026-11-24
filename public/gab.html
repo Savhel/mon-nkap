@@ -44,7 +44,7 @@
   // exactement comme le menu USSD. Les libellés viennent de /v1/labels, dans la langue choisie.
   var LANGS = [['fr', 'Français'], ['en', 'English'], ['ewo', 'Ewondo'], ['dua', 'Duala'], ['fub', 'Fulfulde'], ['wes', 'Pidgin']];
   var MAIN = [['menu_balance', 'solde'], ['menu_withdraw', 'retirer'], ['menu_transfer', 'envoyer de l’argent'], ['menu_fees', 'frais'], ['menu_history', 'historique'], ['menu_language', null]];
-  var ct = CamerounTranslate.connect('', { channel: 'atm', lang: 'fr' });
+  var ct = MonNkap.connect('', { channel: 'atm', lang: 'fr' });
   var $ = function (id) { return document.getElementById(id); };
   var labels = {}, entry = '', state = 'lang';
 

@@ -10,7 +10,7 @@
 ## Résultat en une phrase
 Les modèles ont été entraînés sur la **Bible**. Sur du vocabulaire bancaire, ils produisent des phrases religieuses sans rapport (« Heureux les enfants ! », « l'Evangile »), répètent des mots en boucle et **perdent les montants** (« 150 000 francs » devient une phrase sans nombre ; « 5 000 » devient « ujineere ujineere… »). Seule exception : « Je veux envoyer de l'argent à Paul » fait correctement l'aller-retour en fulfulde, bulu et ghomala'. C'est une phrase très proche du style biblique.
 
-## Conséquence pour Cameroun Translate
+## Conséquence pour Mon Nkap
 - **Interdit** pour générer seul une réponse contenant un montant, des frais ou un avertissement : le brief de la finale classe ces erreurs comme des défauts majeurs.
 - **Utilisable sous garde** pour des phrases courtes sans chiffres : le résultat n'est affiché que si l'aller-retour redonne le sens d'origine, et il est marqué « traduction automatique ».
 - Licence : la fiche du dépôt indique CC BY-NC 4.0, mais les README par paire indiquent `license: cc-by-4.0`. La contradiction reste à lever avec Flagship.

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
-<title>Ma Banque · application mobile</title>
+<title>Mon Nkap · application mobile</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="stylesheet" href="/assistant.css">
 <style>
@@ -21,13 +21,13 @@
 </head>
 <body>
 <div class="device">
-  <div class="appbar"><b>Ma Banque</b><small>Application mobile simulée · l'assistant parle votre langue · données fictives</small></div>
+  <div class="appbar"><b>Mon Nkap</b><small>Application mobile simulée · l'assistant parle votre langue · données fictives</small></div>
   <div id="app"></div>
 </div>
 <script src="/sdk.js"></script>
 <script src="/assistant.js"></script>
 <script>
-  CamerounAssistant.mount(document.getElementById('app'), { channel: 'mobile', lang: new URLSearchParams(location.search).get('lang') || 'fr' });
+  MonNkapAssistant.mount(document.getElementById('app'), { channel: 'mobile', lang: new URLSearchParams(location.search).get('lang') || 'fr' });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
 </script>
 </body>

@@ -1,4 +1,4 @@
-# Licences : Cameroun Translate
+# Licences : Mon Nkap
 
 *État au 23 novembre 2026. Aucun modèle n'est intégré ni redistribué tant que sa ligne n'est pas marquée « Autorisé ».*
 

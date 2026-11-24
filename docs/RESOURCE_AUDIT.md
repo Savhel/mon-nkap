@@ -1,4 +1,4 @@
-# Audit des ressources : Cameroun Translate (Étape 1)
+# Audit des ressources : Mon Nkap (Étape 1)
 
 *Audit réalisé le 23 novembre 2026. Chaque ligne s'appuie sur la page officielle de la ressource, lue ce jour-là. Quand une information n'a pas pu être vérifiée, la mention est **« non vérifié »**. Je n'ai rien déduit du simple fait qu'une langue soit africaine.*
 

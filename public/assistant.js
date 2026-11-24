@@ -1,6 +1,6 @@
 // Composant « assistant financier dans votre langue », partagé par l'application mobile et le widget web.
 // Il ne contient aucune intelligence : il affiche ce que renvoie le moteur commun (via sdk.js).
-//   CamerounAssistant.mount(element, { server: '', channel: 'mobile', lang: 'ewo' })
+//   MonNkapAssistant.mount(element, { server: '', channel: 'mobile', lang: 'ewo' })
 // Tout texte venant du serveur est inséré avec textContent (jamais interprété comme du HTML).
 (function (g) {
   var QUALITY = {
@@ -25,7 +25,7 @@
 
   function mount(root, opts) {
     opts = opts || {};
-    var ct = g.CamerounTranslate.connect(opts.server || '', { channel: opts.channel || 'web', lang: opts.lang || 'fr' });
+    var ct = g.MonNkap.connect(opts.server || '', { channel: opts.channel || 'web', lang: opts.lang || 'fr' });
     root.classList.add('ca');
     var top = el('div', 'ca-top');
     var langSel = el('select', 'ca-lang'); langSel.setAttribute('aria-label', 'Langue');
@@ -103,5 +103,5 @@
     };
     return { client: ct, send: send };
   }
-  g.CamerounAssistant = { mount: mount };
+  g.MonNkapAssistant = { mount: mount };
 })(window);

@@ -20,7 +20,7 @@ export interface IvrTurn { prompts: Prompt[]; expect: 'digits' | 'speech' | 'end
 const LANGS: [string, string][] = [['fr', 'français'], ['en', 'English'], ['ewo', 'ewondo'], ['dua', 'duala'], ['fub', 'fulfulde'], ['wes', 'pidgin'], ['bum', 'bulu'], ['bas', "bassa'a"]];
 
 const T = {
-  welcome: { fr: 'Bienvenue sur Cameroun Translate.', en: 'Welcome to Cameroun Translate.' },
+  welcome: { fr: 'Bienvenue sur Mon Nkap.', en: 'Welcome to Mon Nkap.' },
   speak: { fr: 'Dites votre demande après le bip, par exemple : envoyer cinq mille francs à Marie. Ou tapez 0 pour réécouter.', en: 'Say your request after the beep, for example: send five thousand francs to Marie. Or press 0 to hear this again.' },
   again: { fr: 'Autre chose ? Parlez après le bip, ou raccrochez.', en: 'Anything else? Speak after the beep, or hang up.' },
   heard_nothing: { fr: 'Je n’ai rien entendu. Parlez plus près du téléphone.', en: 'I did not hear anything. Please speak closer to the phone.' },
