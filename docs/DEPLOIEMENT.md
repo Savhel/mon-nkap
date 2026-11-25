@@ -10,7 +10,7 @@ npm start                      # http://localhost:8080 — démarre aussi le ser
 ```
 
 Pages : `/mobile` (application), `/banque` (site bancaire + widget), `/gab` (guichet automatique),
-`/canaux` (USSD, SMS, serveur vocal), `/tableau` (évaluation, journal, audit).
+`/canaux` (USSD, SMS, serveur vocal), `/portail` (clés API clients + test traduction), `/admin` (gestion clés + entraînement modèles), `/tableau` (évaluation, journal, audit).
 
 ## Avec Docker
 
@@ -30,7 +30,8 @@ docker run -p 8080:8080 \
 | `PORT` | port HTTP | 8080 |
 | `CT_API_KEYS` | `institution:clé,…` — clés statiques sur `/v1/*` | vide = ouvert (local seulement, sauf registre) |
 | `CT_KEYS_FILE` | fichier du registre persistant des clés d'entreprises (empreintes SHA-256) | `data/api-keys.json` (si présent) |
-| `CT_ADMIN_KEY` | secret d'administration requis dans `x-admin-key` pour `/v1/admin/keys*` | vide (`503` sur `/v1/admin/*`) |
+| `CT_PORTAL_SIGNUP` | `0` pour désactiver la création libre de clés sur `/portail` | activée |
+| `CT_ADMIN_KEY` | secret d'administration requis dans `x-admin-key` pour `/v1/admin/*` (`/admin`) | vide (`503` sur `/v1/admin/*`) |
 | `CT_RATE_LIMIT` | requêtes POST par minute et par client | 120 |
 | `CT_CORS_ORIGINS` | sites autorisés à appeler l'API depuis un navigateur | tous (local) |
 | `CT_AUDIT_FILE` | fichier du journal d'audit chaîné | `data/audit/audit.jsonl` |

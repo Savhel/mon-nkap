@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portail Entreprises & API · Mon Nkap</title>
+<link rel="stylesheet" href="/tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.55 var(--nk-font); background: var(--nk-bg); color: var(--nk-ink); }
+  header, main { max-width: 1040px; margin: 0 auto; padding: 20px 16px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--nk-line); }
+  h1 { margin: 0; font-size: 1.35rem; color: var(--nk-primary); }
+  .sub { margin: 4px 0 0; color: var(--nk-muted); max-width: 68ch; }
+  nav { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  nav a { color: var(--nk-secondary); text-decoration: none; font-weight: 500; font-size: 14px; }
+  main { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .card { background: var(--nk-card); border: 1px solid var(--nk-line); border-radius: var(--nk-radius); padding: 18px; }
+  .card.full { grid-column: 1 / -1; }
+  h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--nk-primary); }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--nk-muted); margin: 12px 0 4px; }
+  input, select, textarea { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); background: var(--nk-bg); color: var(--nk-ink); }
+  textarea { min-height: 92px; resize: vertical; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .row > * { flex: 1 1 160px; }
+  button { font: inherit; font-weight: 600; min-height: 44px; padding: 0 16px; border: 0; border-radius: var(--nk-radius-sm); background: var(--nk-accent); color: var(--nk-on-accent); }
+  button.secondary { background: var(--nk-soft); color: var(--nk-primary); }
+  button:disabled { opacity: .5; }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--nk-ink); cursor: pointer; }
+  .check input { width: auto; }
+  .alert { margin-top: 14px; padding: 12px 14px; border-radius: var(--nk-radius-sm); border: 1px solid var(--nk-line); background: var(--nk-soft); }
+  .alert.ok { border-color: var(--nk-ok); }
+  .alert.bad { border-color: var(--nk-bad); color: var(--nk-bad); }
+  .keybox { display: flex; gap: 8px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .keybox code { flex: 1 1 220px; font-family: var(--nk-mono); font-size: 13px; padding: 8px 10px; background: var(--nk-card); border: 1px solid var(--nk-line); border-radius: 6px; overflow-wrap: anywhere; }
+  pre { margin: 8px 0 0; padding: 12px; background: var(--nk-soft); border-radius: var(--nk-radius-sm); font: 12.5px/1.45 var(--nk-mono); overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--nk-soft); color: var(--nk-muted); }
+  .badge.validated { color: var(--nk-ok); }
+  .badge.draft, .badge.machine { color: var(--nk-warn); }
+  .badge.fallback { color: var(--nk-bad); }
+  .muted { color: var(--nk-muted); font-size: 13px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Portail Entreprises · Clés API &amp; Traduction</h1>
+    <p class="sub">Obtenez votre clé API Mon Nkap pour connecter votre application bancaire ou Mobile Money et traduire dans les langues nationales du Cameroun.</p>
+  </div>
+  <nav>
+    <a href="/">Test vocal</a>
+    <a href="/banque">Démo Banque</a>
+    <a href="/tableau">Tableau de bord</a>
+    <a href="/admin">Administration</a>
+  </nav>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1. Obtenir une clé API entreprise</h2>
+    <p class="muted" id="portal-state">Vérification du service…</p>
+    <form id="key-form">
+      <label for="inst">Identifiant technique (2-64 caractères : lettres, chiffres, ., _, -)</label>
+      <input id="inst" required pattern="[a-zA-Z0-9._-]{2,64}" placeholder="ex. afriland, ecobank, mtn-momo">
+      <label for="org">Nom de l'entreprise ou solution bancaire</label>
+      <input id="org" required maxlength="120" placeholder="ex. Afriland First Bank">
+      <div class="row">
+        <button type="submit" id="issue-btn">Générer ma clé API</button>
+      </div>
+    </form>
+
+    <div class="alert bad" id="key-err" hidden></div>
+    <div class="alert ok" id="key-ok" hidden>
+      <strong>Clé API générée pour <span id="res-org"></span></strong>
+      <p class="muted" style="margin:4px 0 0">Copiez cette clé maintenant : seule son empreinte SHA-256 est conservée sur le serveur.</p>
+      <div class="keybox">
+        <code id="res-key"></code>
+        <button type="button" class="secondary" id="copy-key" style="flex:0 0 auto">Copier</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Tester la traduction avec votre clé</h2>
+    <label for="api-key">Votre clé API (<code style="font-family:var(--nk-mono)">x-api-key</code>)</label>
+    <input id="api-key" placeholder="nk_live_… (vide en mode local ouvert)">
+    <div class="row">
+      <div>
+        <label for="from-lang">Langue source</label>
+        <select id="from-lang"></select>
+      </div>
+      <div>
+        <label for="to-lang">Langue cible</label>
+        <select id="to-lang"></select>
+      </div>
+    </div>
+    <label for="src-text">Texte à traduire</label>
+    <textarea id="src-text" placeholder="ex. Banque en ligne">Banque en ligne</textarea>
+    <label class="check"><input type="checkbox" id="allow-draft" checked> Inclure les libellés brouillons Mboa (<code style="font-family:var(--nk-mono)">allowDraft</code>)</label>
+    <div class="row">
+      <button type="button" id="tr-btn">Traduire via POST /v1/translate</button>
+    </div>
+    <div class="alert bad" id="tr-err" hidden></div>
+    <div class="alert" id="tr-out" hidden>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <strong id="tr-text"></strong>
+        <span class="badge" id="tr-badge"></span>
+      </div>
+      <p class="muted" id="tr-meta" style="margin:6px 0 0"></p>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h2>3. Intégrer dans votre application</h2>
+    <p class="muted">Les extraits ci-dessous utilisent votre clé API (en production web/mobile, placez la clé côté serveur backend qui relaie vers Mon Nkap).</p>
+    <label>Appel REST direct (traduction)</label>
+    <pre id="snippet-curl"></pre>
+    <label>SDK JavaScript (dialogue + traduction)</label>
+    <pre id="snippet-sdk"></pre>
+    <label>Widget Web en 1 ligne</label>
+    <pre id="snippet-widget"></pre>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const origin = location.origin;
+
+  function renderSnippets(key) {
+    const k = key || 'VOTRE_CLE_API_ICI';
+    $('snippet-curl').textContent =
+`curl -X POST ${origin}/v1/translate \\
+  -H "content-type: application/json" \\
+  -H "x-api-key: ${k}" \\
+  -d '{"text":"Banque en ligne","from":"fr","to":"dua","allowDraft":true}'`;
+    $('snippet-sdk').textContent =
+`const ct = MonNkap.connect('${origin}', { apiKey: '${k}', channel: 'web', lang: 'dua' });
+const tr = await ct.translate('Banque en ligne', 'dua', 'fr', { allowDraft: true });
+const msg = await ct.message('envoie 5000 a Marie');`;
+    $('snippet-widget').textContent =
+`<script src="${origin}/widget.js" data-lang="fr" data-api-key="${k}" async><\/script>`;
+  }
+
+  async function init() {
+    renderSnippets('');
+    try {
+      const cfg = await fetch('/v1/portal/config').then((r) => r.json());
+      if (cfg.signupEnabled) {
+        $('portal-state').textContent = 'Création libre activée : générez immédiatement votre clé d’intégration.';
+      } else {
+        $('portal-state').textContent = 'Création libre désactivée sur ce serveur. Demandez une clé via l’administration (/admin).';
+        $('issue-btn').disabled = true;
+      }
+    } catch {
+      $('portal-state').textContent = 'Impossible de vérifier la configuration du portail.';
+    }
+
+    try {
+      const reg = await fetch('/v1/languages').then((r) => r.json());
+      const list = reg.languages || [];
+      for (const sel of [$('from-lang'), $('to-lang')]) {
+        sel.textContent = '';
+        for (const l of list) {
+          const o = document.createElement('option');
+          o.value = l.code;
+          o.textContent = `${l.native || l.name} (${l.code})`;
+          sel.append(o);
+        }
+      }
+      $('from-lang').value = 'fr';
+      $('to-lang').value = 'dua';
+    } catch {}
+  }
+
+  $('key-form').onsubmit = async (e) => {
+    e.preventDefault();
+    $('key-err').hidden = true;
+    $('key-ok').hidden = true;
+    $('issue-btn').disabled = true;
+    try {
+      const res = await fetch('/v1/portal/keys', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ institution: $('inst').value.trim(), name: $('org').value.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
+      $('res-org').textContent = `${data.record.institution}${data.record.name ? ` · ${data.record.name}` : ''}`;
+      $('res-key').textContent = data.key;
+      $('key-ok').hidden = false;
+      $('api-key').value = data.key;
+      renderSnippets(data.key);
+    } catch (err) {
+      $('key-err').textContent = err.message;
+      $('key-err').hidden = false;
+    } finally {
+      $('issue-btn').disabled = false;
+    }
+  };
+
+  $('copy-key').onclick = async () => {
+    const k = $('res-key').textContent;
+    if (!k) return;
+    try {
+      await navigator.clipboard.writeText(k);
+      $('copy-key').textContent = 'Copié !';
+      setTimeout(() => { $('copy-key').textContent = 'Copier'; }, 1500);
+    } catch {}
+  };
+
+  $('api-key').oninput = () => renderSnippets($('api-key').value.trim());
+
+  $('tr-btn').onclick = async () => {
+    $('tr-err').hidden = true;
+    $('tr-out').hidden = true;
+    $('tr-btn').disabled = true;
+    try {
+      const headers = { 'content-type': 'application/json' };
+      const k = $('api-key').value.trim();
+      if (k) headers['x-api-key'] = k;
+      const res = await fetch('/v1/translate', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          text: $('src-text').value,
+          from: $('from-lang').value,
+          to: $('to-lang').value,
+          allowDraft: $('allow-draft').checked,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
+      $('tr-text').textContent = data.text;
+      const badge = $('tr-badge');
+      badge.textContent = data.accepted ? data.quality : `repli (${data.reason || 'refusé'})`;
+      badge.className = `badge ${data.quality}`;
+      $('tr-meta').textContent = `Entreprise : ${data.institution} · Source : ${data.source}${data.mt?.score != null ? ` · Aller-retour : ${data.mt.score}` : ''}`;
+      $('tr-out').hidden = false;
+    } catch (err) {
+      $('tr-err').textContent = err.message;
+      $('tr-err').hidden = false;
+    } finally {
+      $('tr-btn').disabled = false;
+    }
+  };
+
+  init();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administration &amp; Entraînement · Mon Nkap</title>
+<link rel="stylesheet" href="/tokens.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 var(--nk-font); background: var(--nk-bg); color: var(--nk-ink); }
+  header, main { max-width: 1240px; margin: 0 auto; padding: 18px 16px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--nk-line); }
+  h1 { margin: 0; font-size: 1.35rem; color: var(--nk-primary); }
+  .sub { margin: 4px 0 0; color: var(--nk-muted); }
+  nav { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  nav a { color: var(--nk-secondary); text-decoration: none; font-weight: 500; font-size: 14px; }
+  .tabs { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .tabs button { font: inherit; font-weight: 500; min-height: 42px; padding: 0 16px; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); background: var(--nk-card); color: var(--nk-ink); }
+  .tabs button[aria-selected="true"] { border-color: var(--nk-secondary); color: var(--nk-secondary); font-weight: 600; }
+  .card { background: var(--nk-card); border: 1px solid var(--nk-line); border-radius: var(--nk-radius); padding: 16px; margin-bottom: 16px; }
+  h2 { margin: 0 0 10px; font-size: 1.05rem; color: var(--nk-primary); }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 16px; }
+  .kpi b { display: block; font-size: 26px; font-variant-numeric: tabular-nums; }
+  .kpi span { font-size: 13px; color: var(--nk-muted); }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--nk-muted); margin: 10px 0 4px; }
+  input, select, textarea { width: 100%; font: inherit; padding: 9px 12px; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); background: var(--nk-bg); color: var(--nk-ink); }
+  textarea { min-height: 220px; font-family: var(--nk-mono); font-size: 12.5px; line-height: 1.45; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .row > * { flex: 1 1 180px; }
+  button.btn { font: inherit; font-weight: 600; min-height: 42px; padding: 0 16px; border: 0; border-radius: var(--nk-radius-sm); background: var(--nk-accent); color: var(--nk-on-accent); }
+  button.secondary { font: inherit; font-weight: 600; min-height: 42px; padding: 0 14px; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); background: var(--nk-soft); color: var(--nk-primary); }
+  button.danger { font: inherit; font-weight: 600; min-height: 36px; padding: 0 12px; border: 1px solid var(--nk-bad); border-radius: 6px; background: transparent; color: var(--nk-bad); }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--nk-line); border-radius: var(--nk-radius-sm); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--nk-line); vertical-align: middle; }
+  th { color: var(--nk-muted); font-weight: 600; background: var(--nk-soft); }
+  .ok { color: var(--nk-ok); font-weight: 600; }
+  .bad { color: var(--nk-bad); font-weight: 600; }
+  .warn { color: var(--nk-warn); font-weight: 600; }
+  .muted { color: var(--nk-muted); font-size: 13px; }
+  .alert { padding: 12px 14px; border-radius: var(--nk-radius-sm); border: 1px solid var(--nk-line); background: var(--nk-soft); margin-top: 12px; }
+  .alert.bad { border-color: var(--nk-bad); color: var(--nk-bad); }
+  .alert.ok { border-color: var(--nk-ok); }
+  code { font-family: var(--nk-mono); font-size: 12.5px; }
+  pre { margin: 8px 0 0; padding: 10px; background: var(--nk-soft); border-radius: var(--nk-radius-sm); font: 12.5px/1.45 var(--nk-mono); white-space: pre-wrap; overflow-x: auto; }
+  .check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .check input { width: auto; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Administration · Clés Entreprises &amp; Entraînement</h1>
+    <p class="sub">Pilotez les accès API des institutions bancaires, la compilation des packs natifs et l'évaluation des modèles.</p>
+    <div class="tabs" role="tablist" id="tabs" hidden>
+      <button role="tab" aria-selected="true" data-tab="keys">Clés API &amp; Entreprises</button>
+      <button role="tab" aria-selected="false" data-tab="training">Entraînement &amp; Modèles</button>
+    </div>
+  </div>
+  <nav>
+    <a href="/portail">Portail Clients</a>
+    <a href="/tableau">Tableau de bord</a>
+    <a href="/">Test vocal</a>
+    <button type="button" class="secondary" id="logout-btn" hidden>Déconnexion</button>
+  </nav>
+</header>
+
+<main>
+  <section class="card" id="auth-card">
+    <h2>Connexion administrateur</h2>
+    <p class="muted" id="auth-msg">Saisissez le secret <code >CT_ADMIN_KEY</code> configuré sur le serveur.</p>
+    <form id="auth-form" class="row" style="margin-top:8px">
+      <div>
+        <label for="admin-key">Clé administrateur (<code >x-admin-key</code>)</label>
+        <input id="admin-key" type="password" required placeholder="Secret CT_ADMIN_KEY">
+      </div>
+      <div style="flex:0 0 auto">
+        <button type="submit" class="btn">Ouvrir la console</button>
+      </div>
+    </form>
+    <div class="alert bad" id="auth-err" hidden></div>
+  </section>
+
+  <section id="panel-keys" role="tabpanel" hidden>
+    <div class="grid" id="keys-kpis"></div>
+
+    <div class="card">
+      <h2>Émettre une clé pour une entreprise bancaire</h2>
+      <form id="admin-key-form" class="row">
+        <div>
+          <label for="a-inst">Identifiant institution</label>
+          <input id="a-inst" required pattern="[a-zA-Z0-9._-]{2,64}" placeholder="ex. bgfibank">
+        </div>
+        <div>
+          <label for="a-org">Nom de l'entreprise</label>
+          <input id="a-org" maxlength="120" placeholder="ex. BGFIBank Cameroun">
+        </div>
+        <div style="flex:0 0 auto">
+          <button type="submit" class="btn">Créer la clé</button>
+        </div>
+      </form>
+      <div class="alert ok" id="a-key-created" hidden>
+        Clé générée pour <strong id="a-key-inst"></strong> : <code id="a-key-val"></code>
+        <button type="button" class="secondary" id="a-copy" style="margin-left:8px">Copier</button>
+      </div>
+      <div class="alert bad" id="a-key-err" hidden></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+        <h2 style="margin:0">Entreprises enregistrées</h2>
+        <button type="button" class="secondary" id="refresh-keys">Actualiser</button>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ID</th><th>Institution</th><th>Entreprise</th><th>Préfixe</th><th>Source</th><th>Créée le</th><th>Statut</th><th>Action</th></tr></thead>
+          <tbody id="keys-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-training" role="tabpanel" hidden>
+    <div class="grid" id="train-kpis"></div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <h2 style="margin:0">Entraînement des packs linguistiques &amp; évaluation</h2>
+          <p class="muted" style="margin:4px 0 0">Compile <code >collecte/&lt;lang&gt;/*.csv</code> → apprend la grammaire des nombres et expressions NLU → recharge à chaud → évalue sur les phrases de test réservées (30 %).</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label class="check"><input type="checkbox" id="opt-drafts"> Inclure brouillons à l'évaluation</label>
+          <label class="check"><input type="checkbox" id="opt-langid" checked> Mettre à jour LangId</label>
+          <button type="button" class="btn" id="train-all-btn">Tout ré-entraîner</button>
+        </div>
+      </div>
+
+      <div class="tablewrap" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Langue</th><th>Nombres</th><th>Concepts</th><th>Demandes (test)</th><th>Réponses</th><th>Mots grammaire / Expressions</th><th>Intention (test)</th><th>Rejets</th><th>Action</th></tr></thead>
+          <tbody id="train-rows"></tbody>
+        </table>
+      </div>
+      <div class="alert bad" id="train-err" hidden></div>
+      <div class="alert ok" id="train-out" hidden>
+        <strong>Résultat de l'entraînement</strong>
+        <pre id="train-log"></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Éditeur de collecte CSV (données d'entraînement)</h2>
+      <div class="row">
+        <div>
+          <label for="ed-lang">Langue</label>
+          <select id="ed-lang"></select>
+        </div>
+        <div>
+          <label for="ed-sheet">Tableur</label>
+          <select id="ed-sheet">
+            <option value="nombres">nombres.csv</option>
+            <option value="lexique">lexique.csv</option>
+            <option value="demandes">demandes.csv</option>
+            <option value="reponses">reponses.csv</option>
+            <option value="definitions">definitions.csv</option>
+          </select>
+        </div>
+        <div style="flex:0 0 auto;display:flex;gap:8px">
+          <button type="button" class="secondary" id="ed-load">Charger CSV</button>
+          <button type="button" class="btn" id="ed-save">Enregistrer &amp; Entraîner</button>
+        </div>
+      </div>
+      <label for="ed-csv">Contenu CSV</label>
+      <textarea id="ed-csv" placeholder="Cliquez sur Charger CSV pour afficher ou modifier un tableur…"></textarea>
+      <div class="alert" id="ed-msg" hidden></div>
+    </div>
+
+    <div class="card">
+      <h2>Test rapide post-entraînement (traduction &amp; aller-retour)</h2>
+      <div class="row">
+        <div>
+          <label for="mt-from">Source</label>
+          <input id="mt-from" value="fr" maxlength="3">
+        </div>
+        <div>
+          <label for="mt-to">Cible</label>
+          <input id="mt-to" value="dua" maxlength="3">
+        </div>
+        <div style="flex:3 1 260px">
+          <label for="mt-text">Texte à tester</label>
+          <input id="mt-text" value="Banque en ligne">
+        </div>
+        <div style="flex:0 0 auto">
+          <button type="button" class="btn" id="mt-btn">Tester</button>
+        </div>
+      </div>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="mt-drafts" checked> Autoriser brouillons (<code >allowDraft</code>)</label>
+      <pre id="mt-res" hidden></pre>
+    </div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const STORAGE_KEY = 'mon_nkap_admin_key';
+  let adminKey = sessionStorage.getItem(STORAGE_KEY) || '';
+  const P = (x) => x == null ? '—' : `${Math.round(x * 100)} %`;
+
+  async function api(path, init = {}) {
+    const headers = Object.assign({}, init.headers || {}, { 'x-admin-key': adminKey });
+    const res = await fetch(path, Object.assign({}, init, { headers }));
+    const data = await res.json();
+    if (!res.ok) {
+      const err = new Error(data.message || data.error || `HTTP ${res.status}`);
+      err.status = res.status;
+      err.code = data.error;
+      throw err;
+    }
+    return data;
+  }
+
+  function showAuth(msg, isBad = false) {
+    $('auth-card').hidden = false;
+    $('tabs').hidden = true;
+    $('panel-keys').hidden = true;
+    $('panel-training').hidden = true;
+    $('logout-btn').hidden = true;
+    if (msg) {
+      $('auth-err').textContent = msg;
+      $('auth-err').hidden = !isBad;
+    } else $('auth-err').hidden = true;
+  }
+
+  function showConsole() {
+    $('auth-card').hidden = true;
+    $('tabs').hidden = false;
+    $('logout-btn').hidden = false;
+    const active = document.querySelector('[role="tab"][aria-selected="true"]')?.dataset.tab || 'keys';
+    $('panel-keys').hidden = active !== 'keys';
+    $('panel-training').hidden = active !== 'training';
+  }
+
+  function kpi(value, label) {
+    const d = document.createElement('div'); d.className = 'card kpi';
+    const b = document.createElement('b'); b.textContent = String(value);
+    const s = document.createElement('span'); s.textContent = label;
+    d.append(b, s); return d;
+  }
+
+  async function loadKeys() {
+    const data = await api('/v1/admin/keys');
+    const items = data.keys || [];
+    const activeCount = items.filter((k) => k.active).length;
+    const revokedCount = items.filter((k) => !k.active).length;
+    const instCount = new Set(items.filter((k) => k.active).map((k) => k.institution)).size;
+    const kpis = $('keys-kpis'); kpis.textContent = '';
+    kpis.append(kpi(activeCount, 'Clés actives'), kpi(revokedCount, 'Clés révoquées'), kpi(instCount, 'Entreprises autorisées'));
+
+    const tb = $('keys-rows'); tb.textContent = '';
+    for (const k of items) {
+      const tr = document.createElement('tr');
+      const cells = [k.id, k.institution, k.name || '—', k.prefix, k.source, k.createdAt ? k.createdAt.slice(0, 19).replace('T', ' ') : 'env'];
+      for (const c of cells) { const td = document.createElement('td'); td.textContent = c; tr.append(td); }
+      const st = document.createElement('td');
+      st.textContent = k.active ? 'Active' : 'Révoquée';
+      st.className = k.active ? 'ok' : 'bad';
+      tr.append(st);
+      const act = document.createElement('td');
+      if (k.active && k.source === 'store') {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'danger'; b.textContent = 'Révoquer';
+        b.onclick = async () => {
+          await api('/v1/admin/keys/revoke', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: k.id }) });
+          await loadKeys();
+        };
+        act.append(b);
+      } else {
+        act.textContent = k.source === 'env' ? 'Variable env' : '—';
+      }
+      tr.append(act);
+      tb.append(tr);
+    }
+  }
+
+  async function loadTraining() {
+    const data = await api('/v1/admin/training/status');
+    const langs = data.languages || [];
+    const kpis = $('train-kpis'); kpis.textContent = '';
+    kpis.append(
+      kpi(langs.length, 'Langues en collecte'),
+      kpi(data.mt?.up ? `${data.mt.pairs.length} paires` : 'Indisponible', 'Service MT Flagship'),
+      kpi(data.langid?.loaded ? `${data.langid.languages.length} langues` : 'Absent', 'Modèle LangId'),
+    );
+
+    const sel = $('ed-lang');
+    const prevLang = sel.value;
+    sel.textContent = '';
+    const tb = $('train-rows'); tb.textContent = '';
+    for (const l of langs) {
+      const o = document.createElement('option'); o.value = l.lang; o.textContent = l.lang; sel.append(o);
+      const tr = document.createElement('tr');
+      const pk = l.pack;
+      const rt = l.runtime;
+      const ev = l.eval;
+      const cols = [
+        l.lang,
+        pk ? pk.numbers : '—',
+        pk ? pk.concepts : '—',
+        pk ? `${pk.utterances} (${pk.testUtterances})` : '—',
+        pk ? pk.responses : '—',
+        rt ? `${rt.grammarWords} mots / ${rt.learnedPhrases} expr.` : '—',
+        ev && ev.n ? `${P(ev.intentAccuracy)} (n=${ev.n})` : 'n=0',
+        pk ? String(pk.rejected) : '0',
+      ];
+      for (const c of cols) { const td = document.createElement('td'); td.textContent = c; tr.append(td); }
+      const act = document.createElement('td');
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'secondary'; btn.textContent = 'Entraîner';
+      btn.onclick = () => runTrain(l.lang);
+      act.append(btn);
+      tr.append(act);
+      tb.append(tr);
+    }
+    if (prevLang) sel.value = prevLang;
+  }
+
+  async function runTrain(lang) {
+    $('train-err').hidden = true;
+    $('train-out').hidden = true;
+    try {
+      const res = await api('/v1/admin/training/train', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          lang: lang || undefined,
+          includeDrafts: $('opt-drafts').checked,
+          retrainLangId: $('opt-langid').checked,
+        }),
+      });
+      const lines = (res.results || []).map((r) => {
+        const rejs = (r.rejected || []).map((x) => `  ✗ ${x.sheet}.csv L${x.row}: ${x.reason}`).join('\n');
+        return `[${r.lang}] nombres=${r.report.numbers} concepts=${r.report.concepts} demandes=${r.report.utterances} reponses=${r.report.responses} | grammaire=${r.runtime.grammarWords} mots, appris=${r.runtime.learnedPhrases} expr. | eval: n=${r.eval.n}, intention=${P(r.eval.intentAccuracy)}${rejs ? '\n' + rejs : ''}`;
+      });
+      if (res.langid) lines.push(`LangId mis à jour (${res.langid.updated.length} langue(s) enrichie(s) : ${res.langid.updated.join(', ') || 'aucune phrase validée nouvelle'})`);
+      $('train-log').textContent = lines.join('\n');
+      $('train-out').hidden = false;
+      await loadTraining();
+    } catch (err) {
+      $('train-err').textContent = err.message;
+      $('train-err').hidden = false;
+    }
+  }
+
+  async function connectAdmin() {
+    try {
+      await loadKeys();
+      showConsole();
+    } catch (err) {
+      if (err.code === 'admin_non_configure') {
+        showAuth('Administration désactivée : démarrez le serveur avec CT_ADMIN_KEY="votre-secret-admin".', true);
+      } else {
+        sessionStorage.removeItem(STORAGE_KEY);
+        adminKey = '';
+        showAuth(err.status === 401 ? 'Clé administrateur invalide.' : err.message, err.status === 401);
+      }
+    }
+  }
+
+  $('auth-form').onsubmit = async (e) => {
+    e.preventDefault();
+    adminKey = $('admin-key').value.trim();
+    sessionStorage.setItem(STORAGE_KEY, adminKey);
+    await connectAdmin();
+  };
+
+  $('logout-btn').onclick = () => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    adminKey = '';
+    $('admin-key').value = '';
+    showAuth('Session fermée.', false);
+  };
+
+  document.querySelectorAll('[role="tab"]').forEach((b) => {
+    b.onclick = async () => {
+      document.querySelectorAll('[role="tab"]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      $('panel-keys').hidden = b.dataset.tab !== 'keys';
+      $('panel-training').hidden = b.dataset.tab !== 'training';
+      if (b.dataset.tab === 'keys') await loadKeys();
+      else await loadTraining();
+    };
+  });
+
+  $('refresh-keys').onclick = () => loadKeys();
+  $('admin-key-form').onsubmit = async (e) => {
+    e.preventDefault();
+    $('a-key-created').hidden = true; $('a-key-err').hidden = true;
+    try {
+      const data = await api('/v1/admin/keys', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ institution: $('a-inst').value.trim(), name: $('a-org').value.trim() }),
+      });
+      $('a-key-inst').textContent = data.record.institution;
+      $('a-key-val').textContent = data.key;
+      $('a-key-created').hidden = false;
+      $('a-inst').value = ''; $('a-org').value = '';
+      await loadKeys();
+    } catch (err) {
+      $('a-key-err').textContent = err.message;
+      $('a-key-err').hidden = false;
+    }
+  };
+  $('a-copy').onclick = async () => {
+    try { await navigator.clipboard.writeText($('a-key-val').textContent); $('a-copy').textContent = 'Copié !'; setTimeout(() => { $('a-copy').textContent = 'Copier'; }, 1500); } catch {}
+  };
+
+  $('train-all-btn').onclick = () => runTrain('');
+
+  $('ed-load').onclick = async () => {
+    $('ed-msg').hidden = true;
+    try {
+      const q = new URLSearchParams({ lang: $('ed-lang').value, sheet: $('ed-sheet').value });
+      const data = await api(`/v1/admin/training/sheet?${q}`);
+      $('ed-csv').value = data.csv;
+    } catch (err) {
+      $('ed-msg').textContent = err.message;
+      $('ed-msg').className = 'alert bad';
+      $('ed-msg').hidden = false;
+    }
+  };
+
+  $('ed-save').onclick = async () => {
+    $('ed-msg').hidden = true;
+    try {
+      const lang = $('ed-lang').value;
+      const sheet = $('ed-sheet').value;
+      const saved = await api('/v1/admin/training/sheet', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lang, sheet, csv: $('ed-csv').value }),
+      });
+      $('ed-msg').textContent = `${sheet}.csv enregistré (${saved.rows} ligne(s)). Ré-entraînement lancé…`;
+      $('ed-msg').className = 'alert ok';
+      $('ed-msg').hidden = false;
+      await runTrain(lang);
+    } catch (err) {
+      $('ed-msg').textContent = err.message;
+      $('ed-msg').className = 'alert bad';
+      $('ed-msg').hidden = false;
+    }
+  };
+
+  $('mt-btn').onclick = async () => {
+    $('mt-res').hidden = true;
+    try {
+      const res = await api('/v1/admin/training/mt-test', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ from: $('mt-from').value.trim(), to: $('mt-to').value.trim(), text: $('mt-text').value, allowDraft: $('mt-drafts').checked }),
+      });
+      $('mt-res').textContent = JSON.stringify(res, null, 2);
+      $('mt-res').hidden = false;
+    } catch (err) {
+      $('mt-res').textContent = err.message;
+      $('mt-res').hidden = false;
+    }
+  };
+
+  if (adminKey) connectAdmin();
+  else {
+    api('/v1/admin/keys').then(() => showConsole()).catch((err) => {
+      if (err.code === 'admin_non_configure') showAuth('Administration désactivée : démarrez le serveur avec CT_ADMIN_KEY="votre-secret-admin".', true);
+      else showAuth('Saisissez le secret CT_ADMIN_KEY pour gérer les clés et l’entraînement des modèles.', false);
+    });
+  }
+</script>
+</body>
+</html>
+

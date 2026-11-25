@@ -43,6 +43,7 @@ import { evaluateLanguage } from '../eval/evaluate.ts';
 import { uiLabels } from '../core/respond.ts';
 import { translateText } from '../core/translate.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
+import { getLangIdSummary, listCollecteLanguages, readCollecteSheet, refreshLangIdFromPacks, trainLanguagePack, writeCollecteSheet, type TrainerPaths } from '../linguistics/trainer.ts';
 import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
 
@@ -53,13 +54,14 @@ const MAX_AUDIO = 10 * 1024 * 1024;
 const HTML = 'text/html; charset=utf-8', JS = 'text/javascript; charset=utf-8';
 const STATIC: Record<string, [string, string]> = {
   '/mobile': ['mobile.html', HTML], '/banque': ['banque.html', HTML], '/gab': ['gab.html', HTML], '/tableau': ['dashboard.html', HTML],
+  '/portail': ['portail.html', HTML], '/admin': ['admin.html', HTML],
   '/assistant.js': ['assistant.js', JS], '/assistant.css': ['assistant.css', 'text/css; charset=utf-8'], '/tokens.css': ['tokens.css', 'text/css; charset=utf-8'], '/widget.js': ['widget.js', JS],
   '/sw.js': ['sw.js', JS], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'],
 };
 
 const AUDIT_FILE = process.env.CT_AUDIT_FILE ?? fileURLToPath(new URL('../../data/audit/audit.jsonl', import.meta.url));
 
-export function createApp(engine?: Engine, opts: { auditFile?: string | null; keysFile?: string | null } = {}) {
+export function createApp(engine?: Engine, opts: { auditFile?: string | null; keysFile?: string | null; trainerPaths?: TrainerPaths } = {}) {
   const audit = new AuditLog(opts.auditFile === null ? undefined : opts.auditFile ?? AUDIT_FILE);
   engine ??= new Engine(new MockBackend(), 'fr', audit);
   const keys = new ApiKeys(process.env.CT_API_KEYS ?? '', opts.keysFile);
@@ -117,7 +119,7 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         if (!verifySecret(adminKey, req.headers['x-admin-key'] as string | undefined)) return json(res, 401, { error: 'cle_admin_requise' });
       }
       // API des institutions : clé obligatoire si CT_API_KEYS ou data/api-keys.json est actif (les passerelles télécom ont leurs routes).
-      const publicPath = isAdminPath || ['/v1/health', '/v1/languages', '/v1/labels'].includes(url.pathname) || !url.pathname.startsWith('/v1/');
+      const publicPath = isAdminPath || ['/v1/health', '/v1/languages', '/v1/labels', '/v1/portal/config', '/v1/portal/keys'].includes(url.pathname) || !url.pathname.startsWith('/v1/');
       const institution = isAdminPath ? 'admin' : keys.institution(req.headers['x-api-key'] as string | undefined);
       if (!publicPath && !institution) return json(res, 401, { error: 'cle_api_requise' });
       const idemKey = req.headers['idempotency-key'] ? `${institution}:${String(req.headers['idempotency-key']).slice(0, 128)}` : null;
@@ -226,6 +228,78 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         if (typeof b.id !== 'string' || !b.id.trim()) return json(res, 400, { error: 'id requis' });
         const revoked = keys.revoke(b.id.trim());
         return revoked ? json(res, 200, { record: revoked }) : json(res, 404, { error: 'cle_introuvable' });
+      }
+
+      if (req.method === 'GET' && url.pathname === '/v1/portal/config') {
+        return json(res, 200, { signupEnabled: process.env.CT_PORTAL_SIGNUP !== '0' });
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/portal/keys') {
+        if (process.env.CT_PORTAL_SIGNUP === '0') {
+          return json(res, 403, { error: 'auto_inscription_desactivee', message: "La création libre est désactivée. Contactez l'administrateur." });
+        }
+        const b = JSON.parse((await body(req, 8 * 1024)).toString('utf8') || '{}');
+        if (typeof b.institution !== 'string' || !b.institution.trim()) return json(res, 400, { error: 'institution requise' });
+        if (typeof b.name !== 'string' || !b.name.trim()) return json(res, 400, { error: 'nom entreprise requis' });
+        try {
+          const created = keys.issue(b.institution, b.name);
+          return json(res, 201, created);
+        } catch (err) {
+          return json(res, 400, { error: err instanceof Error ? err.message : 'institution invalide' });
+        }
+      }
+
+      if (req.method === 'GET' && url.pathname === '/v1/admin/training/status') {
+        return json(res, 200, {
+          languages: listCollecteLanguages(opts.trainerPaths),
+          mt: await mtStatus(),
+          langid: getLangIdSummary(opts.trainerPaths),
+        });
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/admin/training/sheet') {
+        const lang = url.searchParams.get('lang') ?? '';
+        const sheet = url.searchParams.get('sheet') ?? '';
+        try {
+          const csv = readCollecteSheet(lang, sheet, opts.trainerPaths);
+          return json(res, 200, { lang, sheet, csv });
+        } catch (err) {
+          return json(res, 400, { error: err instanceof Error ? err.message : 'paramètres invalides' });
+        }
+      }
+      if (req.method === 'PUT' && url.pathname === '/v1/admin/training/sheet') {
+        const b = JSON.parse((await body(req, 512 * 1024)).toString('utf8') || '{}');
+        if (typeof b.lang !== 'string' || typeof b.sheet !== 'string' || typeof b.csv !== 'string') {
+          return json(res, 400, { error: 'lang, sheet et csv requis' });
+        }
+        try {
+          const saved = writeCollecteSheet(b.lang, b.sheet, b.csv, opts.trainerPaths);
+          return json(res, 200, { ok: true, lang: b.lang, sheet: b.sheet, ...saved });
+        } catch (err) {
+          return json(res, 400, { error: err instanceof Error ? err.message : 'sauvegarde impossible' });
+        }
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/training/train') {
+        const b = JSON.parse((await body(req, 16 * 1024)).toString('utf8') || '{}');
+        const includeDrafts = !!b.includeDrafts;
+        const retrainLangId = b.retrainLangId !== false;
+        const targets = typeof b.lang === 'string' && b.lang.trim()
+          ? [b.lang.trim().toLowerCase()]
+          : listCollecteLanguages(opts.trainerPaths).map((x) => x.lang);
+        if (!targets.length) return json(res, 400, { error: 'aucune_langue_a_entrainer' });
+        const results = [];
+        for (const l of targets) {
+          results.push(await trainLanguagePack(l, { includeDrafts, paths: opts.trainerPaths }));
+        }
+        const langid = retrainLangId ? refreshLangIdFromPacks(targets, opts.trainerPaths) : null;
+        return json(res, 200, { ok: true, results, langid });
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/training/mt-test') {
+        const b = JSON.parse((await body(req, 16 * 1024)).toString('utf8') || '{}');
+        const to = typeof b.to === 'string' ? b.to.trim().toLowerCase() : '';
+        const from = typeof b.from === 'string' ? b.from.trim().toLowerCase() : 'fr';
+        if (typeof b.text !== 'string' || !b.text.trim() || !/^[a-z]{2,3}$/.test(to) || !/^[a-z]{2,3}$/.test(from)) {
+          return json(res, 400, { error: 'text, from et to valides requis' });
+        }
+        return json(res, 200, await translateText({ text: b.text.slice(0, 1000), from, to, allowDraft: !!b.allowDraft }));
       }
 
       if (req.method === 'GET' && url.pathname === '/v1/labels') {

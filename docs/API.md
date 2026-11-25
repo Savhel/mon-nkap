@@ -96,6 +96,19 @@ Routes d'administration protégées par l'en-tête `x-admin-key` (comparé à la
 - `POST /v1/admin/keys` avec `{ "institution": "ecobank", "name": "Ecobank Cameroun" }` → `201 { "key": "nk_live_…", "record": { … } }` (la clé en clair n'est affichée qu'à la création).
 - `POST /v1/admin/keys/revoke` avec `{ "id": "<id ou prefixe>" }` → `200 { "record": { …, "active": false } }`.
 
+### `GET /v1/portal/config`, `POST /v1/portal/keys` — auto-inscription portail client (`/portail`)
+
+Permet aux entreprises d'obtenir leur propre clé API depuis l'interface `/portail` (désactivable via `CT_PORTAL_SIGNUP=0`, qui renvoie alors `403 auto_inscription_desactivee`).
+
+- `POST /v1/portal/keys` avec `{ "institution": "afriland", "name": "Afriland First Bank" }` → `201 { "key": "nk_live_…", "record": { … } }`.
+
+### `GET|PUT /v1/admin/training/*` — entraînement des modèles depuis `/admin` (protégées par `x-admin-key`)
+
+- `GET /v1/admin/training/status` → état des tableurs `collecte/`, packs compilés, service MT et profils LangId.
+- `GET /v1/admin/training/sheet?lang=dua&sheet=demandes` et `PUT /v1/admin/training/sheet` (`{ lang, sheet, csv }`) → lecture et mise à jour d'un tableur CSV.
+- `POST /v1/admin/training/train` (`{ lang?, includeDrafts?, retrainLangId? }`) → compile `data/packs/<lang>.json`, recharge le moteur à chaud, recalcule `data/eval/<lang>.json` et enrichit `data/langid/profiles.json`.
+- `POST /v1/admin/training/mt-test` (`{ text, from?, to, allowDraft? }`) → test de traduction rapide côté admin.
+
 ### `POST /v1/identify` — langue d'un texte
 
 `{ "text": "…" }` → `{ "lang": "dua" | null, "confidence": 0.93, "ranking": [...], "reason"?: "texte trop court" }`.
@@ -147,6 +160,8 @@ Canal, langue, requête, interprétation, paramètres, réponse, statut, temps d
 | `/gab` | Guichet automatique simulé |
 | `/canaux` | USSD, SMS, web et serveur vocal côte à côte |
 | `/tableau` | Tableau de bord : évaluation, journal, audit |
+| `/portail` | Portail entreprises : création de clé API et bac à sable de traduction |
+| `/admin` | Console d'administration : gestion des clés, édition CSV et entraînement des modèles |
 | `/sdk.js`, `/widget.js` | SDK navigateur et widget |
 
 ## Erreurs

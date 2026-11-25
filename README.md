@@ -32,6 +32,8 @@ Prérequis : Node.js 22.18 ou plus récent (TypeScript exécuté directement), P
 | `/canaux` | USSD (*126#), SMS et serveur vocal côte à côte |
 | `/gab` | Guichet automatique simulé |
 | `/tableau` | Tableau de bord : évaluation par langue, journal des requêtes, audit |
+| `/portail` | Portail entreprises : obtention de clé API et test de traduction en direct |
+| `/admin` | Console d'administration : clés API et entraînement / évaluation des modèles |
 | `/` | Page de test vocal |
 
 ## Les langues : travail des natifs d'abord
