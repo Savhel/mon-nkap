@@ -5,3 +5,6 @@ tests
 data/audit
 *.wav
 !tests/fixtures/*.wav
+.venv
+.git
+*.log

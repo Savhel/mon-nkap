@@ -23,6 +23,26 @@ docker run -p 8080:8080 \
   mon-nkap
 ```
 
+## Application Android (APK)
+
+L'APK embarque les pages de l'application mobile (démarrage immédiat, sans navigateur) ; le moteur, la
+traduction et la voix restent sur le serveur. Au premier lancement, l'application demande l'adresse du
+serveur, vérifie qu'il répond (`/v1/health`) et la garde sur le téléphone (bouton réglages pour la changer).
+
+Prérequis : Java 21 et le SDK Android (plateforme 36), `ANDROID_HOME` défini.
+
+```bash
+npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+- Adresse proposée d'avance (facultatif) : `MONNKAP_SERVER=http://192.168.1.20:8080 npm run apk`.
+- Démonstration : lancer `npm start` sur l'ordinateur, téléphone sur le même Wi-Fi, adresse
+  `http://<IP de l'ordinateur>:8080` (`hostname -I`). Sur l'émulateur Android : `10.0.2.2:8080`.
+- Si `CT_CORS_ORIGINS` est défini, y ajouter `http://localhost` (origine des pages embarquées).
+- L'APK de débogage s'installe directement (« sources inconnues »). Pour le Play Store : APK/AAB de
+  publication signé avec la clé de l'éditeur (`./gradlew bundleRelease` dans `mobile-android/android`).
+- Icônes et écran de démarrage : générés depuis le logo par `node mobile-android/make-icons.mjs`.
+
 ## Variables d'environnement
 
 | Variable | Rôle | Défaut |

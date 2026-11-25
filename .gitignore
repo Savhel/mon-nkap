@@ -6,3 +6,4 @@ models/
 data/audit/
 data/api-keys.json
 .venv/
+mobile-android/www/

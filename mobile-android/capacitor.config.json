@@ -1,0 +1,10 @@
+{
+  "appId": "io.github.savhel.monnkap",
+  "appName": "Mon Nkap",
+  "webDir": "www",
+  "server": { "androidScheme": "http", "cleartext": true },
+  "android": { "backgroundColor": "#0f172a" },
+  "plugins": {
+    "SystemBars": { "insetsHandling": "css", "initialViewportFitValueHint": "cover", "style": "DARK" }
+  }
+}

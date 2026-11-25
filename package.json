@@ -15,7 +15,8 @@
     "mt:models": ".venv/bin/python services/fetch_flagship.py",
     "mt": ".venv/bin/python services/mt_server.py",
     "mt:compare": "node tools/compare-mt.ts",
-    "keys": "node tools/api-keys.ts"
+    "keys": "node tools/api-keys.ts",
+    "apk": "cd mobile-android && npm ci && npm run apk"
   },
   "license": "UNLICENSED",
   "devDependencies": {

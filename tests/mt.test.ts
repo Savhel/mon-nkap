@@ -51,3 +51,10 @@ test('une traduction dans la mauvaise langue est refusée, même si l’aller-re
   assert.match(wrongLanguage('dua', opusDuala, 'opus') ?? '', /langue de sortie incorrecte/);
   assert.equal(wrongLanguage('bas', 'texte quelconque', 'opus'), 'langue de sortie non vérifiable');
 });
+
+test('une demande comprise par le lexique n’est jamais remplacée par la traduction (« mon solde » en Ewondo)', async () => {
+  const e = new Engine(new MockBackend(), 'fr');
+  const r = await e.handle({ sessionId: 'ewo-solde', channel: 'mobile', lang: 'ewo', text: 'mon solde', input: 'text' });
+  assert.equal(r.canonical?.operation, 'CONSULT_BALANCE');
+  assert.equal(r.understanding.via, 'lexicon');
+});

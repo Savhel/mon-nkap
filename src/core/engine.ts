@@ -118,10 +118,11 @@ export class Engine {
         }
       }
       // Langue nationale non comprise par le lexique : on essaie la traduction Flagship vers le français.
+      // Seulement si le lexique n'a RIEN compris : une traduction automatique (mesurée peu fiable dans ce sens)
+      // ne doit jamais remplacer une demande reconnue (« mon solde » devenait un transfert en Ewondo).
       // Les montants et numéros restent ceux du texte d'origine (la traduction les perd ou les invente).
       const menuKey = /^\s*\d\s*$/.test(req.text);
-      const weak = !it.intent || (loadLexicon(s.lang)?.status !== 'available' && (it.scores[it.intent] ?? 0) < 2);
-      if (FLAGSHIP_LANGS[s.lang] && weak && !it.isConfirm && !it.isDeny && !menuKey) {
+      if (FLAGSHIP_LANGS[s.lang] && !it.intent && !it.isConfirm && !it.isDeny && !it.isCorrection && !menuKey) {
         const mt = await toFrench(s.lang, req.text);
         if (mt) {
           const viaFr = interpret(mt.fr, 'fr', contacts);

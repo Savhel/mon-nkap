@@ -14,6 +14,7 @@ COPY src ./src
 COPY public ./public
 COPY data ./data
 COPY tools ./tools
+RUN mkdir -p data/audit && chown -R node:node data
 ENV NODE_ENV=production PORT=8080
 USER node
 EXPOSE 8080

@@ -40,7 +40,7 @@
       },
       /** Confirme l'opération présentée, avec le jeton reçu (result.canonical.confirmationToken). */
       confirm: async function (token) {
-        return call('/v1/confirm', { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': 'confirm-' + token }, body: JSON.stringify({ sessionId: session, token: token, channel: channel }) });
+        return call('/v1/confirm', { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': 'confirm-' + token }, body: JSON.stringify({ sessionId: session, token: token, channel: channel, userPhone: opts.userPhone }) });
       },
       /** Analyse sans dialogue ni exécution : représentation canonique d'une phrase. */
       analyze: async function (text) {
@@ -55,6 +55,8 @@
         return call('/v1/translate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
       },
       languages: function () { return call('/v1/languages'); },
+      /** Libellés d'interface dans la langue (menu_balance, menu_transfer…), avec leur qualité. */
+      labels: function (l) { return call('/v1/labels?lang=' + encodeURIComponent(l || lang)); },
       reset: function () { session = 'sdk-' + Math.random().toString(36).slice(2, 10); },
     };
   }
