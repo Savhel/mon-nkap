@@ -52,6 +52,9 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 | `CT_KEYS_FILE` | fichier du registre persistant des clés d'entreprises (empreintes SHA-256) | `data/api-keys.json` (si présent) |
 | `CT_PORTAL_SIGNUP` | `0` pour désactiver la création libre de clés sur `/portail` | activée |
 | `CT_ADMIN_KEY` | secret d'administration requis dans `x-admin-key` pour `/v1/admin/*` (`/admin`) | vide (`503` sur `/v1/admin/*`) |
+| `CT_SAFINUM_KEY` | clé d'équipe SAFINUM (`sbx_…`) ; active `SafinumBackend` (`POST /safinum/middleware`) | vide (`MockBackend`) |
+| `CT_SAFINUM_URL` | URL de l'API bancaire SAFINUM | `https://safinum.cm/api/v1` |
+| `CT_SAFINUM_GSM7_TRANSLIT` | `0` pour désactiver la translittération GSM-7 sur USSD SAFINUM | activée |
 | `CT_RATE_LIMIT` | requêtes POST par minute et par client | 120 |
 | `CT_CORS_ORIGINS` | sites autorisés à appeler l'API depuis un navigateur | tous (local) |
 | `CT_AUDIT_FILE` | fichier du journal d'audit chaîné | `data/audit/audit.jsonl` |
@@ -66,6 +69,19 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 Les routes `/ussd`, `/sms` et `/ivr/at` suivent le format d'Africa's Talking. En production, les placer derrière
 un nom d'hôte ou un chemin connu de l'opérateur seulement (les passerelles n'envoient pas de clé d'API), et
 définir `CT_PUBLIC_URL` et `CT_IVR_RECORDING_HOSTS` pour le serveur vocal.
+
+## Bac à sable SAFINUM (`https://safinum.cm/sandbox/docs`)
+
+1. Exposer le serveur sur une URL publique (ou tunnel `ngrok http 8080` / `cloudflared tunnel --url http://localhost:8080`).
+2. Démarrer Mon Nkap avec votre clé d'équipe SAFINUM :
+   ```bash
+   CT_SAFINUM_KEY="sbx_votre_cle" npm start
+   ```
+3. Déclarer votre URL middleware auprès de SAFINUM pour chaque canal (`ussd`, `mobile`, `web`) :
+   ```bash
+   CT_SAFINUM_KEY="sbx_votre_cle" npm run safinum -- endpoint https://votre-url-publique/safinum/middleware
+   CT_SAFINUM_KEY="sbx_votre_cle" npm run safinum -- status
+   ```
 
 ## Clés d'API pour les entreprises bancaires
 

@@ -22,6 +22,20 @@ export type OpResult<T> =
   | { ok: true; value: T }
   | { ok: false; code: 'insufficient_funds' | 'unknown_beneficiary' | 'limit_exceeded' | 'invalid_amount' | 'backend_error'; message: string; details?: Record<string, number | string> };
 
+export interface PendingTransactionInput {
+  op: 'transfer' | 'airtime' | 'bill' | 'withdraw';
+  amount: number;
+  to?: { name?: string; phone?: string };
+  biller?: string;
+}
+
+export interface PendingTransactionHandle {
+  id: string;
+  amount: number;
+  fee: number;
+  total: number;
+}
+
 export interface FinancialBackend {
   readonly name: string;
   getBalance(accountId: string): Promise<OpResult<{ balance: number; currency: 'XAF' }>>;
@@ -33,4 +47,10 @@ export interface FinancialBackend {
   /** Retrait d'espèces (guichet automatique, agent). */
   withdraw(accountId: string, amount: number): Promise<OpResult<Transaction>>;
   history(accountId: string, limit: number): Promise<OpResult<Transaction[]>>;
+
+  /** Cycle de vie en deux tours (ex. bac à sable SAFINUM) : initier en pending, corriger, confirmer, annuler. */
+  createPending?(accountId: string, input: PendingTransactionInput): Promise<OpResult<PendingTransactionHandle>>;
+  updatePending?(txId: string, input: PendingTransactionInput): Promise<OpResult<PendingTransactionHandle>>;
+  confirmPending?(txId: string): Promise<OpResult<Transaction>>;
+  cancelPending?(txId: string): Promise<void>;
 }

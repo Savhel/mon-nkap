@@ -29,6 +29,8 @@ interface Pending {
   token?: string;
   expires?: number;
   digest?: string;
+  /** Identifiant de transaction en attente côté backend (ex. SAFINUM POST /transactions). */
+  pendingTxId?: string;
 }
 
 interface Session { id: string; lang: string; accountId: string; pending?: Pending; turns: number }
@@ -70,6 +72,10 @@ export class Engine {
   private audit?: AuditLog;
   constructor(backend: FinancialBackend, defaultLang = 'fr', audit?: AuditLog) { this.backend = backend; this.defaultLang = defaultLang; this.audit = audit; }
 
+  activePendingTxId(sessionId: string): string | undefined {
+    return this.sessions.get(sessionId)?.pending?.pendingTxId;
+  }
+
   /**
    * Confirmation par jeton (bouton « Confirmer » d'une application bancaire) : n'exécute que si le jeton est
    * celui de l'opération actuellement présentée et n'a pas expiré. Un jeton déjà utilisé ne vaut plus rien.
@@ -84,7 +90,10 @@ export class Engine {
   session(id: string, lang?: string, accountId = 'demo'): Session {
     let s = this.sessions.get(id);
     if (!s) { s = { id, lang: lang ?? this.defaultLang, accountId, turns: 0 }; this.sessions.set(id, s); }
-    else if (lang && lang !== s.lang) s.lang = lang;
+    else {
+      if (lang && lang !== s.lang) s.lang = lang;
+      if (accountId !== 'demo' && s.accountId !== accountId) s.accountId = accountId;
+    }
     return s;
   }
 
@@ -230,10 +239,12 @@ export class Engine {
         if (it.isConfirm && !it.isDeny) return this.execute(s);
         if (it.isDeny) return this.cancel(s);
         if (!otherIntent) return { ...(await this.prompt(s)), intent: 'confirm' };
+        if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
         s.pending = undefined; // nouvelle demande : on abandonne l'opération en attente sans l'exécuter
       } else if (p.stage === 'collect') {
         if (it.isDeny && !it.amounts.length) return this.cancel(s);
         if (!otherIntent) return this.advance(s);
+        if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
         s.pending = undefined;
       }
     }
@@ -301,19 +312,55 @@ export class Engine {
   private async prompt(s: Session, corrected?: 'amount' | 'beneficiary'): Promise<{ kind: ReplyKind; status: Status; intent: EngineResult['intent'] }> {
     const p = s.pending!;
     const kind = p.op === 'bill' ? 'bill' : p.op;
+    const intent = p.op === 'bill' ? 'bill_payment' as const : p.op;
     const q = await this.backend.quoteFee(s.accountId, kind, p.amount!);
-    if (!q.ok) { s.pending = undefined; return { kind: { kind: 'backend_error' }, status: 'failed', intent: null }; }
+    if (!q.ok) {
+      if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
+      s.pending = undefined;
+      if (q.code === 'limit_exceeded') return { kind: { kind: 'limit_exceeded', limit: Number(q.details?.limit ?? 500_000) }, status: 'failed', intent };
+      return { kind: { kind: 'backend_error' }, status: 'failed', intent: null };
+    }
     const bal = await this.backend.getBalance(s.accountId);
     if (bal.ok && bal.value.balance < q.value.total) {
+      if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
       s.pending = undefined;
-      return { kind: { kind: 'insufficient', balance: bal.value.balance, required: q.value.total, missing: q.value.total - bal.value.balance }, status: 'failed', intent: p.op === 'bill' ? 'bill_payment' : p.op };
+      return { kind: { kind: 'insufficient', balance: bal.value.balance, required: q.value.total, missing: q.value.total - bal.value.balance }, status: 'failed', intent };
     }
-    const intent = p.op === 'bill' ? 'bill_payment' as const : p.op;
+    let fee = q.value.fee;
+    let total = q.value.total;
+    const txInput = { op: p.op, amount: p.amount!, to: p.beneficiary, biller: p.biller };
+    if (p.pendingTxId && this.backend.updatePending) {
+      const upd = await this.backend.updatePending(p.pendingTxId, txInput);
+      if (!upd.ok) return this.handlePendingError(s, upd, intent);
+      fee = upd.value.fee;
+      total = upd.value.total;
+    } else if (!p.pendingTxId && this.backend.createPending) {
+      const cr = await this.backend.createPending(s.accountId, txInput);
+      if (!cr.ok) return this.handlePendingError(s, cr, intent);
+      p.pendingTxId = cr.value.id;
+      fee = cr.value.fee;
+      total = cr.value.total;
+    }
     p.token = randomUUID(); p.expires = Date.now() + CONFIRM_TTL_MS; p.digest = this.digest(p);
-    if (p.op === 'transfer') return { kind: { kind: 'confirm_transfer', amount: p.amount!, fee: q.value.fee, total: q.value.total, beneficiary: p.beneficiary!.name, phone: p.beneficiary!.phone, corrected }, status: 'awaiting_confirmation', intent };
-    if (p.op === 'withdraw') return { kind: { kind: 'confirm_withdraw', amount: p.amount!, fee: q.value.fee, total: q.value.total }, status: 'awaiting_confirmation', intent };
+    if (p.op === 'transfer') return { kind: { kind: 'confirm_transfer', amount: p.amount!, fee, total, beneficiary: p.beneficiary!.name, phone: p.beneficiary!.phone, corrected }, status: 'awaiting_confirmation', intent };
+    if (p.op === 'withdraw') return { kind: { kind: 'confirm_withdraw', amount: p.amount!, fee, total }, status: 'awaiting_confirmation', intent };
     if (p.op === 'airtime') return { kind: { kind: 'confirm_airtime', amount: p.amount!, phone: p.beneficiary!.phone }, status: 'awaiting_confirmation', intent };
-    return { kind: { kind: 'confirm_bill', biller: p.biller!, amount: p.amount!, fee: q.value.fee, total: q.value.total }, status: 'awaiting_confirmation', intent };
+    return { kind: { kind: 'confirm_bill', biller: p.biller!, amount: p.amount!, fee, total }, status: 'awaiting_confirmation', intent };
+  }
+
+  private handlePendingError(
+    s: Session,
+    err: { ok: false; code: string; details?: Record<string, number | string> },
+    intent: EngineResult['intent'],
+  ): { kind: ReplyKind; status: Status; intent: EngineResult['intent'] } {
+    s.pending = undefined;
+    if (err.code === 'insufficient_funds') {
+      return { kind: { kind: 'insufficient', balance: Number(err.details?.balance ?? 0), required: Number(err.details?.required ?? 0), missing: Number(err.details?.missing ?? 0) }, status: 'failed', intent };
+    }
+    if (err.code === 'limit_exceeded') {
+      return { kind: { kind: 'limit_exceeded', limit: Number(err.details?.limit ?? 500_000) }, status: 'failed', intent };
+    }
+    return { kind: { kind: 'backend_error' }, status: 'failed', intent };
   }
 
   private async execute(s: Session) {
@@ -322,7 +369,9 @@ export class Engine {
     // présentée et confirmée, dans le délai. Sinon, on la représente pour une nouvelle confirmation.
     if (!p.token || Date.now() > (p.expires ?? 0) || p.digest !== this.digest(p)) return { ...(await this.prompt(s)), intent: 'confirm' as const };
     s.pending = undefined;
-    const r = p.op === 'transfer' ? await this.backend.transfer(s.accountId, p.beneficiary!, p.amount!)
+    const r = p.pendingTxId && this.backend.confirmPending
+      ? await this.backend.confirmPending(p.pendingTxId)
+      : p.op === 'transfer' ? await this.backend.transfer(s.accountId, p.beneficiary!, p.amount!)
       : p.op === 'airtime' ? await this.backend.buyAirtime(s.accountId, p.beneficiary!.phone, p.amount!)
       : p.op === 'withdraw' ? await this.backend.withdraw(s.accountId, p.amount!)
       : await this.backend.payBill(s.accountId, p.biller!, p.amount!);
@@ -342,8 +391,10 @@ export class Engine {
     return JSON.stringify([p.op, p.amount, p.beneficiary?.phone, p.biller]);
   }
 
-  private cancel(s: Session) {
+  private async cancel(s: Session) {
+    const txId = s.pending?.pendingTxId;
     s.pending = undefined;
+    if (txId && this.backend.cancelPending) await this.backend.cancelPending(txId).catch(() => {});
     return { kind: { kind: 'cancelled' } as ReplyKind, status: 'cancelled' as Status, intent: 'cancel' as const };
   }
 }

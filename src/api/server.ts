@@ -29,10 +29,12 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { MockBackend } from '../backend/mock.ts';
+import { SafinumBackend } from '../backend/safinum.ts';
 import { Engine, userSession, type Channel } from '../core/engine.ts';
 import { UssdChannel } from '../channels/ussd.ts';
 import { SmsChannel } from '../channels/sms.ts';
 import { IvrChannel, toAfricasTalkingXml, type IvrTurn } from '../channels/ivr.ts';
+import { SafinumChannel } from '../channels/safinum.ts';
 import { encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
 import { assemble, coverage, missingClips } from '../voice/native.ts';
 import { AuditLog, verifyChain } from '../security/audit.ts';
@@ -63,7 +65,8 @@ const AUDIT_FILE = process.env.CT_AUDIT_FILE ?? fileURLToPath(new URL('../../dat
 
 export function createApp(engine?: Engine, opts: { auditFile?: string | null; keysFile?: string | null; trainerPaths?: TrainerPaths } = {}) {
   const audit = new AuditLog(opts.auditFile === null ? undefined : opts.auditFile ?? AUDIT_FILE);
-  engine ??= new Engine(new MockBackend(), 'fr', audit);
+  const useSafinum = process.env.CT_BACKEND === 'safinum' || !!process.env.CT_SAFINUM_KEY;
+  engine ??= new Engine(useSafinum ? new SafinumBackend() : new MockBackend(), 'fr', audit);
   const keys = new ApiKeys(process.env.CT_API_KEYS ?? '', opts.keysFile);
   const limiter = new RateLimiter();
   const idem = new IdempotencyCache<unknown>();
@@ -75,6 +78,7 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
   const ussd = new UssdChannel(engine, { continuity });
   const sms = new SmsChannel(engine, { continuity });
   const ivr = new IvrChannel(engine);
+  const safinum = new SafinumChannel(engine, { continuity });
   // Enregistrements d'appel : on ne télécharge que depuis les hôtes de l'opérateur (pas de SSRF).
   const recordingHosts = (process.env.CT_IVR_RECORDING_HOSTS ?? 'africastalking.com').split(',').map((h) => h.trim()).filter(Boolean);
   const allowedRecording = (u: string) => { try { const x = new URL(u); return x.protocol === 'https:' && recordingHosts.some((h) => x.hostname === h || x.hostname.endsWith('.' + h)); } catch { return false; } };
@@ -341,6 +345,25 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         const f = await fields(req);
         if (!f.from || !f.text?.trim()) return json(res, 400, { error: 'from et text requis' });
         return json(res, 200, await sms.handle({ from: f.from, text: f.text, lang: f.lang || undefined }));
+      }
+
+      if (req.method === 'POST' && url.pathname === '/safinum/middleware') {
+        const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
+        const traceId = String(b.trace_id ?? req.headers['x-trace-id'] ?? '').trim();
+        const phone = String(b.phone ?? '').trim();
+        if (!traceId || !phone) return json(res, 400, { error: 'trace_id et phone requis' });
+        const out = await safinum.handle({
+          trace_id: traceId,
+          team_id: typeof b.team_id === 'string' ? b.team_id : undefined,
+          channel: typeof b.channel === 'string' ? b.channel : 'ussd',
+          session_id: typeof b.session_id === 'string' ? b.session_id : phone,
+          phone,
+          language: typeof b.language === 'string' ? b.language : null,
+          input: b.input && typeof b.input === 'object' ? b.input : {},
+          constraints: b.constraints && typeof b.constraints === 'object' ? b.constraints : undefined,
+          bank_api: b.bank_api && typeof b.bank_api === 'object' ? b.bank_api : undefined,
+        });
+        return json(res, 200, out);
       }
 
       if (req.method === 'POST' && url.pathname === '/v1/ivr') {

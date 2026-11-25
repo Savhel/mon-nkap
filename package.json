@@ -16,6 +16,7 @@
     "mt": ".venv/bin/python services/mt_server.py",
     "mt:compare": "node tools/compare-mt.ts",
     "keys": "node tools/api-keys.ts",
+    "safinum": "node tools/safinum.ts",
     "apk": "cd mobile-android && npm ci && npm run apk"
   },
   "license": "UNLICENSED",
