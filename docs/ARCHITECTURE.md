@@ -84,9 +84,10 @@ Puis déclarer ses capacités réelles dans `data/languages.json`. Aucune ligne 
 
 | Besoin | Moyen | Code à écrire chez l'institution |
 |---|---|---|
-| Ajouter l'assistant à un site existant | `<script src="https://<serveur>/widget.js" data-lang="fr" async></script>` | **une ligne** |
-| Application mobile ou web existante | SDK `MonNkap.connect(url).message(texte)` puis `.confirm(jeton)` | quelques lignes |
-| Garder son propre parcours | `POST /v1/analyze` → représentation canonique | appel REST |
+| Ajouter l'assistant à un site existant | `<script src="https://<serveur>/widget.js" data-lang="fr" data-api-key="…" async></script>` | **une ligne** |
+| Application mobile ou web existante | SDK `MonNkap.connect(url, { apiKey }).message(texte)` puis `.confirm(jeton)` | quelques lignes |
+| Traduire des textes de son application | `POST /v1/translate` (ou `ct.translate(texte, 'ewo')`) avec `x-api-key` | un appel REST |
+| Garder son propre parcours | `POST /v1/analyze` → représentation canonique (avec `x-api-key`) | appel REST |
 | Passerelle USSD / SMS / vocale | `POST /ussd`, `/sms`, `/ivr/at` (format Africa's Talking) | configuration de la passerelle |
 | Brancher son backend | implémenter l'interface `FinancialBackend` (`src/backend/types.ts`) : solde, contacts, frais, transfert, crédit, facture, retrait, historique | un adaptateur |
 

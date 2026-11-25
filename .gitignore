@@ -4,4 +4,5 @@ models/
 !tests/fixtures/*.wav
 .env
 data/audit/
+data/api-keys.json
 .venv/

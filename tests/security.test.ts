@@ -1,10 +1,13 @@
 // Séparation compréhension / exécution : jeton de confirmation, idempotence, audit chaîné, clés, débit.
 import { test, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { Engine, CONFIRM_TTL_MS } from '../src/core/engine.ts';
 import { MockBackend } from '../src/backend/mock.ts';
 import { AuditLog, verifyChain } from '../src/security/audit.ts';
-import { ApiKeys, IdempotencyCache, RateLimiter } from '../src/security/guards.ts';
+import { ApiKeys, IdempotencyCache, RateLimiter, verifySecret } from '../src/security/guards.ts';
 
 let engine: Engine; let backend: MockBackend; let audit: AuditLog; let n = 0;
 beforeEach(() => { backend = new MockBackend(); audit = new AuditLog(); engine = new Engine(backend, 'fr', audit); n++; });
@@ -70,13 +73,47 @@ test('journal d’audit : opérations tracées, numéros masqués, altération d
 });
 
 test('clés d’API par institution et limitation de débit', () => {
-  const keys = new ApiKeys('banqueA:0123456789abcdef0123,court:abc');
+  const keys = new ApiKeys('banqueA:0123456789abcdef0123,court:abc', null);
   assert.equal(keys.institution('0123456789abcdef0123'), 'banqueA');
   assert.equal(keys.institution('abc'), null);          // clé trop courte : refusée à la configuration
   assert.equal(keys.institution(undefined), null);
-  assert.equal(new ApiKeys('').institution(undefined), 'local');
+  assert.equal(new ApiKeys('', null).institution(undefined), 'local');
   const rl = new RateLimiter(2);
   const t = 1_000_000;
   assert.ok(rl.allow('x', t)); assert.ok(rl.allow('x', t)); assert.ok(!rl.allow('x', t));
   assert.ok(rl.allow('x', t + 30_000));                   // rechargé au bout d'une demi-minute
+});
+
+test('registre persistant de clés par entreprise : émission, empreinte SHA-256 et révocation', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'mon-nkap-keys-'));
+  const file = join(dir, 'api-keys.json');
+  try {
+    const store = new ApiKeys('', file);
+    assert.equal(store.enabled, false);
+    const { key, record } = store.issue('afriland', 'Afriland First Bank');
+    assert.ok(key.startsWith('nk_live_'));
+    assert.equal(record.institution, 'afriland');
+    assert.equal(store.enabled, true);
+    assert.equal(store.institution(key), 'afriland');
+    assert.equal(store.institution(undefined), null);
+
+    // Le secret en clair n'est jamais écrit sur disque, seulement son empreinte.
+    const rawDisk = readFileSync(file, 'utf8');
+    assert.ok(!rawDisk.includes(key));
+
+    // Rechargement depuis le disque dans une nouvelle instance.
+    const reloaded = new ApiKeys('', file);
+    assert.equal(reloaded.institution(key), 'afriland');
+    assert.equal(reloaded.list().length, 1);
+
+    // Révocation immédiate.
+    const rev = reloaded.revoke(record.id);
+    assert.ok(rev && !rev.active);
+    assert.equal(reloaded.institution(key), null);
+    assert.equal(reloaded.enabled, true); // reste verrouillé même si toutes les clés sont révoquées
+    assert.ok(verifySecret('secret-admin-123', 'secret-admin-123'));
+    assert.ok(!verifySecret('secret-admin-123', 'autre'));
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

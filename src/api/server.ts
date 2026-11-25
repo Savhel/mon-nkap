@@ -17,11 +17,13 @@
 //   GET  /canaux                       simulateur jury : USSD, SMS et web côte à côte
 //   POST /v1/confirm                   { sessionId, token, channel } → exécute l'opération présentée, si le jeton est valide
 //   POST /v1/analyze                   { text, lang } → représentation canonique, sans dialogue ni exécution
+//   POST /v1/translate                 { text | texts, from?, to, allowDraft? } → traduction vers/depuis les langues locales (protégé par x-api-key)
 //   POST /v1/identify                  { text } → langue du texte, ou « inconnue » si ce n'est pas sûr
 //   GET  /v1/audit                     journal d'audit chaîné + vérification de la chaîne
+//   GET|POST /v1/admin/keys            gestion des clés d'API par entreprise (en-tête x-admin-key si CT_ADMIN_KEY défini)
 //
-// Sécurité : clé d'API par institution (en-tête x-api-key, variable CT_API_KEYS) sur /v1/* (sauf health,
-// languages) ; limitation de débit ; en-tête Idempotency-Key sur /v1/message et /v1/confirm ;
+// Sécurité : clé d'API par institution (en-tête x-api-key, CT_API_KEYS ou data/api-keys.json) sur /v1/* (sauf health,
+// languages, labels) ; limitation de débit ; en-tête Idempotency-Key sur /v1/message, /v1/confirm et /v1/translate ;
 // CORS limité à CT_CORS_ORIGINS si défini.
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
@@ -34,11 +36,12 @@ import { IvrChannel, toAfricasTalkingXml, type IvrTurn } from '../channels/ivr.t
 import { encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
 import { assemble, coverage, missingClips } from '../voice/native.ts';
 import { AuditLog, verifyChain } from '../security/audit.ts';
-import { ApiKeys, IdempotencyCache, RateLimiter } from '../security/guards.ts';
+import { ApiKeys, IdempotencyCache, RateLimiter, verifySecret } from '../security/guards.ts';
 import { interpret } from '../core/nlu.ts';
 import { toCanonical } from '../core/canonical.ts';
 import { evaluateLanguage } from '../eval/evaluate.ts';
 import { uiLabels } from '../core/respond.ts';
+import { translateText } from '../core/translate.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
 import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
@@ -56,10 +59,10 @@ const STATIC: Record<string, [string, string]> = {
 
 const AUDIT_FILE = process.env.CT_AUDIT_FILE ?? fileURLToPath(new URL('../../data/audit/audit.jsonl', import.meta.url));
 
-export function createApp(engine?: Engine, opts: { auditFile?: string | null } = {}) {
+export function createApp(engine?: Engine, opts: { auditFile?: string | null; keysFile?: string | null } = {}) {
   const audit = new AuditLog(opts.auditFile === null ? undefined : opts.auditFile ?? AUDIT_FILE);
   engine ??= new Engine(new MockBackend(), 'fr', audit);
-  const keys = new ApiKeys();
+  const keys = new ApiKeys(process.env.CT_API_KEYS ?? '', opts.keysFile);
   const limiter = new RateLimiter();
   const idem = new IdempotencyCache<unknown>();
   const corsOrigins = (process.env.CT_CORS_ORIGINS ?? '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -101,15 +104,21 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
     const origin = req.headers.origin ?? '';
     res.setHeader('access-control-allow-origin', !corsOrigins.length ? '*' : corsOrigins.includes(origin) ? origin : 'null');
     res.setHeader('vary', 'origin');
-    res.setHeader('access-control-allow-headers', 'content-type, x-api-key, idempotency-key');
+    res.setHeader('access-control-allow-headers', 'content-type, x-api-key, x-admin-key, idempotency-key');
     res.setHeader('x-content-type-options', 'nosniff');
     try {
       if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
       const client = String(req.headers['x-api-key'] ?? req.socket.remoteAddress ?? 'anon');
       if (req.method === 'POST' && !limiter.allow(client)) return json(res, 429, { error: 'trop_de_requetes' });
-      // API des institutions : clé obligatoire si CT_API_KEYS est défini (les passerelles télécom ont leurs routes).
-      const publicPath = ['/v1/health', '/v1/languages', '/v1/labels'].includes(url.pathname) || !url.pathname.startsWith('/v1/');
-      const institution = keys.institution(req.headers['x-api-key'] as string | undefined);
+      const isAdminPath = url.pathname.startsWith('/v1/admin/');
+      if (isAdminPath) {
+        const adminKey = process.env.CT_ADMIN_KEY;
+        if (!adminKey) return json(res, 503, { error: 'admin_non_configure' });
+        if (!verifySecret(adminKey, req.headers['x-admin-key'] as string | undefined)) return json(res, 401, { error: 'cle_admin_requise' });
+      }
+      // API des institutions : clé obligatoire si CT_API_KEYS ou data/api-keys.json est actif (les passerelles télécom ont leurs routes).
+      const publicPath = isAdminPath || ['/v1/health', '/v1/languages', '/v1/labels'].includes(url.pathname) || !url.pathname.startsWith('/v1/');
+      const institution = isAdminPath ? 'admin' : keys.institution(req.headers['x-api-key'] as string | undefined);
       if (!publicPath && !institution) return json(res, 401, { error: 'cle_api_requise' });
       const idemKey = req.headers['idempotency-key'] ? `${institution}:${String(req.headers['idempotency-key']).slice(0, 128)}` : null;
       if (req.method === 'GET' && url.pathname === '/') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(page()); }
@@ -167,6 +176,56 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
         if (it.term) params.term = it.term;
         const status = it.intent ? 'analyzed' : 'needs_clarification';
         return json(res, 200, toCanonical({ lang, channel: channelOf(b.channel), intent: it.intent, status, params, confidence: Number(it.confidence.toFixed(2)), evidence: it.matched }));
+      }
+
+      if (req.method === 'POST' && url.pathname === '/v1/translate') {
+        const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
+        const to = typeof b.to === 'string' ? b.to.trim().toLowerCase() : '';
+        const from = typeof b.from === 'string' ? b.from.trim().toLowerCase() : 'fr';
+        if (!/^[a-z]{2,3}$/.test(to) || !/^[a-z]{2,3}$/.test(from)) return json(res, 400, { error: 'from et to invalides' });
+        const allowDraftFlag = typeof b.allowDraft === 'boolean' ? b.allowDraft : undefined;
+        if (Array.isArray(b.texts)) {
+          if (!b.texts.length || b.texts.length > 20 || b.texts.some((t: unknown) => typeof t !== 'string' || !t.trim())) {
+            return json(res, 400, { error: 'texts invalide (1 à 20 chaînes non vides)' });
+          }
+          const run = async () => ({
+            institution,
+            items: await Promise.all((b.texts as string[]).map((t) => translateText({ text: t.slice(0, 1000), from, to, allowDraft: allowDraftFlag }))),
+          });
+          if (!idemKey) return json(res, 200, await run());
+          const { value, replayed } = idem.run(`translate:${idemKey}`, run);
+          res.setHeader('idempotent-replayed', String(replayed));
+          return json(res, 200, await value);
+        }
+        if (typeof b.text !== 'string' || !b.text.trim()) return json(res, 400, { error: 'text requis' });
+        const run = async () => ({
+          institution,
+          ...(await translateText({ text: b.text.slice(0, 1000), from, to, allowDraft: allowDraftFlag })),
+        });
+        if (!idemKey) return json(res, 200, await run());
+        const { value, replayed } = idem.run(`translate:${idemKey}`, run);
+        res.setHeader('idempotent-replayed', String(replayed));
+        return json(res, 200, await value);
+      }
+
+      if (req.method === 'GET' && url.pathname === '/v1/admin/keys') {
+        return json(res, 200, { keys: keys.list() });
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/keys') {
+        const b = JSON.parse((await body(req, 8 * 1024)).toString('utf8') || '{}');
+        if (typeof b.institution !== 'string' || !b.institution.trim()) return json(res, 400, { error: 'institution requise' });
+        try {
+          const created = keys.issue(b.institution, typeof b.name === 'string' ? b.name : undefined);
+          return json(res, 201, created);
+        } catch (err) {
+          return json(res, 400, { error: err instanceof Error ? err.message : 'institution invalide' });
+        }
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/keys/revoke') {
+        const b = JSON.parse((await body(req, 4 * 1024)).toString('utf8') || '{}');
+        if (typeof b.id !== 'string' || !b.id.trim()) return json(res, 400, { error: 'id requis' });
+        const revoked = keys.revoke(b.id.trim());
+        return revoked ? json(res, 200, { record: revoked }) : json(res, 404, { error: 'cle_introuvable' });
       }
 
       if (req.method === 'GET' && url.pathname === '/v1/labels') {
@@ -261,7 +320,7 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null } =
       json(res, status, { error: e instanceof Error ? e.message : String(e) });
     }
   });
-  return { server, engine };
+  return { server, engine, keys };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

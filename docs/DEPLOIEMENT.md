@@ -28,7 +28,9 @@ docker run -p 8080:8080 \
 | Variable | Rôle | Défaut |
 |---|---|---|
 | `PORT` | port HTTP | 8080 |
-| `CT_API_KEYS` | `institution:clé,…` — active l'authentification sur `/v1/*` | vide = ouvert (local seulement) |
+| `CT_API_KEYS` | `institution:clé,…` — clés statiques sur `/v1/*` | vide = ouvert (local seulement, sauf registre) |
+| `CT_KEYS_FILE` | fichier du registre persistant des clés d'entreprises (empreintes SHA-256) | `data/api-keys.json` (si présent) |
+| `CT_ADMIN_KEY` | secret d'administration requis dans `x-admin-key` pour `/v1/admin/keys*` | vide (`503` sur `/v1/admin/*`) |
 | `CT_RATE_LIMIT` | requêtes POST par minute et par client | 120 |
 | `CT_CORS_ORIGINS` | sites autorisés à appeler l'API depuis un navigateur | tous (local) |
 | `CT_AUDIT_FILE` | fichier du journal d'audit chaîné | `data/audit/audit.jsonl` |
@@ -43,6 +45,20 @@ docker run -p 8080:8080 \
 Les routes `/ussd`, `/sms` et `/ivr/at` suivent le format d'Africa's Talking. En production, les placer derrière
 un nom d'hôte ou un chemin connu de l'opérateur seulement (les passerelles n'envoient pas de clé d'API), et
 définir `CT_PUBLIC_URL` et `CT_IVR_RECORDING_HOSTS` pour le serveur vocal.
+
+## Clés d'API pour les entreprises bancaires
+
+Chaque entreprise partenaire reçoit sa propre clé (`nk_live_…`) pour appeler `/v1/translate`, `/v1/message`, `/v1/analyze` ou `/v1/voice` :
+
+```bash
+npm run keys -- create banqueA --name "Banque A Cameroun"
+npm run keys -- list
+npm run keys -- revoke <id-ou-prefixe>
+```
+
+En Docker, monter le registre des clés (`-v ct-keys:/app/data/keys` avec `CT_KEYS_FILE=/app/data/keys/api-keys.json`), ou définir `CT_ADMIN_KEY` pour gérer les clés à chaud via `POST /v1/admin/keys`.
+
+> **Sécurité côté application** : dans une application mobile ou web publique, l'entreprise conserve sa clé `x-api-key` sur son **serveur applicatif** qui relaie vers Mon Nkap (afin de ne pas exposer le secret dans le code client).
 
 ## Mise à l'échelle
 

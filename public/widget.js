@@ -6,6 +6,7 @@
   var me = document.currentScript;
   var base = me ? new URL(me.src).origin : '';
   var lang = (me && me.dataset.lang) || 'fr';
+  var apiKey = (me && me.dataset.apiKey) || '';
   function load(tag, attrs) { return new Promise(function (ok, ko) { var e = document.createElement(tag); Object.assign(e, attrs); e.onload = ok; e.onerror = ko; document.head.append(e); }); }
   Promise.all([
     load('link', { rel: 'stylesheet', href: base + '/tokens.css' }),
@@ -25,7 +26,7 @@
     btn.setAttribute('aria-expanded', 'false');
     var panel = document.createElement('div'); panel.className = 'ctw-panel'; panel.hidden = true; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Assistant dans votre langue');
     document.body.append(panel, btn);
-    window.MonNkapAssistant.mount(panel, { server: base, channel: 'web', lang: lang });
+    window.MonNkapAssistant.mount(panel, { server: base, channel: 'web', lang: lang, apiKey: apiKey });
     btn.onclick = function () { panel.hidden = !panel.hidden; btn.setAttribute('aria-expanded', String(!panel.hidden)); };
   }).catch(function () { /* le site de la banque continue de fonctionner sans l'assistant */ });
 })();

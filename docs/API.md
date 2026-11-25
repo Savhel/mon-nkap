@@ -10,9 +10,9 @@ Base : `https://<serveur>` (en local : `http://localhost:8080`). Corps JSON en U
 
 | Mécanisme | Détail |
 |---|---|
-| Clé d'API par institution | En-tête `x-api-key`. Activée dès que la variable `CT_API_KEYS="banqueA:<clé ≥ 16 caractères>,…"` est définie. Sans elle, l'API est ouverte : **développement local uniquement**. Routes publiques : `/v1/health`, `/v1/languages`, `/v1/labels` |
+| Clé d'API par institution | En-tête `x-api-key`. Activée dès que `CT_API_KEYS="banqueA:<clé ≥ 16 caractères>,…"` ou le registre `data/api-keys.json` (`npm run keys`) contient des clés. Seules les empreintes SHA-256 sont enregistrées sur disque. Sans aucune clé configurée, l'API est ouverte : **développement local uniquement**. Routes publiques : `/v1/health`, `/v1/languages`, `/v1/labels` |
 | Limitation de débit | `CT_RATE_LIMIT` requêtes POST par minute et par client (120 par défaut). Au-delà : `429 trop_de_requetes` |
-| Idempotence | En-tête `Idempotency-Key` sur `/v1/message` et `/v1/confirm` : la même clé renvoie la même réponse pendant 24 h, sans retraiter. En-tête de réponse `idempotent-replayed: true|false` |
+| Idempotence | En-tête `Idempotency-Key` sur `/v1/message`, `/v1/confirm` et `/v1/translate` : la même clé renvoie la même réponse pendant 24 h, sans retraiter. En-tête de réponse `idempotent-replayed: true|false` |
 | Confirmation | Aucune opération n'est exécutée sans confirmation explicite, liée par un **jeton à usage unique** à l'opération exacte présentée (montant, bénéficiaire, fournisseur), valable 5 minutes. Toute correction crée un nouveau jeton |
 | Audit | Chaque exécution, annulation ou échec est inscrit dans un journal chaîné (SHA-256) ; numéros de téléphone masqués |
 | CORS | `CT_CORS_ORIGINS="https://banque.example,…"` limite les sites autorisés |
@@ -72,6 +72,29 @@ Réponse : `EngineResult`, dont `reply.text` (dans la langue), `reply.fr` (équi
 
 `{ "text": "…", "lang": "ewo" }` → représentation canonique seule. Pour une institution qui garde son propre
 parcours et ne veut que la compréhension.
+
+### `POST /v1/translate` — traduction vers/depuis les langues locales (protégée par `x-api-key`)
+
+Permet à l'application d'une entreprise bancaire de traduire ses textes ou messages via notre serveur (priorité :
+pack natif validé → brouillons Mboa si `allowDraft: true` ou `CT_ALLOW_DRAFT=1` → traduction automatique Flagship
+sous garde sans chiffre).
+
+```json
+{ "text": "Quel montant voulez-vous envoyer ?", "from": "fr", "to": "dua", "allowDraft": false }
+```
+Ou en lot (1 à 20 chaînes) :
+```json
+{ "texts": ["Banque en ligne", "Solde"], "from": "fr", "to": "dua", "allowDraft": true }
+```
+Réponse : `{ "institution": "ecobank", "text": "…", "from": "fr", "to": "dua", "quality": "validated" | "draft" | "machine" | "fallback", "accepted": true, "source": "pack:dua", "reason"?: "…", "mt"?: { "back": "…", "score": 0.9, "engine": "…", "ms": 42 } }` (ou `{ "institution": "…", "items": [...] }` pour `texts`).
+
+### `GET /v1/admin/keys`, `POST /v1/admin/keys`, `POST /v1/admin/keys/revoke` — gestion des clés par entreprise
+
+Routes d'administration protégées par l'en-tête `x-admin-key` (comparé à la variable `CT_ADMIN_KEY`, `503 admin_non_configure` si absente).
+
+- `GET /v1/admin/keys` → `{ "keys": [{ "id", "institution", "name", "prefix", "createdAt", "active", "source" }] }`
+- `POST /v1/admin/keys` avec `{ "institution": "ecobank", "name": "Ecobank Cameroun" }` → `201 { "key": "nk_live_…", "record": { … } }` (la clé en clair n'est affichée qu'à la création).
+- `POST /v1/admin/keys/revoke` avec `{ "id": "<id ou prefixe>" }` → `200 { "record": { …, "active": false } }`.
 
 ### `POST /v1/identify` — langue d'un texte
 

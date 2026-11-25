@@ -33,7 +33,7 @@
 
   function mount(root, opts) {
     opts = opts || {};
-    var ct = g.MonNkap.connect(opts.server || '', { channel: opts.channel || 'web', lang: opts.lang || 'fr' });
+    var ct = g.MonNkap.connect(opts.server || '', { channel: opts.channel || 'web', lang: opts.lang || 'fr', apiKey: opts.apiKey || '' });
     root.classList.add('ca');
     var top = el('div', 'ca-top');
     var langSel = el('select', 'ca-lang'); langSel.setAttribute('aria-label', 'Langue');
