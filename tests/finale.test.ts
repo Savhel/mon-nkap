@@ -119,7 +119,7 @@ test('Jeton borné à son institution et confirmation vocale soumise au récapit
   assert.equal(engine.log.filter((r) => r.status === 'executed').length, 0);
 });
 
-test('Le catalogue distingue la collecte du parcours guidé et de la transcription seule', async (t) => {
+test('Le catalogue distingue la collecte du parcours guidé et des montants en mode mixte', async (t) => {
   const { server } = createApp(new Engine(new MockBackend()), { auditFile: null, keysFile: null });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => server.close());
@@ -134,10 +134,17 @@ test('Le catalogue distingue la collecte du parcours guidé et de la transcripti
   assert.equal(language('wes').clips, true);
   assert.equal(language('ewo').banking, 'guided');
   assert.equal(language('dua').banking, 'guided');
-  assert.equal(language('bas').banking, 'none');
+  assert.equal(language('bas').banking, 'mixed');
   assert.equal(language('bas').asr, true);
   assert.equal(language('bas').microphone, result.runtime.speechToText);
-  assert.equal(language('bum').banking, language('bum').translation ? 'translation' : 'none');
+  assert.equal(language('bum').banking, language('bum').translation ? 'translation' : 'mixed');
+  const fetchReal = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', (request: string, options?: RequestInit) => request.endsWith('/pairs')
+    ? Promise.resolve(Response.json({ pairs: ['ghomala-francais', 'francais-ghomala', 'yemba-francais'] }))
+    : fetchReal(request, options));
+  const withModels = await (await fetch(base + '/v1/languages')).json();
+  assert.ok(withModels.demoLanguages.includes('bbj'));
+  assert.ok(!withModels.demoLanguages.includes('ybb'), 'les deux directions sont nécessaires');
 });
 
 test('Ewondo et duala : le mot de transfert du lexique prépare un récapitulatif chiffré', async () => {
@@ -171,4 +178,47 @@ test('Une correction avec deux numéros annule le premier récapitulatif et dema
   assert.equal(chosen.canonical.entities.amount, 6500);
   const balance = await backend.getBalance('demo');
   assert.equal(balance.value.balance, 150000);
+});
+
+test('Les montants documentés alimentent le récapitulatif en ewondo, duala, basaa et bulu', async () => {
+  const engine = new Engine(new MockBackend());
+  const requests = [
+    ['ewo', 'lóm mɔ́nə àkúdà à Marie', 1000],
+    ['ewo', 'lóm mɔ́nə bàkúdà bəbɛ à Marie', 2000],
+    ['dua', 'lóma mɔ́ni lokoli loba na bebwea betanu à Marie', 2500],
+    ['dua', 'lóma mɔ́ni lokoli lotanu à Marie', 5000],
+    ['bas', 'envoie hikóó à Marie', 1000],
+    ['bum', 'envoie tɔ́jínì ébae à Marie', 2000],
+  ] as const;
+  for (const [i, [lang, text, amount]] of requests.entries()) {
+    const turn = await engine.handle({ sessionId: 'numbers-' + i, channel: 'api', lang, text });
+    assert.equal(turn.status, 'awaiting_confirmation', text);
+    assert.equal(turn.lang, lang, text);
+    assert.equal(turn.params.amount, amount, text);
+    assert.equal(turn.canonical.entities.beneficiary?.phone, '655778899');
+  }
+  const ambiguous = await engine.handle({ sessionId: 'numbers-incomplete', channel: 'api', lang: 'ewo', text: 'lóm mɔ́nə tɔɡsin i zzzz à Marie' });
+  assert.equal(ambiguous.status, 'needs_clarification');
+  assert.equal(ambiguous.params.amount, undefined);
+  assert.equal(engine.log.filter((turn) => turn.status === 'executed').length, 0);
+});
+
+test('En bulu, l’annonce traduite reste séparée des valeurs bancaires exactes', async (t) => {
+  const requests: { pair: string; texts: string[] }[] = [];
+  const reference = 'Vérifiez les informations du transfert avant de confirmer.';
+  const scriptedTranslation = 'Texte de test du fournisseur simulé';
+  t.mock.method(globalThis, 'fetch', async (_url, options) => {
+    const input = JSON.parse(String(options?.body)) as { pair: string; texts: string[] };
+    requests.push(input);
+    return Response.json({ translations: [input.pair === 'francais-bulu' ? scriptedTranslation : reference], ms: 1 });
+  });
+  const engine = new Engine(new MockBackend());
+  const turn = await engine.handle({ sessionId: 'bulu-intro', lang: 'bum', channel: 'mobile', text: 'envoie tɔ́jínì ébae à Marie' });
+  assert.equal(turn.status, 'awaiting_confirmation');
+  assert.deepEqual(turn.reply.localizedIntro, { text: scriptedTranslation, engine: 'flagship:francais-bulu' });
+  assert.equal(turn.reply.quality, 'fallback');
+  assert.match(turn.reply.text, /2 000/);
+  assert.equal(turn.params.amount, 2000);
+  assert.equal(turn.params.fee, 100);
+  assert.ok(requests.every((request) => request.texts.every((text) => !/\d|Marie/.test(text))));
 });

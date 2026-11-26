@@ -40,7 +40,7 @@ test('IVR ewondo : compris en ewondo, jamais lu avec une voix ewondo inventée ;
   assert.equal(intro.lang, 'ewo');
   if (!ttsAvailable('ewo')) {
     assert.equal(intro.nativeVoice, false);
-    assert.match(intro.prompts[0].text, /réponses vocales seront en français/);
+    assert.match(intro.prompts[0].text, /seront lues en français/);
   }
   const a = await ivr.step(s, { speech: 'envoie 2000 a Aminatou' });
   assert.ok(voicesOk(intro) && voicesOk(a));

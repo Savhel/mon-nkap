@@ -36,7 +36,7 @@ import { UssdChannel } from '../channels/ussd.ts';
 import { SmsChannel } from '../channels/sms.ts';
 import { IvrChannel, toAfricasTalkingXml, type IvrTurn } from '../channels/ivr.ts';
 import { SafinumChannel } from '../channels/safinum.ts';
-import { asrAvailable, encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
+import { asrStatus, encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
 import { assemble, coverage, missingClips } from '../voice/native.ts';
 import { AuditLog, verifyChain } from '../security/audit.ts';
 import { plotweaverLanguage, plotweaverSpeech } from '../voice/plotweaver.ts';
@@ -48,6 +48,7 @@ import { uiLabels } from '../core/respond.ts';
 import { translateText } from '../core/translate.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
 import { UiCatalog } from '../linguistics/ui_catalog.ts';
+import { PUBLISHED_NUMBERS } from '../linguistics/published-numbers.ts';
 import { allowDraft, loadPack } from '../linguistics/pack.ts';
 import { getLangIdSummary, listCollecteLanguages, readCollecteSheet, refreshLangIdFromPacks, trainLanguagePack, writeCollecteSheet, type TrainerPaths } from '../linguistics/trainer.ts';
 import { MT_ROUTES } from '../mt/flagship.ts';
@@ -170,11 +171,11 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         return json(res, 200, { ok: true, translation: mt, safinum: useSafinum ? 'configured' : 'local' });
       }
       if (req.method === 'GET' && url.pathname === '/v1/languages') {
-        const speechToText = asrAvailable();
+        const [speech, mt] = await Promise.all([asrStatus(), mtStatus(650)]);
+        const speechToText = speech.ctc || !!speech.conditioned;
         const piper = ['fr', 'en'].filter(ttsAvailable);
         const rows: LanguageEntry[] = languages.languages;
         const plotweaver = useSafinum || customEngine || connectors.list().length ? [] : rows.map(({ code }) => code).filter(plotweaverLanguage);
-        const mt = await mtStatus(650);
         const pairs = new Set(mt.pairs);
         const list = rows.map((entry) => {
           const { code } = entry;
@@ -185,13 +186,14 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
           const contributed = pack?.utterances.some((item) => item.validated || allowDraft()) ?? false;
           const clips = coverage(code).recorded > 0;
           const banking = code === 'fr' || code === 'en' || lexicon?.status === 'available' ? 'reference'
-            : contributed ? 'collected' : lexicon ? 'guided' : translation ? 'translation' : 'none';
+            : contributed ? 'collected' : lexicon ? 'guided' : translation ? 'translation' : PUBLISHED_NUMBERS[code] ? 'mixed' : 'none';
           const asr = !!entry.capabilities.speechToText?.engineLang;
-          return { ...entry, experience: { banking, translation, asr, microphone: speechToText && asr,
+          return { ...entry, experience: { banking, translation, documentedNumbers: !!PUBLISHED_NUMBERS[code], asr, microphone: speechToText && asr,
             clips, synthesis: piper.includes(code) || plotweaver.includes(code) } };
         });
-        return json(res, 200, { ...languages, languages: list, demoLanguages: DEMO_LANGUAGES,
-          runtime: { speechToText, piper, plotweaver } });
+        const extra = list.filter(({ code, experience }) => !DEMO_LANGUAGES.includes(code) && experience.banking !== 'none');
+        return json(res, 200, { ...languages, languages: list, demoLanguages: [...DEMO_LANGUAGES, ...extra.map(({ code }) => code)],
+          runtime: { speechToText, speech, piper, plotweaver } });
       }
 
       if (req.method === 'GET' && url.pathname === '/v1/events') {
@@ -488,7 +490,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       if (req.method === 'POST' && url.pathname === '/v1/voice') {
         const audio = await body(req, MAX_AUDIO);
         if (audio.length < 1000) return json(res, 400, { error: 'audio vide ou trop court' });
-        const tr = await transcribe(new Uint8Array(audio));
+        const tr = await transcribe(new Uint8Array(audio), url.searchParams.get('lang') ?? 'fr');
         if (!tr.text) return json(res, 200, { transcript: tr, result: null, note: 'Rien n’a été reconnu. Parlez plus près du micro ou tapez votre demande.' });
         if (url.searchParams.get('mode') === 'transcribe') return json(res, 200, { transcript: tr, result: null });
         const r = await runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: url.searchParams.get('sessionId') ?? 'anon', channel: channelOf(url.searchParams.get('channel')), lang: url.searchParams.get('lang') ?? undefined, text: tr.text, input: 'voice', institution: institution ?? undefined }));
@@ -537,7 +539,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         const audio = await body(req, MAX_AUDIO);
         let transcript;
         let speech = (url.searchParams.get('text') ?? '').slice(0, 500);
-        if (audio.length >= 1000) { transcript = await transcribe(new Uint8Array(audio)); speech = transcript.text; }
+        if (audio.length >= 1000) { transcript = await transcribe(new Uint8Array(audio), ivr.language(sid)); speech = transcript.text; }
         const turn = await ivr.step(sid, { digits: url.searchParams.get('digits') ?? undefined, speech });
         return json(res, 200, { ...withAudio(turn), transcript });
       }
@@ -552,7 +554,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         let speech = '';
         if (f.recordingUrl && allowedRecording(f.recordingUrl)) {
           const rec = await fetch(f.recordingUrl, { signal: AbortSignal.timeout(10000) });
-          if (rec.ok) speech = (await transcribe(new Uint8Array(await rec.arrayBuffer()))).text;
+          if (rec.ok) speech = (await transcribe(new Uint8Array(await rec.arrayBuffer()), ivr.language(sid))).text;
         }
         const turn = !f.dtmfDigits && !f.recordingUrl ? ivr.start(sid) : await ivr.step(sid, { digits: f.dtmfDigits, speech });
         return res.end(toAfricasTalkingXml(turn, publicUrl, `${publicUrl}/ivr/at`));

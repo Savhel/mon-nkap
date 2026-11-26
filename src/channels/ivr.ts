@@ -64,6 +64,8 @@ export class IvrChannel {
     return { prompts: this.langMenu(), expect: 'digits' };
   }
 
+  language(sessionId: string): string | undefined { return this.states.get(sessionId)?.lang; }
+
   end(sessionId: string): void { this.states.delete(sessionId); }
 
   /** Un tour d'appel : des touches (`digits`) ou une phrase déjà transcrite (`speech`). */
@@ -103,7 +105,7 @@ export class IvrChannel {
     const prompts: Prompt[] = [];
     if (v !== lang) {
       const name = LANGS.find(([c]) => c === lang)?.[1] ?? lang;
-      prompts.push({ text: `Vous pouvez parler en ${name} : nous vous comprenons. Nos réponses vocales seront en français, car aucune voix ${name} enregistrée par un locuteur natif n’est encore disponible.`, voice: 'fr' });
+      prompts.push({ text: `Vous avez choisi ${name}. Les réponses audio non couvertes par un enregistrement seront lues en français.`, voice: 'fr' });
     }
     prompts.push({ text: t('speak', v), voice: v });
     return { prompts, expect: 'speech', lang, nativeVoice: v === lang };

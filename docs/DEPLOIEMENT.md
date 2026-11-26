@@ -67,6 +67,7 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 | `CT_ALLOW_DRAFT` | `1` pour utiliser aussi les phrases non relues (démonstration interne, marquées « brouillon ») | désactivé |
 | `CT_MT_URL` | service de traduction Flagship **obligatoire** ; défini = service distant (pas de démarrage local) | `http://127.0.0.1:8091`, démarré par le moteur |
 | `CT_MT_AUTOSTART` | `0` : ne pas démarrer le service local (il doit alors tourner ailleurs) | activé |
+| `CT_ASR_LLM_URL` | service Meta Omnilingual avec langue choisie, voir [guide des langues](LANGUES_FINALE.md) | désactivé |
 | `CT_ASR_MODEL` | modèle de reconnaissance vocale | Omnilingual 300M int8 |
 
 ## Passerelles opérateurs

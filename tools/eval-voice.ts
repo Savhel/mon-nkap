@@ -24,7 +24,7 @@ const lev = (a: string, b: string) => {
 let ce = 0, c = 0, ok = 0, unsafe = 0, yesNo = 0, audio = 0;
 const items = [];
 for (const r of rows) {
-  const t = await transcribe(new Uint8Array(readFileSync(dir + r.fichier)));
+  const t = await transcribe(new Uint8Array(readFileSync(dir + r.fichier)), lang);
   audio += t.audioSeconds;
   const i = interpret(t.text, lang);
   const got = i.isConfirm && !i.isDeny ? 'CONFIRM' : i.isDeny && ['CONFIRM', 'CANCEL'].includes(r.intention) ? 'CANCEL' : i.intent ? ENGINE_TO_CANONICAL[i.intent] ?? i.intent : null;
@@ -33,10 +33,10 @@ for (const r of rows) {
   if (got === r.intention) ok++;
   if (['CONFIRM', 'CANCEL'].includes(r.intention)) yesNo++;
   if (r.intention !== 'CONFIRM' && i.isConfirm && !i.isDeny) unsafe++;   // un oui entendu là où le natif n'a pas dit oui
-  items.push({ fichier: r.fichier, situation: r.situation_id, attendu: r.intention, obtenu: got, entendu: t.text, montants: i.amounts });
+  items.push({ moteur: t.engine, langueIndiquee: t.languageHint, fichier: r.fichier, situation: r.situation_id, attendu: r.intention, obtenu: got, entendu: t.text, montants: i.amounts });
 }
 const out = {
-  lang, model: ASR_MODEL, corpus: `data/audio/${lang}/demandes (voix de natifs, accord écrit)`, enregistrements: rows.length,
+  lang, model: [...new Set(items.map((item) => item.moteur))].join(', ') || ASR_MODEL, corpus: `data/audio/${lang}/demandes (voix de natifs, accord écrit)`, enregistrements: rows.length,
   audioMinutes: Number((audio / 60).toFixed(1)),
   cerSansTons: c ? Number(((100 * ce) / c).toFixed(1)) : null,
   intentionsJustes: ok, intentionsJustesPct: Number(((100 * ok) / rows.length).toFixed(1)),

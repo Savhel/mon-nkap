@@ -173,6 +173,9 @@
         var head = el('div', 'ca-done-head'); head.append(icon('checkCircle', 22), el('b', null, 'Opération effectuée'));
         b.append(head);
       }
+      if (r.reply.localizedIntro) {
+        b.append(el('p', 'ca-mt-intro', r.reply.localizedIntro.text), el('small', 'ca-q ca-warn', 'Annonce traduite automatiquement'));
+      }
       b.append(el('div', 'ca-text', r.reply.text));
       if (!REF[r.lang]) {
         var q = QUALITY[r.reply.quality] || QUALITY.fallback;

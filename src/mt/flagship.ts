@@ -44,9 +44,12 @@ export interface MtResult { text: string; back: string; score: number; accepted:
 
 async function call(pair: string, texts: string[]): Promise<{ translations: string[]; ms: number } | null> {
   try {
-    const r = await fetch(`${URL_BASE}/translate`, { method: 'POST', body: JSON.stringify({ pair, texts }), signal: AbortSignal.timeout(TIMEOUT_MS) });
+    const r = await fetch(`${URL_BASE}/translate`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pair, texts }), signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (!r.ok) return null;
-    return await r.json() as { translations: string[]; ms: number };
+    const result = await r.json() as { translations?: unknown; ms?: unknown };
+    if (!Array.isArray(result.translations) || result.translations.length !== texts.length ||
+        !result.translations.every((value) => typeof value === 'string' && value.trim() && value.length <= 1500)) return null;
+    return { translations: result.translations as string[], ms: typeof result.ms === 'number' && Number.isFinite(result.ms) ? result.ms : 0 };
   } catch { return null; }
 }
 
@@ -89,6 +92,7 @@ export async function frenchTo(lang: string, fr: string): Promise<MtResult | nul
   const src = normalize(fr);
   let reason: string | undefined;
   if (/\d/.test(text)) reason = 'chiffre inventé';
+  else if (normalize(text) === src) reason = 'texte source recopié';
   else if (repetitive(text) || repetitive(b)) reason = 'boucle de répétition';
   else if (RELIGIOUS.some((w) => normalize(b).includes(w) && !src.includes(w))) reason = 'vocabulaire hors domaine';
   else if (score < MIN_SCORE) reason = `aller-retour infidèle (${score})`;

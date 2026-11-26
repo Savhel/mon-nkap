@@ -5,6 +5,7 @@
 // - réponses et définitions rédigées par les natifs.
 // Tout est explicable : chaque mot appris est listé avec l'intention qu'il signale et sa fréquence.
 
+import { publishedNumeralize } from './published-numbers.ts';
 import { tokens } from '../core/text.ts';
 import { learnGrammar, numeralize, type NumberGrammar } from './numbers.ts';
 import { loadPack, usable, type LangPack } from './pack.ts';
@@ -109,5 +110,5 @@ export function clearRuntimeCache(): void { cache.clear(); }
 /** Texte où les montants dits en langue nationale sont remplacés par des chiffres (le reste est inchangé). */
 export function numeralizeFor(lang: string, text: string): string {
   const rt = runtimeFor(lang);
-  return rt && Object.keys(rt.grammar.words).length ? numeralize(text, rt.grammar) : text;
+  return rt && Object.keys(rt.grammar.words).length ? numeralize(text, rt.grammar) : publishedNumeralize(text, lang);
 }

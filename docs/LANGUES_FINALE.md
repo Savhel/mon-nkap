@@ -1,0 +1,63 @@
+# Langues et évaluation
+
+| Langue | Démonstration sur le simulateur |
+|---|---|
+| Fulfulde de l’Adamaoua et pidgin camerounais | Expressions de la collecte, nombres reconnus par les packs et clips pour certaines réponses. Les ressources non relues restent signalées. |
+| Ewondo et duala | Lexiques du projet et formes cardinales documentées. Les tests vérifient le montant et le bénéficiaire jusque dans le récapitulatif. |
+| Basaa | Montants documentés dans une demande bancaire mixte. Les consignes et le récapitulatif sont en français. |
+| Bulu | Mode mixte disponible, plus traduction expérimentale avec les deux paires Flagship chargées. |
+| Ghomala’ et yemba | Ajoutés au sélecteur quand leurs deux directions Flagship sont chargées. Dialogue expérimental avec récapitulatif explicite. |
+| Français et anglais | Parcours de référence. |
+
+## Demandes testées par le moteur
+
+Les exemples sont des demandes mixtes ou préparées à partir des lexiques du dépôt. Les transcriptions
+et les tournures au sein d’une phrase complète doivent encore être évaluées par des locuteurs.
+
+| Langue | Demande | Montant extrait |
+|---|---|---:|
+| Ewondo | lóm mɔ́nə bàkúdà bəbɛ à Marie | 2 000 FCFA |
+| Duala | lóma mɔ́ni lokoli loba na bebwea betanu à Marie | 2 500 FCFA |
+| Basaa / français | envoie hikóó à Marie | 1 000 FCFA |
+| Bulu / français | envoie tɔ́jínì ébae à Marie | 2 000 FCFA |
+
+Le parseur couvre une liste finie de formes et certaines additions explicitement documentées. Il
+utilise les correspondances exactes après normalisation des diacritiques. Le montant reste soumis
+au récapitulatif et à la confirmation. Lorsqu’un pack de collecte contient des nombres, sa grammaire
+prend le relais pour cette langue.
+
+- Ewondo, données de terrain d’Olivier Moussa Loumpata dans *Numeral Systems of the World's Languages*. [Formes attestées](https://lingweb.eva.mpg.de/channumerals/Ewondo.htm)
+- Duala, tables pédagogiques Sawa et dictionnaire de Paul Helmlinger (*ikólí*, avec exemple composé). [Table Sawa](https://peuplesawa.com/fr/bnnews.php?nid=116&profil=0&seite=4&sites=0&vip=0), [dictionnaire](https://www.mboasawa.com/communaute/upload/files/2021/09/9zNbLuBrLEtdScZoSnYi_14_9b79902cb642a17db942bf39167e1ab3_file.pdf)
+- Basaa, chapitre « Basaa » de Larry M. Hyman, § 3.4, dans *The Bantu Languages*. [Données linguistiques](https://s3-eu-west-1.amazonaws.com/s3-euw1-ap-pe-ws4-cws-documents.ri-prod/9781138799677/Bantu_Languages_Part_2.pdf)
+- Bulu, données de terrain d’Étienne Zé Amvela, Université de Douala, dans *Numeral Systems of the World's Languages*. [Formes attestées](https://lingweb.eva.mpg.de/channumerals/Bulu-Bantu.htm)
+
+## Transcrire avec le code de la langue
+
+Le CTC Sherpa-ONNX reste le mode léger. Le serveur optionnel Meta Omnilingual LLM-ASR reçoit
+`fub_Latn`, `ewo_Latn`, `dua_Latn`, `bas_Latn` ou `bum_Latn` selon la sélection.
+En cas d’indisponibilité, l’application peut utiliser le CTC déjà chargé. Le mobile et le web
+demandent toujours une relecture avant l’envoi du texte.
+
+Sur la machine de démonstration, installer le paquet officiel `omnilingual-asr` dans un environnement
+Python dédié d’après le guide Meta. Lancer `python services/asr_server.py` dans cet environnement,
+puis démarrer Mon Nkap avec `CT_ASR_LLM_URL=http://127.0.0.1:8092`. Le service écoute uniquement en
+local. Les modèles sont chargés à son démarrage. Meta annonce environ 6,1 Gio de poids et 5 Gio de
+VRAM pour le modèle par défaut `omniASR_LLM_300M_v2`. Ces chiffres viennent de la fiche Meta et
+restent à confirmer sur la machine de démo.
+[Guide Meta](https://github.com/facebookresearch/omnilingual-asr/blob/main/src/omnilingual_asr/models/inference/README.md)
+
+Comparer les transcriptions avec `CT_ALLOW_DRAFT=1 node tools/eval-voice.ts fub` et
+`CT_ALLOW_DRAFT=1 node tools/eval-voice.ts wes`. Le rapport précise le moteur utilisé par fichier.
+Cette mesure réutilise les phrases collectées. Pour mesurer la généralisation, préparer des phrases
+et des voix nouvelles, avec trois contrôles distincts pour l’intention, le montant et le bénéficiaire.
+
+## Traduire les réponses
+
+Le dialogue traduit en bulu utilise les paires Flagship dans les deux sens. Dans une réponse qui
+contient des valeurs, le moteur peut faire traduire une courte annonce sans données financières et
+la juxtaposer au récapitulatif exact. L’annonce n’est affichée que si la vérification par aller-retour
+l’accepte. La confirmation reste une action explicite. [Sources Flagship](https://huggingface.co/flagship-ai/cameroon-int8)
+
+Les formes cardinales et le protocole vocal ont des tests locaux. Le test du protocole envoie de
+l’audio réel à un fournisseur simulé pour vérifier le format et le code de langue. Les performances
+du modèle conditionné et la qualité des annonces traduites restent à mesurer sur la machine de démo.

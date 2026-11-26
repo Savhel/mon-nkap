@@ -78,7 +78,7 @@
   }
   var bankingLabels = {
     reference: 'Assistant bancaire', collected: 'Collecte native · brouillon', guided: 'Parcours guidé · brouillon',
-    translation: 'Traduction expérimentale', none: 'Exploration',
+    translation: 'Traduction expérimentale', mixed: 'Montants locaux · dialogue en français', none: 'Exploration',
   };
   function languageLabel(language) {
     var experience = language.experience || {};

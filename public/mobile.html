@@ -223,6 +223,7 @@
     var exp = l.experience || {};
     var modes = [];
     if (exp.banking !== 'none') modes.push('Texte et menus');
+    if (exp.documentedNumbers) modes.push('Montants en lettres');
     if (exp.microphone) modes.push('Micro');
     else if (exp.asr) modes.push('Modèle vocal à charger');
     if (exp.clips) modes.push('Clips enregistrés');

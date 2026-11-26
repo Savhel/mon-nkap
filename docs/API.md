@@ -217,7 +217,7 @@ n’est demandé pour ce brouillon pendant le rapprochement. Le connecteur SAFIN
 par référence. Le résultat est annoncé au prochain tour lorsque le service bancaire le confirme.
 
 Le catalogue expose `demoLanguages` (ordre pour la démonstration) et `languages[].experience`.
-Le champ `banking` vaut `reference`, `collected`, `guided`, `translation` ou `none`.
+Le champ `banking` vaut `reference`, `collected`, `guided`, `translation`, `mixed` ou `none`.
 `asr` représente la couverture du modèle, `microphone` la disponibilité locale. `clips` indique
 la présence de quelques enregistrements et `synthesis` une synthèse configurée. `translation`
 indique que les deux directions avec le français sont chargées.
@@ -231,3 +231,11 @@ Les simulateurs locaux peuvent envoyer `trial` sur `/v1/message`, `/v1/confirm` 
 C’est un identifiant de suivi de 12 caractères hexadécimaux qui apparaît sur les tours associés.
 `GET /v1/events?trial=<identifiant>` filtre les tours avant de limiter la taille du journal. L’identifiant
 sert à comparer les démonstrations. Les sessions et les confirmations gardent leurs contrôles habituels.
+
+`languages[].experience.documentedNumbers` signale les formes cardinales documentées intégrées.
+`runtime.speech` expose la disponibilité du CTC et le modèle conditionné détecté. La transcription
+renvoie `languageHint` lorsque le modèle a effectivement reçu et confirmé un code de langue.
+
+Une réponse contenant des valeurs peut inclure `reply.localizedIntro` en plus de `reply.text`.
+C’est une annonce automatique sans données de transaction. Les montants, numéros et confirmations
+restent dans les champs du récapitulatif et dans la représentation canonique.

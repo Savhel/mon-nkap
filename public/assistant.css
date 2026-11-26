@@ -96,3 +96,5 @@
 .ca-log { background: linear-gradient(155deg, color-mix(in srgb, var(--ca-brand) 5%, var(--ca-page)), var(--ca-page) 55%); }
 .ca-quick { padding-right: 16px; -webkit-mask-image: none; mask-image: none; }
 .ca-transcript-only .ca-actions { display: none; }
+.ca-mt-intro { margin: 0; font-weight: 650; }
+.ca-mt-intro + small { margin: 2px 0 10px; }

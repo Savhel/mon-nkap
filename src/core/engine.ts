@@ -72,6 +72,13 @@ export interface EngineResult {
   at: string;
 }
 
+const REPLY_INTROS: Partial<Record<ReplyKind['kind'], string>> = {
+  balance: 'Vous pouvez consulter le solde de votre compte ci-dessous.',
+  confirm_transfer: 'Vérifiez les informations du transfert avant de confirmer.',
+  transfer_done: 'Le transfert est terminé. Vous pouvez consulter son reçu.',
+  fee_quote: 'Vous pouvez consulter le détail des frais de ce transfert.',
+};
+
 export class Engine {
   private sessions = new Map<string, Session>();
   private turns = new Map<string, Promise<unknown>>();
@@ -179,13 +186,19 @@ export class Engine {
     try { reply = render(out.kind, s.lang); }
     catch (e) { errors.push(String(e)); reply = render({ kind: 'backend_error' }, 'fr'); out.status = 'failed'; }
 
-    // Réponse en langue nationale : essai de traduction Flagship sous garde (jamais avec un chiffre).
+    // Traduire une annonce sans valeurs lorsque le récapitulatif doit rester en français.
     if (FLAGSHIP_LANGS[s.lang] && reply.lang === s.lang && reply.quality !== 'validated') {
       const mt = await frenchTo(s.lang, reply.fr);
       if (mt) {
         const { ms: _ms, ...rest } = mt;
         reply.mt = rest;
         if (mt.accepted && reply.quality === 'fallback') { reply.text = mt.text; reply.quality = 'machine'; }
+        else if (reply.quality === 'fallback' && mt.reason === 'contient un chiffre' &&
+                 (req.channel === 'mobile' || req.channel === 'web')) {
+          const reference = REPLY_INTROS[out.kind.kind];
+          const intro = reference ? await frenchTo(s.lang, reference) : null;
+          if (intro?.accepted) reply.localizedIntro = { text: intro.text, engine: intro.engine };
+        }
       }
     }
 

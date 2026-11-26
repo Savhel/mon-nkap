@@ -25,6 +25,7 @@ export interface Reply {
   menu?: { key: string; label: string }[]; // choix numérotés (USSD, IVR, SMS)
   speech: string[]; // clips d'enregistrements natifs qui disent cette réponse (voir src/voice/native.ts)
   values: number[];      // montants affichés, pour le contrôle d'intégrité
+  localizedIntro?: { text: string; engine: string }; // annonce traduite, sans données bancaires
   mt?: { text: string; back: string; score: number; accepted: boolean; reason?: string; engine: string }; // essai de traduction automatique (transparence)
 }
 

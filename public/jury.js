@@ -69,7 +69,7 @@
       const row = add(body, 'tr');
       add(row, 'th', lang.name).scope = 'row';
       const banking = options.banking === 'none' ? '—' : MonNkap.languageLabel(lang);
-      add(row, 'td', banking + (options.translation && options.banking !== 'translation' ? ' · traduction en appui' : ''));
+      add(row, 'td', banking + (options.translation && options.banking !== 'translation' ? ' · traduction en appui' : options.documentedNumbers && options.banking !== 'mixed' ? ' · montants en lettres' : ''));
       add(row, 'td', options.microphone ? (options.banking === 'none' ? 'Transcription' : 'Disponible') : options.asr ? 'Modèle à charger' : '—');
       add(row, 'td', [options.clips && 'Clips enregistrés', options.synthesis && 'Synthèse configurée'].filter(Boolean).join(' · ') || 'Texte');
       const link = add(add(row, 'td'), 'a', 'Ouvrir');

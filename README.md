@@ -27,10 +27,10 @@ Flagship de Lingo. Le pack int8 téléchargé pour ce mode porte CC BY-NC 4.0. V
 et la documentation d'installation pour les modèles exacts.
 
 `/v1/health` indique la disponibilité du moteur local et de la traduction. `/v1/languages` indique les
-modes vocaux configurés. Le micro impose 20 secondes maximum par enregistrement. Le modèle Sherpa-ONNX
-CTC détecte la transcription sans paramètre de langue. La langue choisie, **fub** pour le fulfulde de
-l’Adamaoua, pilote l’interprétation et les réponses. Le parcours HTTPS ou localhost donne accès au micro
-du navigateur.
+modes vocaux configurés. Le micro impose 20 secondes maximum par enregistrement. Lorsque le service
+vocal avec indication de langue est configuré, la langue choisie est transmise à Meta Omnilingual.
+Le CTC local reste disponible en repli. Le parcours HTTPS ou localhost donne accès au micro du
+navigateur. Voir [Langues et évaluation](docs/LANGUES_FINALE.md).
 
 Pour préparer la finale, commencer par [le parcours jury et la vérification](docs/SCENARIOS_DEMO.md).
 
@@ -107,8 +107,8 @@ tools/            collecte, import-collecte, evaluate, build-langid, measure-asr
 ## Limites connues
 
 - Le fulfulde et le pidgin disposent de premières contributions de locuteurs et de clips enregistrés avec accord. Les phrases sont des brouillons tant que la relecture est en cours.
-- Ewondo et duala disposent de parcours guidés et de lexiques brouillons. Pour les essayer, utiliser des montants en chiffres et vérifier la réponse affichée.
-- Le basaa est proposé en transcription seule quand Omnilingual ASR est chargé. Le bulu passe de la transcription seule au dialogue expérimental quand les deux paires de traduction Flagship sont chargées. Le modèle peut transcrire davantage de langues que le moteur bancaire ne sait en traiter.
+- Ewondo et duala disposent de parcours guidés, de lexiques brouillons et de formes cardinales documentées. Le basaa et le bulu acceptent aussi certaines formes cardinales dans des demandes mixtes avec le français.
+- Avec Flagship chargé, le bulu dispose en plus d’une traduction expérimentale. Le mobile et le web peuvent afficher une annonce traduite à côté du récapitulatif financier en français.
 - Sur mobile et dans le widget web, le micro remplit un champ modifiable. L’utilisateur relit la transcription avant de l’envoyer.
 - Le middleware SAFINUM et le simulateur local sont disponibles. Le sandbox officiel nécessite une clé d’équipe et un endpoint public enregistré.
 - Les canaux télécom locaux utilisent un simulateur. Les sessions, les résultats d’idempotence et les rapprochements en attente sont en mémoire, sur une seule instance.

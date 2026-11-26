@@ -1,4 +1,4 @@
-// Voix entrante (ASR) et sortante (TTS), via Sherpa-ONNX, entièrement hors ligne.
+// Voix entrante Meta Omnilingual et synthèse locale Sherpa-ONNX.
 //
 // ASR : Meta Omnilingual ASR (CTC, Apache-2.0). Le modèle CTC ne prend pas de code langue :
 // il transcrit ce qu'il entend, dans n'importe laquelle de ses 1 600+ langues.
@@ -14,6 +14,30 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const execFileP = promisify(execFile);
 const MODELS = fileURLToPath(new URL('../../models/', import.meta.url));
+
+const languageCatalog = JSON.parse(readFileSync(new URL('../../data/languages.json', import.meta.url), 'utf8')) as {
+  languages: { code: string; capabilities: { speechToText?: { engineLang?: string } } }[];
+};
+const asrCodes = new Map(languageCatalog.languages.map((language) => [language.code, language.capabilities.speechToText?.engineLang]));
+const asrModelName = /^omniASR_LLM_[A-Za-z0-9_]{1,45}$/;
+const llmBase = () => process.env.CT_ASR_LLM_URL?.replace(/\/$/, '');
+
+export async function asrStatus() {
+  const ctc = asrAvailable();
+  const base = llmBase();
+  if (base) {
+    try {
+      const response = await fetch(`${base}/health`, { signal: AbortSignal.timeout(650), redirect: 'error' });
+      if (response.ok) {
+        const info = await response.json() as { model?: string; languageConditioning?: boolean };
+        if (info.languageConditioning && typeof info.model === 'string' && asrModelName.test(info.model)) {
+          return { ctc, conditioned: info.model };
+        }
+      }
+    } catch {}
+  }
+  return { ctc, conditioned: null };
+}
 
 interface Wave { samples: Float32Array; sampleRate: number }
 // Types minimaux du binding natif (sherpa-onnx-node n'expose pas de types TypeScript).
@@ -71,17 +95,41 @@ export async function toSamples16k(input: Uint8Array, maxSeconds?: number): Prom
   } finally { await rm(dir, { recursive: true, force: true }); }
 }
 
-export interface Transcript { text: string; engine: string; audioSeconds: number; decodeMs: number }
+export interface Transcript { text: string; engine: string; audioSeconds: number; decodeMs: number; languageHint?: string }
 
-export async function transcribe(audio: Uint8Array): Promise<Transcript> {
-  if (!asrAvailable()) throw Object.assign(new Error('Modèle vocal absent. Écrivez votre demande ou installez les modèles.'), { status: 503 });
+export async function transcribe(audio: Uint8Array, lang?: string): Promise<Transcript> {
+  const base = llmBase();
+  const languageHint = lang ? asrCodes.get(lang) : undefined;
+  if (!asrAvailable() && !(base && languageHint)) {
+    throw Object.assign(new Error('Modèle vocal absent. Écrivez votre demande ou chargez un modèle vocal.'), { status: 503 });
+  }
   const wav = await toSamples16k(audio, MAX_RECORDING_SECONDS);
+  const audioSeconds = Number((wav.samples.length / wav.sampleRate).toFixed(2));
+  if (base && languageHint) {
+    const t0 = performance.now();
+    try {
+      const response = await fetch(`${base}/transcribe?lang=${encodeURIComponent(languageHint)}`, {
+        method: 'POST', headers: { 'content-type': 'audio/wav' },
+        body: new Uint8Array(encodeWav(wav.samples, wav.sampleRate)),
+        signal: AbortSignal.timeout(8000), redirect: 'error',
+      });
+      if (response.ok) {
+        const payload = await response.json() as { text?: string; model?: string; languageHint?: string };
+        if (typeof payload.text === 'string' && payload.text.trim() && payload.text.length <= 1500 &&
+            payload.languageHint === languageHint && typeof payload.model === 'string' && asrModelName.test(payload.model)) {
+          return { text: payload.text.trim(), engine: payload.model, audioSeconds,
+            decodeMs: Math.round(performance.now() - t0), languageHint };
+        }
+      }
+    } catch {}
+  }
+  if (!asrAvailable()) throw Object.assign(new Error('Reconnaissance vocale indisponible. Écrivez votre demande.'), { status: 503 });
   const r = asr();
   const s = r.createStream();
   s.acceptWaveform({ samples: wav.samples, sampleRate: wav.sampleRate });
   const t0 = performance.now();
   r.decode(s);
-  return { text: r.getResult(s).text.trim(), engine: `omnilingual-asr:${ASR_MODEL.includes('1B') ? '1B' : '300M'}`, audioSeconds: Number((wav.samples.length / wav.sampleRate).toFixed(2)), decodeMs: Math.round(performance.now() - t0) };
+  return { text: r.getResult(s).text.trim(), engine: `omnilingual-asr:${ASR_MODEL.includes('1B') ? '1B' : '300M'}`, audioSeconds, decodeMs: Math.round(performance.now() - t0) };
 }
 
 const VOICES: Record<string, string> = { fr: 'vits-piper-fr_FR-siwis-medium/fr_FR-siwis-medium', en: 'vits-piper-en_US-amy-low/en_US-amy-low' };

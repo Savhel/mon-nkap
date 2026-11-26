@@ -56,9 +56,7 @@ dans les langues nationales selon les mesures de `data/eval/asr-*.json`.
 
 Le tableau **Langues et modes disponibles** présente les modes actifs sur le serveur. Pour passer
 à une autre langue bancaire pendant la démonstration, choisir l’ewondo ou le duala et utiliser les
-menus ou les libellés du lexique avec un montant écrit en chiffres. Pour montrer une capacité vocale
-supplémentaire, ouvrir le basaa depuis l’accueil et relire la transcription. Avec les deux paires
-Flagship chargées, essayer le parcours bulu en le présentant comme expérimental.
+menus ou des montants documentés écrits en lettres. Le [guide des langues](LANGUES_FINALE.md) donne des demandes testées, y compris en mode mixte basaa et bulu. Avec les deux paires Flagship chargées, essayer aussi le dialogue bulu par traduction.
 
 La [liste officielle des codes d’Omnilingual ASR](https://github.com/facebookresearch/omnilingual-asr/blob/main/src/omnilingual_asr/models/wav2vec2_llama/lang_ids.py)
 documente la couverture de transcription. Les clips du dépôt et la validation des parcours
