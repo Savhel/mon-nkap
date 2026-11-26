@@ -1,4 +1,4 @@
-// Service de traduction Flagship : dépendance OBLIGATOIRE du moteur.
+// Service de traduction Flagship : fournisseur facultatif du moteur.
 // Au démarrage, le serveur vérifie qu'il répond ; sinon il le lance lui-même (services/mt_server.py, avec le
 // Python de .venv s'il existe) et attend qu'il ait chargé ses modèles. Son état est exposé par /v1/health.
 

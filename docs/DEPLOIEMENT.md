@@ -52,8 +52,10 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 | `CT_KEYS_FILE` | fichier du registre persistant des clés d'entreprises (empreintes SHA-256) | `data/api-keys.json` (si présent) |
 | `CT_PORTAL_SIGNUP` | `1` pour ouvrir la création libre de clés sur `/portail` (démonstration seulement : n'importe quel visiteur obtient alors une clé) | fermée : clés émises par `npm run keys` ou `/admin` |
 | `CT_ADMIN_KEY` | secret d'administration requis dans `x-admin-key` pour `/v1/admin/*` (`/admin`) | vide (`503` sur `/v1/admin/*`) |
-| `CT_SAFINUM_KEY` | clé d'équipe SAFINUM (`sbx_…`) ; active `SafinumBackend` (`POST /safinum/middleware`) | vide (`MockBackend`) |
+| `CT_SAFINUM_KEY` | clé d'équipe SAFINUM (`sbx_…`) ; active `SafinumBackend` uniquement sur `POST /safinum/middleware` | vide (`MockBackend`) |
 | `CT_SAFINUM_URL` | URL de l'API bancaire SAFINUM | `https://safinum.cm/api/v1` |
+| `CT_SAFINUM_WEBHOOK_KEY` | secret entrant facultatif, si le connecteur SAFINUM fournit `X-Team-Key` | vide |
+| `CT_PLOTWEAVER_KEY`, `CT_PLOTWEAVER_LANG_FUB` | accès facultatif PlotWeaver et code fourni par le service (simulateur local) | désactivé |
 | `CT_SAFINUM_GSM7_TRANSLIT` | `0` pour désactiver la translittération GSM-7 sur USSD SAFINUM | activée |
 | `CT_CONNECTORS_FILE` | fichier du registre de connecteurs par institution | `data/connectors.json` (si présent) |
 | `CT_UI_RESOURCES_FILE` | fichier du catalogue UI par institution | `data/ui-resources.json` (si présent) |
@@ -118,3 +120,13 @@ En Docker, monter le registre des clés (`-v ct-keys:/app/data/keys` avec `CT_KE
 Le moteur ne garde en mémoire que les conversations en cours (une confirmation expire en 5 minutes). Pour
 plusieurs instances : sessions et cache d'idempotence dans un magasin partagé (Redis, à ajouter), journal
 d'audit centralisé.
+
+Le serveur choisit l’URL bancaire d’après `CT_SAFINUM_URL`. Une URL reçue dans un callback est ignorée.
+Après une rupture de réponse sur une confirmation, l’adaptateur tente une lecture de la transaction.
+Si le statut reste inconnu, la session conserve la référence et réessaie la lecture au tour suivant.
+La compatibilité de cette lecture avec le sandbox officiel doit être contrôlée avec la clé d’équipe.
+
+PlotWeaver est facultatif. Définir `CT_PLOTWEAVER_KEY` et `CT_PLOTWEAVER_LANG_FUB` (ou
+`CT_PLOTWEAVER_LANG_EWO`) d’après le catalogue disponible avec votre accès. Lorsqu’un clip natif
+complet est disponible, il est joué en priorité. Sinon, le bouton de lecture peut demander une
+synthèse de la réponse affichée. Le texte et le récapitulatif restent disponibles si l’appel échoue.

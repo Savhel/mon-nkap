@@ -13,17 +13,26 @@ reconstruire son propre moteur linguistique, et sans modifier son code métier.
 ## Démarrage
 
 ```bash
-npm install
-npm start           # http://localhost:8080
-npm test            # tests automatiques (scénarios SAFINUM, canaux, sécurité, langues, évaluation)
-npm run models      # facultatif : reconnaissance vocale Omnilingual (≈ 350 Mo) et voix fr/en
+npm ci
+cp .env.example .env
+node --env-file=.env src/api/server.ts   # http://localhost:8080
+npm run typecheck
+npm test                                # vérifications locales sans modèles
 ```
 
-**Traduction (obligatoire)** : `npm run mt:install && npm run mt:models` (environnement Python local `.venv`,
-modèles Flagship ≈ 800 Mo). `npm start` démarre lui-même le service de traduction ; `/v1/health` répond 503 s'il
-est indisponible.
+Node.js ≥ 22.18 suffit au dialogue texte et aux menus USSD. Pour le micro avec Omnilingual ASR et la
+lecture native ou Piper, installer `ffmpeg` puis lancer `npm run models` sur la machine de démonstration.
+Python ≥ 3.10 et `npm run mt:install && npm run mt:models -- fufulde bulu` activent le repli de traduction
+Flagship de Lingo. Le pack int8 téléchargé pour ce mode porte CC BY-NC 4.0. Voir les variantes CC BY
+et la documentation d'installation pour les modèles exacts.
 
-Prérequis : Node.js 22.18 ou plus récent (TypeScript exécuté directement), Python 3.10 ou plus récent et `ffmpeg`.
+`/v1/health` indique la disponibilité du moteur local et de la traduction. `/v1/languages` indique les
+modes vocaux configurés. Le micro impose 20 secondes maximum par enregistrement. Le modèle Sherpa-ONNX
+CTC détecte la transcription sans paramètre de langue. La langue choisie, **fub** pour le fulfulde de
+l’Adamaoua, pilote l’interprétation et les réponses. Le parcours HTTPS ou localhost donne accès au micro
+du navigateur.
+
+Pour préparer la finale, commencer par [le parcours jury et la vérification](docs/SCENARIOS_DEMO.md).
 
 | Page | Canal |
 |---|---|
@@ -49,8 +58,7 @@ npm run evaluate                        # métriques sur les phrases de test des
 
 Les natifs écrivent : comment on **dit les montants** (la grammaire des nombres de la langue est apprise de leurs
 exemples), le **lexique financier**, ce qu'ils diraient **naturellement** dans 22 situations (solde, transfert,
-correction, confirmation…), les **réponses** du service et les **définitions** des termes. Une ligne n'est utilisée
-que si un second natif l'a validée. 30 % des phrases sont réservées au **test** et ne servent jamais à
+correction, confirmation…), les **réponses** du service et les **définitions** des termes. Le mode standard utilise les contributions relues. Le mode concours `CT_ALLOW_DRAFT=1` ajoute les premières contributions et affiche leur statut de brouillon. 30 % des phrases sont réservées au **test** et ne servent jamais à
 l'apprentissage.
 
 ## Ce qui fonctionne (vérifié par les tests)
@@ -64,8 +72,8 @@ l'apprentissage.
 | Sécurité | Une prédiction n'est jamais une autorisation : jeton de confirmation à usage unique lié à l'opération exacte ; idempotence ; journal d'audit chaîné (SHA-256) ; clés d'API par institution ; limitation de débit ; CORS restreint |
 | Identification de langue | Profils appris sur Common Voice (CC0), mesurés sur des phrases mises de côté : ewondo 94 %, duala 95 %, pidgin 75 % (phrase entière) ; « inconnue » plutôt qu'une supposition |
 | Réponses | Phrases des natifs (pack), sinon libellés Mboa (brouillons), sinon français ; le statut est toujours affiché (`reference`, `validated`, `draft`, `fallback`). Chaque montant est vérifié dans la réponse |
-| Traduction | Service Flagship obligatoire (ewondo, fulfulde, bulu, ghomala', yemba ↔ français), démarré par le moteur : comprend une demande en langue nationale par le français quand le lexique ne suffit pas, et propose une réponse traduite seulement si l'aller-retour est fidèle et sans chiffre, toujours marquée « traduction automatique ». La langue produite est vérifiée. OPUS-MT et MADLAD-400 (Apache-2.0) sont installés et mesurés (`npm run mt:compare`), mais routés pour aucune langue : OPUS écrit dans une autre langue bantoue que celle demandée, MADLAD recopie le français ou produit des phrases religieuses (voir `docs/MT_EVALUATION.md`). Duala et pidgin : aucun moteur fiable, la qualité vient des natifs |
-| Voix | Reconnaissance Omnilingual hors ligne ; voix sortante fr/en (Piper) et enregistrements natifs assemblés pour les langues nationales — jamais une voix française pour une langue nationale |
+| Traduction | Service Flagship facultatif (ewondo, fulfulde, bulu, ghomala', yemba ↔ français), démarré par le moteur : comprend une demande en langue nationale par le français quand le lexique ne suffit pas, et propose une réponse traduite seulement si l'aller-retour est fidèle et sans chiffre, toujours marquée « traduction automatique ». La langue produite est vérifiée. OPUS-MT et MADLAD-400 (Apache-2.0) sont installés et mesurés (`npm run mt:compare`), mais routés pour aucune langue : OPUS écrit dans une autre langue bantoue que celle demandée, MADLAD recopie le français ou produit des phrases religieuses (voir `docs/MT_EVALUATION.md`). Duala et pidgin : aucun moteur fiable, la qualité vient des natifs |
+| Voix | Reconnaissance Omnilingual hors ligne ; voix sortante fr/en (Piper), clips natifs fulfulde/pidgin si la réponse entière est couverte et PlotWeaver facultatif pour le simulateur local |
 | Évaluation | Exactitude des intentions, précision / rappel / F1 par intention, exactitude des montants et des bénéficiaires, clarification, cohérence mobile / web / USSD, latence — par langue, jamais mélangée avec le français |
 
 ## Documentation
@@ -97,10 +105,7 @@ tools/            collecte, import-collecte, evaluate, build-langid, measure-asr
 
 ## Limites connues
 
-- Les packs des langues nationales sont vides tant que les natifs n'ont pas rempli et relu les tableurs : la
-  compréhension en langue nationale repose d'ici là sur les lexiques brouillons hérités de Mboa.
-- Le backend est simulé, en attendant la documentation de l'environnement de test SAFINUM ; aucun point d'accès
-  n'est inventé.
-- Le Fulfulde n'a aucun corpus ouvert : il ne peut pas être identifié automatiquement ni mesuré en voix.
-- USSD, SMS et serveur vocal sont testés sur simulateur, pas sur une vraie passerelle opérateur.
-- Sessions et cache d'idempotence en mémoire : une seule instance (voir `docs/DEPLOIEMENT.md`).
+- Le fulfulde et le pidgin disposent de premières contributions de locuteurs et de clips enregistrés avec accord. Les phrases sont des brouillons tant que la relecture est en cours.
+- Ewondo et duala restent expérimentaux. Basaa et bulu figurent au catalogue avec des capacités limitées.
+- Le middleware SAFINUM et le simulateur local sont disponibles. Le sandbox officiel nécessite une clé d’équipe et un endpoint public enregistré.
+- Les canaux télécom locaux utilisent un simulateur. Les sessions, les résultats d’idempotence et les rapprochements en attente sont en mémoire, sur une seule instance.

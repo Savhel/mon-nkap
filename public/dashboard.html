@@ -31,15 +31,21 @@
 <body>
 <header>
   <h1>Tableau de bord · Mon Nkap</h1>
-  <p class="sub">Mesures réelles, recalculées à la demande. Chaque langue est mesurée séparément, sur des phrases de test écrites par des natifs et jamais utilisées pour l'apprentissage.</p>
+  <p class="sub">GIFA · Finale SAFINUM · Opérations sur comptes fictifs</p>
   <div class="tabs" role="tablist">
-    <button role="tab" aria-selected="true" data-tab="eval">Évaluation par langue</button>
+    <button role="tab" aria-selected="true" data-tab="compare">Comparer les canaux</button>
+    <button role="tab" aria-selected="false" data-tab="eval">Évaluation par langue</button>
     <button role="tab" aria-selected="false" data-tab="log">Journal des requêtes</button>
     <button role="tab" aria-selected="false" data-tab="audit">Audit des opérations</button>
   </div>
 </header>
 <main>
-  <section id="eval" role="tabpanel"></section>
+  <section id="compare" role="tabpanel">
+    <h2>Dernier transfert exécuté par canal</h2>
+    <p id="comparison-status" class="note" role="status">En attente du journal…</p>
+    <div class="tablewrap"><table><thead><tr><th>Canal</th><th>Langue</th><th>Bénéficiaire</th><th>Montant</th><th>Frais</th><th>Total</th><th>Référence</th><th>Durée de confirmation</th></tr></thead><tbody id="comparison-rows"></tbody></table></div>
+  </section>
+  <section id="eval" role="tabpanel" hidden></section>
   <section id="log" role="tabpanel" hidden><div class="tablewrap"><table><thead><tr><th>Heure</th><th>Canal</th><th>Langue</th><th>Requête</th><th>Interprétation</th><th>Paramètres</th><th>Réponse</th><th>Qualité</th><th>Statut</th><th>ms</th><th>Erreurs</th></tr></thead><tbody id="rows"></tbody></table></div></section>
   <section id="audit" role="tabpanel" hidden></section>
 </main>
@@ -72,7 +78,7 @@
       });
     });
   }
-  var STATUS = { answered: 'Répondu', needs_clarification: 'Précision demandée', awaiting_confirmation: 'En attente de confirmation', executed: 'Exécuté', failed: 'Échec', cancelled: 'Annulé', analyzed: 'Analysé' };
+  var STATUS = { answered: 'Répondu', needs_clarification: 'Précision demandée', awaiting_confirmation: 'En attente de confirmation', executed: 'Exécuté', pending_reconciliation: 'Statut à vérifier', failed: 'Échec', cancelled: 'Annulé', analyzed: 'Analysé' };
   var F = function (n) { return Number(n).toLocaleString('fr-FR') + ' FCFA'; };
   function entities(e) {
     if (!e) return '';
@@ -87,8 +93,51 @@
     return out.join('\n');
   }
   var Q = { validated: ['validé', 'ok'], draft: ['brouillon', 'warn'], machine: ['trad. auto', 'warn'], fallback: ['repli fr', 'bad'] };
+  var CHANNELS = { mobile: 'Mobile', web: 'Web', ussd: 'USSD' };
+  function compareTransfers(events) {
+    var rows = $('#comparison-rows');
+    var status = $('#comparison-status');
+    rows.textContent = '';
+    var latest = Object.keys(CHANNELS).map(function (channel) {
+      return events.find(function (e) {
+        return e.channel === channel && e.status === 'executed' && e.canonical.operation === 'TRANSFER_MONEY';
+      });
+    }).filter(Boolean);
+    latest.forEach(function (turn) {
+      var p = turn.canonical.entities, recipient = p.beneficiary || {}, row = el('tr');
+      [CHANNELS[turn.channel], turn.lang, [recipient.name, recipient.phone].filter(Boolean).join(' · '),
+        F(p.amount), F(p.fee), F(p.total), p.reference, turn.latencyMs + ' ms'].forEach(function (value) {
+        row.append(el('td', null, value));
+      });
+      rows.append(row);
+    });
+    status.className = 'note';
+    if (latest.length < 2) {
+      status.textContent = 'Exécutez un transfert sur au moins deux canaux pour comparer les valeurs.';
+      return;
+    }
+    var comparable = latest.every(function (t) { return t.institution === latest[0].institution; });
+    var signature = function (t) {
+      var p = t.canonical.entities;
+      return JSON.stringify([p.amount, p.fee, p.total, p.beneficiary && p.beneficiary.phone]);
+    };
+    var complete = latest.every(function (t) {
+      var p = t.canonical.entities;
+      return p.beneficiary && p.beneficiary.phone && Number.isSafeInteger(p.total);
+    });
+    if (!comparable || !complete) {
+      status.textContent = 'Comparaison indisponible pour ces reçus.';
+      return;
+    }
+    var same = latest.every(function (t) { return signature(t) === signature(latest[0]); });
+    status.className = same ? 'ok' : 'warn';
+    status.textContent = same
+      ? 'Montant, frais, total et numéro du bénéficiaire identiques sur ' + latest.length + ' canaux.'
+      : 'Les derniers transferts diffèrent. Rejouez le même montant et le même bénéficiaire pour vérifier la cohérence.';
+  }
   function loadLog() {
     fetch('/v1/events').then(function (r) { return r.json(); }).then(function (evs) {
+      compareTransfers(evs);
       var tb = $('#rows'); tb.textContent = '';
       evs.forEach(function (e) {
         var c = e.canonical || {}, tr = el('tr'), q = e.lang === 'fr' || e.lang === 'en' ? ['référence', ''] : Q[e.reply.quality] || ['', ''];

@@ -16,11 +16,12 @@ import { identify, loadLangId } from '../linguistics/langid.ts';
 export const CONFIRM_TTL_MS = 5 * 60_000;
 
 export type Channel = 'mobile' | 'web' | 'ussd' | 'sms' | 'ivr' | 'atm' | 'api';
-export type Status = 'answered' | 'needs_clarification' | 'awaiting_confirmation' | 'executed' | 'failed' | 'cancelled';
+export type Status = 'answered' | 'needs_clarification' | 'awaiting_confirmation' | 'executed' | 'failed' | 'cancelled' | 'pending_reconciliation';
 
 interface Pending {
   op: 'transfer' | 'airtime' | 'bill' | 'withdraw';
   amount?: number;
+  fee?: number;
   beneficiary?: { name: string; phone: string };
   options?: Contact[];
   biller?: string;
@@ -31,6 +32,7 @@ interface Pending {
   digest?: string;
   /** Identifiant de transaction en attente côté backend (ex. SAFINUM POST /transactions). */
   pendingTxId?: string;
+  unresolved?: boolean;
 }
 
 interface Session { id: string; lang: string; accountId: string; pending?: Pending; turns: number }
@@ -47,6 +49,7 @@ export function userSession(phone: string): string | null {
 }
 
 export interface EngineResult {
+  institution: string;
   sessionId: string;
   channel: Channel;
   lang: string;
@@ -66,14 +69,19 @@ export interface EngineResult {
 
 export class Engine {
   private sessions = new Map<string, Session>();
+  private turns = new Map<string, Promise<unknown>>();
   readonly log: EngineResult[] = [];
   private backend: FinancialBackend;
   private defaultLang: string;
   private audit?: AuditLog;
   constructor(backend: FinancialBackend, defaultLang = 'fr', audit?: AuditLog) { this.backend = backend; this.defaultLang = defaultLang; this.audit = audit; }
 
-  activePendingTxId(sessionId: string): string | undefined {
-    return this.sessions.get(sessionId)?.pending?.pendingTxId;
+  private sessionKey(id: string, institution = 'local'): string {
+    return JSON.stringify([institution, id]);
+  }
+
+  activePendingTxId(sessionId: string, institution?: string): string | undefined {
+    return this.sessions.get(this.sessionKey(sessionId, institution))?.pending?.pendingTxId;
   }
 
   /**
@@ -81,25 +89,41 @@ export class Engine {
    * celui de l'opération actuellement présentée et n'a pas expiré. Un jeton déjà utilisé ne vaut plus rien.
    */
   async confirmWithToken(sessionId: string, token: string, channel: Channel, institution?: string): Promise<EngineResult | { error: string }> {
-    const p = this.sessions.get(sessionId)?.pending;
-    if (!p || p.stage !== 'confirm' || !p.token || p.token !== token) return { error: 'jeton_invalide' };
-    if (Date.now() > (p.expires ?? 0)) return { error: 'jeton_expire' };
-    return this.handle({ sessionId, channel, text: '1', input: 'dtmf', institution });
+    const key = this.sessionKey(sessionId, institution);
+    return this.inOrder<EngineResult | { error: string }>(key, () => {
+      const p = this.sessions.get(key)?.pending;
+      if (!p || p.stage !== 'confirm' || p.token !== token) return Promise.resolve({ error: 'jeton_invalide' });
+      if (Date.now() > (p.expires ?? 0)) return Promise.resolve({ error: 'jeton_expire' });
+      return this.handleTurn({ sessionId, channel, text: '1', input: 'dtmf', institution });
+    });
   }
 
-  session(id: string, lang?: string, accountId = 'demo'): Session {
-    let s = this.sessions.get(id);
-    if (!s) { s = { id, lang: lang ?? this.defaultLang, accountId, turns: 0 }; this.sessions.set(id, s); }
+  private async inOrder<T>(sessionId: string, run: () => Promise<T>): Promise<T> {
+    // Créer la continuation dans le contexte de la requête courante (institution et trace SAFINUM).
+    const turn = (this.turns.get(sessionId) ?? Promise.resolve()).then(run, run);
+    this.turns.set(sessionId, turn);
+    try { return await turn; }
+    finally { if (this.turns.get(sessionId) === turn) this.turns.delete(sessionId); }
+  }
+
+  session(id: string, lang?: string, accountId = 'demo', institution?: string): Session {
+    const key = this.sessionKey(id, institution);
+    let s = this.sessions.get(key);
+    if (!s) { s = { id, lang: lang ?? this.defaultLang, accountId, turns: 0 }; this.sessions.set(key, s); }
     else {
       if (lang && lang !== s.lang) s.lang = lang;
-      if (accountId !== 'demo' && s.accountId !== accountId) s.accountId = accountId;
+      if (accountId !== 'demo' && s.accountId !== accountId) throw new Error('compte incompatible avec la session');
     }
     return s;
   }
 
-  async handle(req: EngineRequest): Promise<EngineResult> {
+  handle(req: EngineRequest): Promise<EngineResult> {
+    return this.inOrder(this.sessionKey(req.sessionId, req.institution), () => this.handleTurn(req));
+  }
+
+  private async handleTurn(req: EngineRequest): Promise<EngineResult> {
     const t0 = performance.now();
-    const s = this.session(req.sessionId, req.lang, req.accountId);
+    const s = this.session(req.sessionId, req.lang, req.accountId, req.institution);
     s.turns++;
     const opBefore = s.pending?.op;
     const phoneBefore = s.pending?.beneficiary?.phone;
@@ -135,13 +159,13 @@ export class Engine {
         const mt = await toFrench(s.lang, req.text);
         if (mt) {
           const viaFr = interpret(mt.fr, 'fr', contacts);
-          if (viaFr.intent || viaFr.isConfirm || viaFr.isDeny || viaFr.beneficiaryCandidates.length) {
-            it = { ...viaFr, amounts: it.amounts, phone: it.phone, beneficiaryCandidates: it.beneficiaryCandidates.length ? it.beneficiaryCandidates : viaFr.beneficiaryCandidates, switchTo: it.switchTo };
+          if (viaFr.intent && !viaFr.isConfirm && !viaFr.isDeny) {
+            it = { ...it, intent: viaFr.intent, term: viaFr.term, matched: viaFr.matched, confidence: viaFr.confidence };
             via = { via: 'mt', translation: mt.fr, mtEngine: mt.engine };
           }
         }
       }
-      out = await this.step(s, it, req.text, contacts);
+      out = await this.step(s, it, req.text, contacts, req.input);
     } catch (e) {
       errors.push(e instanceof Error ? e.message : String(e));
       out = { kind: { kind: 'backend_error' }, status: 'failed', intent: null };
@@ -169,7 +193,7 @@ export class Engine {
     }
     if (p?.amount && params.amount === undefined) params.amount = p.amount;
     if (p?.beneficiary && params.beneficiary === undefined) params.beneficiary = p.beneficiary.name;
-    if (out.tx) Object.assign(params, { amount: out.tx.amount, fee: out.tx.fee, beneficiary: out.tx.counterparty ?? '', reference: out.tx.id });
+    if (out.tx) Object.assign(params, { amount: out.tx.amount, fee: out.tx.fee, total: out.tx.amount + out.tx.fee, beneficiary: out.tx.counterparty ?? '', reference: out.tx.id });
     if (out.tx && phoneBefore && /^\d{9}$/.test(phoneBefore) && params.phone === undefined) params.phone = phoneBefore;
 
     const OPS = { transfer: 'TRANSFER_MONEY', airtime: 'BUY_AIRTIME', bill: 'PAY_BILL', withdraw: 'WITHDRAW_MONEY' } as const;
@@ -182,7 +206,7 @@ export class Engine {
       evidence: it.matched, operation: op ? OPS[op] : null, resources: pack ? { [`pack:${s.lang}`]: pack.generatedAt } : {},
     });
     const result: EngineResult = {
-      sessionId: s.id, channel: req.channel, lang: s.lang, request: req.text, intent: out.intent, params, status: out.status,
+      institution: req.institution ?? 'local', sessionId: s.id, channel: req.channel, lang: s.lang, request: req.text, intent: out.intent, params, status: out.status,
       reply, transaction: out.tx, latencyMs: Math.round(performance.now() - t0), errors,
       understanding: { matched: it.matched, confidence, ...via, ...(detected ? { detectedLanguage: detected } : {}) }, canonical, at: new Date().toISOString(),
     };
@@ -198,7 +222,12 @@ export class Engine {
     return result;
   }
 
-  private async step(s: Session, it: Interpretation, raw: string, contacts: Contact[]): Promise<{ kind: ReplyKind; status: Status; intent: EngineResult['intent']; tx?: Transaction }> {
+  private async step(s: Session, it: Interpretation, raw: string, contacts: Contact[], input: EngineRequest['input']): Promise<{ kind: ReplyKind; status: Status; intent: EngineResult['intent']; tx?: Transaction }> {
+    const unresolved = s.pending;
+    if (unresolved?.unresolved && unresolved.pendingTxId) {
+      const result = await this.backend.reconcilePending?.(unresolved.pendingTxId);
+      return this.finishExecution(s, unresolved, result ?? { ok: false, code: 'outcome_unknown', message: 'Statut indisponible.' });
+    }
     // 1. Changement de langue : l'opération en cours est conservée.
     if (it.switchTo && it.switchTo !== s.lang) {
       s.lang = it.switchTo;
@@ -218,8 +247,14 @@ export class Engine {
       }
 
       // Touche de menu (USSD, IVR, clavier) : 1 = confirmer, 2 = annuler. Jamais lue comme un montant.
-      if (p.stage === 'confirm' && /^\s*[12]\s*$/.test(raw)) return raw.trim() === '1' ? this.execute(s) : this.cancel(s);
+      if (p.stage === 'confirm' && input !== 'voice' && /^\s*[12]\s*$/.test(raw)) return raw.trim() === '1' ? this.execute(s) : this.cancel(s);
 
+      if (it.amounts.length > 1 && !it.isCorrection) {
+        p.token = undefined;
+        p.amount = undefined;
+        p.stage = 'collect';
+        return { kind: { kind: 'ask_amount' }, status: 'needs_clarification', intent: 'correction' };
+      }
       const newAmount = it.isCorrection && it.amounts.length > 1 ? it.amounts.at(-1) : it.amounts[0];
       const newBenef = this.resolveBeneficiary(it, contacts);
       const changes = (newAmount !== undefined && newAmount !== p.amount) || (newBenef.kind === 'one' && newBenef.value.phone !== p.beneficiary?.phone) || newBenef.kind === 'many';
@@ -236,7 +271,7 @@ export class Engine {
         return { ...r, intent: wasConfirm ? 'correction' : r.intent };
       }
       if (p.stage === 'confirm') {
-        if (it.isConfirm && !it.isDeny) return this.execute(s);
+        if (it.isConfirm && !it.isDeny && input !== 'voice') return this.execute(s);
         if (it.isDeny) return this.cancel(s);
         if (!otherIntent) return { ...(await this.prompt(s)), intent: 'confirm' };
         if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
@@ -272,6 +307,7 @@ export class Engine {
       case 'greeting': return { kind: { kind: 'greeting' }, status: 'answered', intent: 'greeting' };
       case 'transfer': case 'airtime': case 'bill_payment': case 'withdraw': {
         const op = it.intent === 'bill_payment' ? 'bill' : it.intent;
+        if (it.amounts.length > 1 && !it.isCorrection) return { kind: { kind: 'ask_amount' }, status: 'needs_clarification', intent: it.intent };
         s.pending = { op, stage: 'collect', amount: it.isCorrection && it.amounts.length > 1 ? it.amounts.at(-1) : it.amounts[0], biller: it.biller };
         if (op === 'airtime') s.pending.beneficiary = { name: it.phone ?? 'mon numéro', phone: it.phone ?? 'mon numéro' };
         if (op === 'transfer') {
@@ -313,6 +349,8 @@ export class Engine {
     const p = s.pending!;
     const kind = p.op === 'bill' ? 'bill' : p.op;
     const intent = p.op === 'bill' ? 'bill_payment' as const : p.op;
+    // Invalider l'ancien récapitulatif avant tout appel réseau.
+    p.token = undefined;
     const q = await this.backend.quoteFee(s.accountId, kind, p.amount!);
     if (!q.ok) {
       if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
@@ -341,6 +379,10 @@ export class Engine {
       fee = cr.value.fee;
       total = cr.value.total;
     }
+    if (!Number.isSafeInteger(fee) || fee < 0 || total !== p.amount! + fee || !Number.isSafeInteger(total)) {
+      return { kind: { kind: 'backend_error' }, status: 'failed', intent };
+    }
+    p.fee = fee;
     p.token = randomUUID(); p.expires = Date.now() + CONFIRM_TTL_MS; p.digest = this.digest(p);
     if (p.op === 'transfer') return { kind: { kind: 'confirm_transfer', amount: p.amount!, fee, total, beneficiary: p.beneficiary!.name, phone: p.beneficiary!.phone, corrected }, status: 'awaiting_confirmation', intent };
     if (p.op === 'withdraw') return { kind: { kind: 'confirm_withdraw', amount: p.amount!, fee, total }, status: 'awaiting_confirmation', intent };
@@ -368,6 +410,12 @@ export class Engine {
     // Une prédiction linguistique n'est jamais une autorisation : on n'exécute que l'opération exacte qui a été
     // présentée et confirmée, dans le délai. Sinon, on la représente pour une nouvelle confirmation.
     if (!p.token || Date.now() > (p.expires ?? 0) || p.digest !== this.digest(p)) return { ...(await this.prompt(s)), intent: 'confirm' as const };
+    if (!p.pendingTxId) {
+      const quote = await this.backend.quoteFee(s.accountId, p.op, p.amount!);
+      if (!quote.ok || quote.value.fee !== p.fee || quote.value.total !== p.amount! + p.fee!) {
+        return { ...(await this.prompt(s)), intent: 'confirm' as const };
+      }
+    }
     s.pending = undefined;
     const r = p.pendingTxId && this.backend.confirmPending
       ? await this.backend.confirmPending(p.pendingTxId)
@@ -375,6 +423,17 @@ export class Engine {
       : p.op === 'airtime' ? await this.backend.buyAirtime(s.accountId, p.beneficiary!.phone, p.amount!)
       : p.op === 'withdraw' ? await this.backend.withdraw(s.accountId, p.amount!)
       : await this.backend.payBill(s.accountId, p.biller!, p.amount!);
+    return this.finishExecution(s, p, r);
+  }
+
+  private async finishExecution(s: Session, p: Pending, r: Awaited<ReturnType<FinancialBackend['transfer']>>) {
+    if (!r.ok && r.code === 'outcome_unknown' && p.pendingTxId) {
+      p.token = undefined;
+      p.unresolved = true;
+      s.pending = p;
+      return { kind: { kind: 'outcome_unknown', reference: p.pendingTxId } as ReplyKind, status: 'pending_reconciliation' as const, intent: 'confirm' as const };
+    }
+    s.pending = undefined;
     if (!r.ok) {
       if (r.code === 'insufficient_funds') return { kind: { kind: 'insufficient', balance: Number(r.details?.balance), required: Number(r.details?.required), missing: Number(r.details?.missing) } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
       if (r.code === 'limit_exceeded') return { kind: { kind: 'limit_exceeded', limit: Number(r.details?.limit) } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
@@ -388,7 +447,7 @@ export class Engine {
   }
 
   private digest(p: Pending): string {
-    return JSON.stringify([p.op, p.amount, p.beneficiary?.phone, p.biller]);
+    return JSON.stringify([p.op, p.amount, p.fee, p.beneficiary?.phone, p.biller]);
   }
 
   private async cancel(s: Session) {

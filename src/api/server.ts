@@ -36,9 +36,10 @@ import { UssdChannel } from '../channels/ussd.ts';
 import { SmsChannel } from '../channels/sms.ts';
 import { IvrChannel, toAfricasTalkingXml, type IvrTurn } from '../channels/ivr.ts';
 import { SafinumChannel } from '../channels/safinum.ts';
-import { encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
+import { asrAvailable, encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
 import { assemble, coverage, missingClips } from '../voice/native.ts';
 import { AuditLog, verifyChain } from '../security/audit.ts';
+import { plotweaverLanguage, plotweaverSpeech } from '../voice/plotweaver.ts';
 import { ApiKeys, IdempotencyCache, RateLimiter, verifySecret } from '../security/guards.ts';
 import { interpret } from '../core/nlu.ts';
 import { toCanonical } from '../core/canonical.ts';
@@ -80,9 +81,11 @@ export interface AppOptions {
 }
 
 export function createApp(engine?: Engine, opts: AppOptions = {}) {
+  const customEngine = !!engine;
   const audit = new AuditLog(opts.auditFile === null ? undefined : opts.auditFile ?? AUDIT_FILE);
   const useSafinum = process.env.CT_BACKEND === 'safinum' || !!process.env.CT_SAFINUM_KEY;
-  const fallbackBackend = useSafinum ? new SafinumBackend() : new MockBackend();
+  const fallbackBackend = new MockBackend();
+  const officialEngine = useSafinum ? new Engine(new SafinumBackend(), 'fr', audit) : undefined;
   const connectors = new ConnectorRegistry({ file: opts.connectorsFile, allowPrivateUrls: opts.allowPrivateUrls });
   const uiCatalog = new UiCatalog(opts.uiResourcesFile);
   engine ??= new Engine(new RouterBackend(fallbackBackend, connectors), 'fr', audit);
@@ -97,7 +100,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
   const ussd = new UssdChannel(engine, { continuity });
   const sms = new SmsChannel(engine, { continuity });
   const ivr = new IvrChannel(engine);
-  const safinum = new SafinumChannel(engine, { continuity });
+  const safinum = new SafinumChannel(officialEngine ?? engine, { continuity });
   // Enregistrements d'appel : on ne télécharge que depuis les hôtes de l'opérateur (pas de SSRF).
   const recordingHosts = (process.env.CT_IVR_RECORDING_HOSTS ?? 'africastalking.com').split(',').map((h) => h.trim()).filter(Boolean);
   const allowedRecording = (u: string) => { try { const x = new URL(u); return x.protocol === 'https:' && recordingHosts.some((h) => x.hostname === h || x.hostname.endsWith('.' + h)); } catch { return false; } };
@@ -152,12 +155,21 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       const asset = STATIC[url.pathname];
       if (req.method === 'GET' && asset) { res.writeHead(200, { 'content-type': asset[1], 'cache-control': 'no-cache' }); return res.end(page(asset[0])); }
       if (req.method === 'GET' && url.pathname === '/v1/health') {
-        // La traduction est une dépendance obligatoire : sans elle, le service est déclaré en panne (503).
         const mt = await mtStatus();
-        return json(res, mt.up ? 200 : 503, { ok: mt.up, translation: mt });
+        return json(res, 200, { ok: true, translation: mt, safinum: useSafinum ? 'configured' : 'local' });
       }
-      if (req.method === 'GET' && url.pathname === '/v1/languages') return json(res, 200, languages);
-      if (req.method === 'GET' && url.pathname === '/v1/events') return json(res, 200, engine.log.slice(-200).reverse());
+      if (req.method === 'GET' && url.pathname === '/v1/languages') {
+        return json(res, 200, { ...languages, runtime: {
+          speechToText: asrAvailable(),
+          piper: ['fr', 'en'].filter(ttsAvailable),
+          plotweaver: useSafinum || customEngine || connectors.list().length ? [] : languages.languages.map((entry: { code: string }) => entry.code).filter(plotweaverLanguage),
+        } });
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/events') {
+        const events = officialEngine ? [...engine.log, ...officialEngine.log].sort((a, b) => a.at.localeCompare(b.at)) : engine.log;
+        const visible = events.filter((r) => r.institution === institution || (r.institution === 'safinum' && institution === 'local'));
+        return json(res, 200, visible.slice(-200).reverse().map((r) => ({ ...r, canonical: { ...r.canonical, confirmationToken: undefined } })));
+      }
 
       if (req.method === 'POST' && url.pathname === '/v1/message') {
         const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
@@ -466,6 +478,8 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       }
 
       if (req.method === 'POST' && url.pathname === '/safinum/middleware') {
+        const callbackKey = process.env.CT_SAFINUM_WEBHOOK_KEY;
+        if (callbackKey && !verifySecret(callbackKey, req.headers['x-team-key'] as string | undefined)) return json(res, 401, { error: 'cle_middleware_requise' });
         const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
         const traceId = String(b.trace_id ?? req.headers['x-trace-id'] ?? '').trim();
         const phone = String(b.phone ?? '').trim();
@@ -479,7 +493,6 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
           language: typeof b.language === 'string' ? b.language : null,
           input: b.input && typeof b.input === 'object' ? b.input : {},
           constraints: b.constraints && typeof b.constraints === 'object' ? b.constraints : undefined,
-          bank_api: b.bank_api && typeof b.bank_api === 'object' ? b.bank_api : undefined,
         });
         return json(res, 200, out);
       }
@@ -523,6 +536,16 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         return res.end(encodeWav(samples, 16000));
       }
 
+      if (req.method === 'POST' && url.pathname === '/v1/tts/plotweaver') {
+        const b = JSON.parse((await body(req, 4096)).toString('utf8') || '{}');
+        const turn = engine.log.findLast((r) => r.at === b.at && r.sessionId === b.sessionId && r.institution === institution);
+        if (!turn || turn.reply.quality === 'fallback' || useSafinum || institution !== 'local' || connectors.list().length || customEngine) return json(res, 404, { error: 'voix_indisponible' });
+        const speech = await plotweaverSpeech(turn.lang, turn.reply.text);
+        if (!speech) return json(res, 503, { error: 'voix_indisponible' });
+        res.writeHead(200, { 'content-type': speech.mime, 'cache-control': 'no-store' });
+        return res.end(speech.audio);
+      }
+
       if (req.method === 'GET' && url.pathname === '/v1/tts') {
         const lang = url.searchParams.get('lang') ?? 'fr';
         const text = (url.searchParams.get('text') ?? '').slice(0, 600);
@@ -542,9 +565,10 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const port = Number(process.env.PORT ?? 8080);
-  const mt = await ensureMtService();
-  if (mt.up) console.log(`Traduction Flagship : ${mt.pairs.length} paires prêtes (${mt.url})${mt.started ? ', service démarré par le moteur' : ''}`);
-  else console.error(`ATTENTION : service de traduction INDISPONIBLE (${mt.error ?? 'raison inconnue'}). /v1/health répond 503. Installation : npm run mt:install && npm run mt:models`);
+  void ensureMtService().then((mt) => {
+    if (mt.up) console.log(`Traduction Flagship : ${mt.pairs.length} paires prêtes (${mt.url})${mt.started ? ', service démarré par le moteur' : ''}`);
+    else console.error(`ATTENTION : service de traduction INDISPONIBLE (${mt.error ?? 'raison inconnue'}). Le dialogue local reste disponible. Installation : npm run mt:install && npm run mt:models`);
+  }).catch(() => console.error('Impossible de démarrer le service de traduction.'));
   for (const sig of ['SIGINT', 'SIGTERM'] as const) process.on(sig, () => { stopMtService(); process.exit(0); });
   createApp().server.listen(port, () => console.log(`Mon Nkap : http://localhost:${port}`));
 }

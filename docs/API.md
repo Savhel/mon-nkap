@@ -197,3 +197,21 @@ Canal, langue, requête, interprétation, paramètres, réponse, statut, temps d
 | 413 | corps trop volumineux |
 | 429 | `{ "error": "trop_de_requetes" }` |
 | 503 | ressource absente (ex. profils d'identification de langue) |
+
+## Capacités actives
+
+`GET /v1/health` indique que le serveur de dialogue répond. Le champ `translation.up` indique si
+le modèle de traduction est prêt. `safinum: "configured"` signifie qu’un connecteur a été sélectionné.
+Le statut de connexion au sandbox se confirme avec la CLI et la clé d’équipe.
+
+`GET /v1/languages` ajoute `runtime.speechToText`, `runtime.piper` et `runtime.plotweaver`.
+La présence d’un fournisseur signale une configuration locale. Une réponse peut rester lisible
+lorsqu’aucun audio correspondant n’est disponible.
+
+`POST /v1/tts/plotweaver` accepte `{ sessionId, at }`, les champs du tour rendu par l’API.
+Sur un simulateur local configuré, il renvoie l’audio de la réponse affichée.
+En cas d’indisponibilité, le client peut continuer en texte.
+
+Le statut `pending_reconciliation` indique un résultat financier à vérifier. Aucun nouveau débit
+n’est demandé pour ce brouillon pendant le rapprochement. Le connecteur SAFINUM consulte la transaction
+par référence. Le résultat est annoncé au prochain tour lorsque le service bancaire le confirme.

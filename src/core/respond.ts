@@ -63,7 +63,8 @@ export type ReplyKind =
   | { kind: 'help' }
   | { kind: 'greeting' }
   | { kind: 'not_understood' }
-  | { kind: 'backend_error' };
+  | { kind: 'backend_error' }
+  | { kind: 'outcome_unknown'; reference: string };
 
 const GLOSSARY: Record<string, { fr: string; en: string }> = {
   fees: { fr: "Les frais sont la somme que le service prélève en plus du montant envoyé. Exemple : pour envoyer 10 000 FCFA avec 100 FCFA de frais, 10 100 FCFA sont retirés de votre compte.", en: 'Fees are the amount the service charges on top of the money you send. Example: sending 10,000 FCFA with a 100 FCFA fee takes 10,100 FCFA from your account.' },
@@ -108,6 +109,9 @@ function frenchAndEnglish(r: ReplyKind, lang: 'fr' | 'en'): string {
     case 'help': return fr ? 'Je peux : donner votre solde, envoyer de l’argent, expliquer les frais, montrer l’historique, acheter du crédit, payer une facture.' : 'I can: give your balance, send money, explain fees, show your history, buy airtime, pay a bill.';
     case 'greeting': return fr ? 'Bonjour ! Que voulez-vous faire ? Solde, transfert, frais ou historique.' : 'Hello! What would you like to do? Balance, transfer, fees or history.';
     case 'not_understood': return fr ? 'Je n’ai pas compris. Pouvez-vous répéter autrement ?' : "I didn't understand. Can you say it another way?";
+    case 'outcome_unknown': return fr
+      ? `Statut en cours de vérification. Ne refaites pas le transfert. Référence : ${r.reference}.`
+      : `Checking the transaction status. Do not resend. Reference: ${r.reference}.`;
     case 'backend_error': return fr ? 'Le service est momentanément indisponible. Aucune opération n’a été effectuée. Réessayez.' : 'The service is temporarily unavailable. Nothing was executed. Please retry.';
   }
 }
@@ -170,6 +174,7 @@ function nativeReply(r: ReplyKind, lang: string): { text: string; quality: Quali
     const e = rt.pack.responses[id];
     if (!e || !usable(e)) return null;
     used.push(e);
+    if (Object.keys(vals).some((key) => !e.text.includes(`{${key}}`))) return null;
     return e.text.replace(/\{([a-z_]+)\}/g, (_, k: string) => vals[k] ?? `{${k}}`);
   };
   const D = (id: string): string | null => { const e = rt.pack.definitions[id]; if (!e || !usable(e)) return null; used.push(e); return e.text; };

@@ -203,7 +203,7 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
   };
   var lang = new URLSearchParams(location.search).get('lang') || store.get('nk-lang') || 'fr';
-  var assistant = null, home = null, languages = [];
+  var assistant = null, home = null, languages = [], runtime = {};
 
   // Services de l'accueil : libellé traduit par le serveur (/v1/labels), demande envoyée au moteur.
   var SERVICES = [
@@ -220,7 +220,11 @@
   function langName(code) { var l = languages.find(function (x) { return x.code === code; }); return l ? (l.native || l.name) : (code === 'fr' ? 'Français' : code); }
   function langStatus(l) {
     var st = l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status;
-    return st === 'available' ? ['Complet', 'ok', 'Compréhension et réponses complètes'] : ['Brouillon', 'warn', 'Réponses en cours de relecture par des natifs'];
+    var modes = ['Texte'];
+    if (runtime.speechToText && l.capabilities.speechToText && l.capabilities.speechToText.status !== 'unavailable') modes.push('Micro');
+    if (['fub', 'wes'].includes(l.code)) modes.push('Clips pour certaines réponses');
+    if ((runtime.piper || []).includes(l.code) || (runtime.plotweaver || []).includes(l.code)) modes.push('Synthèse configurée');
+    return [st === 'available' ? 'Disponible' : 'Brouillon', st === 'available' ? 'ok' : 'warn', modes.join(' · ')];
   }
 
   function renderGrid() {
@@ -311,6 +315,7 @@
     });
     renderGrid();
     home.languages().then(function (reg) {
+      runtime = reg.runtime || {};
       languages = (reg.languages || []).filter(function (l) { return l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status !== 'unavailable'; });
       if (!languages.some(function (l) { return l.code === lang; })) lang = 'fr';
       applyLang(lang);

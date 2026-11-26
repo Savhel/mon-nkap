@@ -11,6 +11,7 @@
 import { readFileSync } from 'node:fs';
 import { userSession, type Engine, type EngineResult } from '../core/engine.ts';
 
+export const USSD_IDLE_MS = 2 * 60_000;
 export const USSD_MAX = 182; // longueur maximale d'un écran USSD
 
 const LANGS: [string, string][] = [['fr', 'Français'], ['en', 'English'], ['ewo', 'Ewondo'], ['dua', 'Duala'], ['fub', 'Fulfulde'], ['wes', 'Pidgin'], ['bum', 'Bulu'], ['bas', "Bassa'a"]];
@@ -45,7 +46,7 @@ function label(id: string, lang: string): string {
   return e?.[lang] ?? FALLBACK_LABELS[id]?.[lang] ?? e?.fr ?? FALLBACK_LABELS[id]?.fr ?? id;
 }
 
-interface UssdState { lang?: string; stage: 'lang' | 'main' | 'engine'; pages?: string[]; page?: number; done?: boolean; consumed: number }
+interface UssdState { lang?: string; stage: 'lang' | 'main' | 'engine'; pages?: string[]; page?: number; done?: boolean; input: string; expires: number; screen: string; token?: string }
 
 export class UssdChannel {
   private states = new Map<string, UssdState>();
@@ -107,53 +108,72 @@ export class UssdChannel {
   /** Traite une requête de la passerelle et renvoie la réponse « CON … » ou « END … ». */
   async handle(p: { sessionId: string; phoneNumber: string; text: string }): Promise<{ response: string; result?: EngineResult }> {
     const inputs = p.text === '' ? [] : p.text.split('*');
-    const engineSid = (this.continuity && userSession(p.phoneNumber)) || `ussd:${p.sessionId}`;
-    let st = this.states.get(p.sessionId);
-    if (!st) { st = { stage: 'lang', consumed: 0 }; this.states.set(p.sessionId, st); }
-    const fresh = inputs.slice(st.consumed);
-    st.consumed = inputs.length;
-    const last = fresh.at(-1)?.trim() ?? '';
+    const key = JSON.stringify([p.phoneNumber, p.sessionId]);
+    const engineSid = (this.continuity && userSession(p.phoneNumber)) || `ussd:${key}`;
+    const now = Date.now();
+    // Éliminer les anciens écrans dont la passerelle ne rappelle plus la session.
+    for (const [id, state] of this.states) if (state.expires + USSD_IDLE_MS <= now) this.states.delete(id);
+    let st = this.states.get(key);
+    if (p.text === '' && (!st || st.input !== '' || st.expires <= now)) {
+      st = { stage: 'lang', input: '', expires: now + USSD_IDLE_MS, screen: `CON ${this.langMenu()}` };
+      this.states.set(key, st);
+    }
+    if (!st || st.expires <= now) return { response: 'END Session expirée. Relancez le code USSD.' };
+    if (p.text === st.input) return { response: st.screen };
+    if (st.screen.startsWith('END ') || inputs.length !== (st.input ? st.input.split('*').length : 0) + 1 ||
+        (st.input && !p.text.startsWith(st.input + '*'))) return { response: st.screen };
+    st.input = p.text;
+    st.expires = now + USSD_IDLE_MS;
+    const last = inputs.at(-1)?.trim() ?? '';
+    const screen = (response: string, result?: EngineResult) => {
+      st.screen = response;
+      return { response, result };
+    };
 
-    if (!fresh.length) return { response: `CON ${this.langMenu()}` };
-
-    // Pagination d'une longue réponse.
-    if (last === '98' && st.pages && st.page !== undefined && st.page < st.pages.length - 1) {
-      st.page++;
-      if (st.done && st.page === st.pages.length - 1) { this.states.delete(p.sessionId); return { response: `END ${st.pages[st.page]}` }; }
-      return { response: `CON ${st.pages[st.page]}` };
+    if (st.pages && st.page !== undefined && st.page < st.pages.length - 1) {
+      if (last === '98') {
+        st.page++;
+        return screen(`${st.done && st.page === st.pages.length - 1 ? 'END' : 'CON'} ${st.pages[st.page]}`);
+      }
+      if (last !== '0') return { response: st.screen };
     }
 
     if (st.stage === 'lang') {
       const choice = LANGS[Number(last) - 1];
-      if (!choice) return { response: `CON ${this.langMenu()}` };
+      if (!choice) return screen(`CON ${this.langMenu()}`);
       st.lang = choice[0];
       st.stage = 'main';
       this.engine.session(engineSid, st.lang);
-      return { response: `CON ${this.mainMenu(st.lang)}` };
+      return screen(`CON ${this.mainMenu(st.lang)}`);
     }
 
     const lang = st.lang ?? 'fr';
     let utterance = last;
     if (st.stage === 'main') {
       const m = MAIN.find((x) => x.key === last);
-      if (m?.key === '7') { st.stage = 'lang'; return { response: `CON ${this.langMenu()}` }; }
+      if (m?.key === '7') { st.stage = 'lang'; return screen(`CON ${this.langMenu()}`); }
       if (m) utterance = m.utterance;
       st.stage = 'engine';
     } else if (last === '0') {
-      st.stage = 'main';
-      return { response: `CON ${this.mainMenu(lang)}` };
+      await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: 'annuler', input: 'dtmf' });
+      st.stage = 'main'; st.pages = undefined; st.token = undefined;
+      return screen(`CON ${this.mainMenu(lang)}`);
     }
 
-    const r = await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: utterance, input: 'dtmf' });
+    const r = last === '1' && st.token
+      ? await this.engine.confirmWithToken(engineSid, st.token, 'ussd')
+      : await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: utterance, input: 'dtmf' });
+    if ('error' in r) return screen('END Récapitulatif expiré ou modifié. Reprenez la demande.');
+    st.token = r.canonical.confirmationToken;
     st.lang = r.lang;
     const finished = ['executed', 'cancelled', 'failed'].includes(r.status) || (r.status === 'answered' && !r.reply.menu);
     st.pages = this.paginate(...this.split(r), r.lang);
     st.page = 0;
     st.done = finished;
     if (finished) {
-      if (st.pages.length === 1) { this.states.delete(p.sessionId); return { response: `END ${st.pages[0]}`, result: r }; }
+      if (st.pages.length === 1) return screen(`END ${st.pages[0]}`, r);
       st.stage = 'main';
     }
-    return { response: `CON ${st.pages[0]}`, result: r };
+    return screen(`CON ${st.pages[0]}`, r);
   }
 }

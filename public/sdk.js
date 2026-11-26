@@ -54,6 +54,14 @@
         if (translateOpts && typeof translateOpts.allowDraft === 'boolean') payload.allowDraft = translateOpts.allowDraft;
         return call('/v1/translate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
       },
+      speech: async function (turn) {
+        var headers = { 'content-type': 'application/json' };
+        if (apiKey) headers['x-api-key'] = apiKey;
+        var res = await fetch(url + '/v1/tts/plotweaver', {
+          method: 'POST', headers: headers, body: JSON.stringify({ at: turn.at, sessionId: turn.sessionId }),
+        });
+        return res.ok ? res.blob() : null;
+      },
       languages: function () { return call('/v1/languages'); },
       /** Libellés d'interface dans la langue (menu_balance, menu_transfer…), avec leur qualité. */
       labels: function (l) { return call('/v1/labels?lang=' + encodeURIComponent(l || lang)); },

@@ -152,7 +152,9 @@ export class SafinumChannel {
     const userSid = this.continuity && req.phone ? userSession(req.phone) : null;
     const sessionId = userSid ?? `safinum:${req.session_id || req.phone || 'anon'}`;
     const accountId = req.phone?.trim() || 'demo';
-    const rawText = (req.input?.text ?? '').trim();
+    const rawInput = req.input?.text ?? req.input?.ussd_text;
+    const rawText = typeof rawInput === 'string' ? rawInput.trim().slice(0, 1000) : '';
+    const institution = 'safinum'; // Une instance utilise une seule clé d’équipe configurée sur le serveur.
 
     let lang: string | undefined = typeof req.language === 'string' && req.language.trim() ? req.language.trim().toLowerCase() : undefined;
     // Le pidgin camerounais a le code « wes » ; « pcm » (pidgin nigérian, code souvent employé) et « pidgin » y mènent aussi.
@@ -165,7 +167,7 @@ export class SafinumChannel {
       }
     }
 
-    return runWithSafinumTrace({ traceId: req.trace_id, baseUrl: req.bank_api?.base_url }, async () => {
+    return runWithSafinumTrace({ traceId: req.trace_id }, async () => {
       const result = await this.engine.handle({
         sessionId,
         channel,
@@ -173,7 +175,7 @@ export class SafinumChannel {
         accountId,
         text: rawText || 'bonjour',
         input: req.input?.type === 'menu' ? 'dtmf' : req.input?.type === 'audio' ? 'voice' : 'text',
-        institution: req.team_id ? `safinum:${req.team_id}` : 'safinum',
+        institution,
       });
 
       const intent = rawText ? mapSafinumIntent(result) : 'UNKNOWN';
@@ -202,11 +204,11 @@ export class SafinumChannel {
       if (typeof result.params.biller === 'string') parameters.biller = result.params.biller;
       if (typeof result.params.term === 'string') parameters.term = result.params.term;
 
-      const pendingId = this.engine.activePendingTxId(sessionId);
+      const pendingId = this.engine.activePendingTxId(sessionId, institution);
       let transaction: SafinumGatewayResponse['transaction'] = { id: null, status: 'none' };
       if (result.status === 'executed' && result.transaction) {
         transaction = { id: result.transaction.id, status: 'confirmed' };
-      } else if (pendingId && result.status === 'awaiting_confirmation') {
+      } else if (pendingId && (result.status === 'awaiting_confirmation' || result.status === 'pending_reconciliation')) {
         transaction = { id: pendingId, status: 'pending' };
       } else if (result.status === 'cancelled') {
         transaction = { id: null, status: 'cancelled' };

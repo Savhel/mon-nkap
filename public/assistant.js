@@ -92,14 +92,26 @@
     function setDetails(on) { root.classList.toggle('ca-details', !!on); if (info) info.setAttribute('aria-pressed', String(!!on)); }
     function setLang(code) { lang = code; ct.setLang(code); if (langSel) langSel.value = code; }
 
+    var runtime = {};
+    ct.languages().then(function (reg) {
+      runtime = reg.runtime || {};
+      if (runtime.speechToText === false) {
+        mic.title = 'Reconnaissance vocale indisponible sur ce serveur';
+        mic.setAttribute('aria-label', mic.title);
+      }
+      if (!langSel) return;
+      (reg.languages || []).filter(function (l) {
+        return l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status !== 'unavailable';
+      }).forEach(function (l) {
+        var status = l.capabilities.understanding.status;
+        var o = el('option', null, (l.native || l.name) + (status === 'draft' ? ' · Brouillon' : ''));
+        o.value = l.code; langSel.append(o);
+      });
+      langSel.value = lang;
+    }).catch(function () { if (langSel) { var o = el('option', null, 'Français'); o.value = 'fr'; langSel.append(o); } });
     if (langSel) {
       var showDetails = false;
       info.onclick = function () { showDetails = !showDetails; setDetails(showDetails); };
-      ct.languages().then(function (reg) {
-        (reg.languages || []).filter(function (l) { return l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status !== 'unavailable'; })
-          .forEach(function (l) { var o = el('option', null, l.native || l.name); o.value = l.code; langSel.append(o); });
-        langSel.value = lang;
-      }).catch(function () { var o = el('option', null, 'Français'); o.value = 'fr'; langSel.append(o); });
       langSel.onchange = function () { setLang(langSel.value); };
     }
 
@@ -146,18 +158,36 @@
         if (r.reply.quality !== 'validated' && r.reply.fr && r.reply.fr !== r.reply.text) {
           var fr = el('details', 'ca-fr'); fr.append(el('summary', null, 'Voir en français'), el('p', null, r.reply.fr)); b.append(fr);
         }
-        // Voix d'un natif : proposée seulement si TOUS les morceaux de la réponse sont enregistrés (le serveur répond 404 sinon).
-        if (r.reply.speech && r.reply.speech.length && r.reply.lang === r.lang) {
-          var q2 = 'lang=' + encodeURIComponent(r.lang) + '&clips=' + r.reply.speech.map(encodeURIComponent).join(',');
-          fetch((opts.server || '') + '/v1/native?' + q2).then(function (res) { return res.ok ? res.blob() : null; }).then(function (blob) {
-            if (!blob) return;
-            var url = URL.createObjectURL(blob), audio = null;
-            var lb = el('button', 'ca-listen'); lb.type = 'button';
-            lb.append(icon('volume', 16), document.createTextNode('Écouter (voix d’un natif)'));
-            lb.onclick = function () { if (audio) audio.pause(); audio = new Audio(url); audio.play().catch(function () {}); };
-            b.insertBefore(lb, b.querySelector('.ca-canon')); scroll();
-          }).catch(function () {});
-        }
+      }
+      var nativeAudio = r.reply.speech && r.reply.speech.length && !REF[r.lang];
+      var cloudAudio = (runtime.plotweaver || []).includes(r.lang) && r.reply.quality !== 'fallback';
+      var piperAudio = (runtime.piper || []).includes(r.lang);
+      if (nativeAudio || cloudAudio || piperAudio) {
+        var listen = el('button', 'ca-listen'); listen.type = 'button';
+        listen.append(icon('volume', 16), document.createTextNode('Écouter'));
+        listen.onclick = async function () {
+          listen.disabled = true;
+          try {
+            var blob = null, source = '';
+            if (nativeAudio) {
+              var q = 'lang=' + encodeURIComponent(r.lang) + '&clips=' + r.reply.speech.map(encodeURIComponent).join(',');
+              var nativeResponse = await fetch((opts.server || '') + '/v1/native?' + q);
+              if (nativeResponse.ok) { blob = await nativeResponse.blob(); source = 'Voix enregistrée'; }
+            }
+            if (!blob && cloudAudio) { blob = await ct.speech(r); source = 'Synthèse PlotWeaver'; }
+            if (!blob && piperAudio) {
+              var res = await fetch((opts.server || '') + '/v1/tts?lang=' + r.lang + '&text=' + encodeURIComponent(r.reply.text));
+              if (res.ok) { blob = await res.blob(); source = 'Synthèse Piper'; }
+            }
+            if (!blob) { listen.textContent = 'Audio indisponible pour cette réponse'; return; }
+            var url = URL.createObjectURL(blob);
+            var audio = el('audio'); audio.controls = true; audio.src = url; audio.setAttribute('aria-label', source);
+            listen.replaceWith(el('span', 'ca-q', source), audio);
+            await audio.play().catch(function () {});
+          } catch { listen.textContent = 'Audio indisponible pour cette réponse'; }
+          finally { listen.disabled = false; }
+        };
+        b.append(listen);
       }
       b.append(el('pre', 'ca-canon', JSON.stringify({ operation: c.operation, act: c.act, entities: c.entities, status: c.status, confidence: c.confidence }, null, 1)));
       if (r.status === 'awaiting_confirmation' && c.confirmationToken) {
@@ -202,11 +232,14 @@
     var rec = null, chunks = [];
     mic.onclick = function () {
       if (rec) { rec.stop(); return; }
+      if (runtime.speechToText === false) { bubble('err', 'Micro indisponible sur ce serveur. Vous pouvez écrire votre demande.'); return; }
       if (!navigator.mediaDevices) { bubble('err', 'Micro indisponible sur cet appareil.'); return; }
       navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
         chunks = []; rec = new MediaRecorder(stream);
         rec.ondataavailable = function (ev) { chunks.push(ev.data); };
+        var limit = setTimeout(function () { if (rec && rec.state === 'recording') rec.stop(); }, 19000);
         rec.onstop = function () {
+          clearTimeout(limit);
           stream.getTracks().forEach(function (t) { t.stop(); });
           mic.classList.remove('ca-rec'); mic.setAttribute('aria-label', 'Parler'); mic.replaceChildren(icon('mic', 20)); rec = null;
           busy(true);

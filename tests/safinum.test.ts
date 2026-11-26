@@ -8,7 +8,7 @@ import { SafinumBackend } from '../src/backend/safinum.ts';
 import { fitGsm7, gsm7Septets, toGsm7 } from '../src/channels/safinum.ts';
 import { createApp } from '../src/api/server.ts';
 
-function startFakeSafinumApi() {
+function startFakeSafinumApi({ loseConfirmResponse = false } = {}) {
   let balance = 100_000;
   let seq = 1000;
   const calls: { method: string; path: string; traceId?: string; teamKey?: string; body?: Record<string, unknown> }[] = [];
@@ -78,12 +78,17 @@ function startFakeSafinumApi() {
       tx.fee = feeFor('transfer', tx.amount);
       return send(200, { transaction: { id, amount: tx.amount, fee: tx.fee, total: tx.amount + tx.fee, status: 'pending' } });
     }
+    if (req.method === 'GET' && /^\/transactions\/[^/]+$/.test(url.pathname)) {
+      const tx = pending.get(url.pathname.split('/')[2]);
+      if (tx) return send(200, { transaction: { ...tx, type: 'transfer' } });
+    }
     if (req.method === 'POST' && /^\/transactions\/[^/]+\/confirm$/.test(url.pathname)) {
       const id = url.pathname.split('/')[2];
       const tx = pending.get(id);
       if (!tx || tx.status !== 'pending') return send(409, { code: 'TX_NOT_PENDING', message: 'Non en attente' });
       balance -= tx.amount + tx.fee;
       tx.status = 'confirmed';
+      if (loseConfirmResponse) return res.destroy();
       return send(200, { transaction: { id, type: 'transfer', amount: tx.amount, fee: tx.fee, to: tx.to, status: 'confirmed', created_at: '2026-11-26T00:00:00Z' } });
     }
     if (req.method === 'POST' && /^\/transactions\/[^/]+\/cancel$/.test(url.pathname)) {
@@ -220,3 +225,20 @@ test('SAFINUM middleware : cycle en 2 tours, X-Trace-Id propagé, correction et 
   }
 });
 
+
+test('SAFINUM : confirmation sans réponse, statut récupéré par lecture et débit unique', async (t) => {
+  const fake = startFakeSafinumApi({ loseConfirmResponse: true });
+  await new Promise<void>((resolve) => fake.server.listen(0, '127.0.0.1', resolve));
+  t.after(() => fake.server.close());
+  const baseUrl = `http://127.0.0.1:${(fake.server.address() as AddressInfo).port}`;
+  const backend = new SafinumBackend({ baseUrl, teamKey: 'sbx_test_team_key' });
+  const quote = await backend.createPending('237677000001', { op: 'transfer', amount: 4000, to: { phone: '655778899' } });
+  assert.ok(quote.ok);
+  const outcome = await backend.confirmPending(quote.value.id);
+  assert.ok(outcome.ok);
+  assert.equal(outcome.value.amount, 4000);
+  assert.equal(fake.getBalance(), 95950);
+  assert.deepEqual(fake.calls.map((call) => [call.method, call.path]), [
+    ['POST', '/transactions'], ['POST', '/transactions/TRX-1001/confirm'], ['GET', '/transactions/TRX-1001'],
+  ]);
+});

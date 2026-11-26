@@ -16,7 +16,6 @@ import type {
 
 export interface SafinumTraceContext {
   traceId: string;
-  baseUrl?: string;
 }
 
 const traceStorage = new AsyncLocalStorage<SafinumTraceContext>();
@@ -102,7 +101,7 @@ export class SafinumBackend implements FinancialBackend {
 
   private async request<T>(method: string, path: string, body?: unknown): Promise<{ ok: true; data: T } | { ok: false; status: number; code?: string; message: string; raw: Record<string, unknown> }> {
     const ctx = traceStorage.getStore();
-    const base = (ctx?.baseUrl || this.defaultBaseUrl).replace(/\/$/, '');
+    const base = this.defaultBaseUrl;
     const headers: Record<string, string> = {
       accept: 'application/json',
       'x-team-key': this.teamKey,
@@ -113,6 +112,7 @@ export class SafinumBackend implements FinancialBackend {
     const res = await this.fetchImpl(`${base}/${path.replace(/^\//, '')}`, {
       method,
       headers,
+      redirect: 'error',
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: AbortSignal.timeout(this.timeoutMs),
     });
@@ -214,20 +214,47 @@ export class SafinumBackend implements FinancialBackend {
   }
 
   async confirmPending(txId: string): Promise<OpResult<Transaction>> {
-    const r = await this.request<Record<string, unknown>>('POST', `transactions/${encodeURIComponent(txId)}/confirm`);
-    if (!r.ok) return mapSafinumError(r.code, r.status, r.message, r.raw);
-    const tx = (r.data.transaction && typeof r.data.transaction === 'object' ? r.data.transaction : r.data) as Record<string, unknown>;
+    try {
+      const r = await this.request<Record<string, unknown>>('POST', `transactions/${encodeURIComponent(txId)}/confirm`);
+      if (r.ok) {
+        const tx = this.confirmedTransaction(r.data, txId);
+        if (tx) return { ok: true, value: tx };
+      } else if (r.status < 500 && r.status !== 408 && r.status !== 409) {
+        return mapSafinumError(r.code, r.status, r.message, r.raw);
+      }
+    } catch {
+      // Une réponse perdue peut suivre un débit réussi. Vérifier uniquement par lecture.
+    }
+    return this.reconcilePending(txId);
+  }
+
+  async reconcilePending(txId: string): Promise<OpResult<Transaction>> {
+    try {
+      const r = await this.request<Record<string, unknown>>('GET', `transactions/${encodeURIComponent(txId)}`);
+      if (r.ok) {
+        const tx = this.confirmedTransaction(r.data, txId);
+        if (tx) return { ok: true, value: tx };
+        const body = (r.data.transaction ?? r.data) as Record<string, unknown>;
+        if (body.status === 'failed' || body.status === 'cancelled') {
+          return { ok: false, code: 'backend_error', message: 'Transaction non exécutée.' };
+        }
+      }
+    } catch {}
+    return { ok: false, code: 'outcome_unknown', message: 'Statut de la transaction indisponible.' };
+  }
+
+  private confirmedTransaction(data: Record<string, unknown>, txId: string): Transaction | null {
+    const tx = (data.transaction && typeof data.transaction === 'object' ? data.transaction : data) as Record<string, unknown>;
+    if (!['confirmed', 'success', 'completed'].includes(String(tx.status).toLowerCase())) return null;
+    const amount = Number(tx.amount), fee = Number(tx.fee);
+    if (!Number.isSafeInteger(amount) || amount <= 0 || !Number.isSafeInteger(fee) || fee < 0) return null;
     return {
-      ok: true,
-      value: {
-        id: String(tx.id ?? txId),
-        date: String(tx.date ?? tx.created_at ?? new Date().toISOString()),
-        type: mapTxType(tx.type),
-        amount: Number(tx.amount ?? 0),
-        fee: Number(tx.fee ?? 0),
-        counterparty: typeof tx.counterparty === 'string' ? tx.counterparty : typeof tx.to === 'string' ? tx.to : typeof tx.biller === 'string' ? tx.biller : undefined,
-        status: tx.status === 'failed' ? 'failed' : 'success',
-      },
+      id: String(tx.id ?? txId),
+      date: String(tx.date ?? tx.created_at ?? new Date().toISOString()),
+      type: mapTxType(tx.type),
+      amount, fee,
+      counterparty: typeof tx.counterparty === 'string' ? tx.counterparty : typeof tx.to === 'string' ? tx.to : typeof tx.biller === 'string' ? tx.biller : undefined,
+      status: 'success',
     };
   }
 

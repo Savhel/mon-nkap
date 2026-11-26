@@ -48,13 +48,13 @@ export class MockBackend implements FinancialBackend {
   async listContacts(accountId: string) { return this.acc(accountId).contacts; }
 
   async quoteFee(_accountId: string, kind: FeeKind, amount: number): Promise<OpResult<FeeQuote>> {
-    if (!Number.isFinite(amount) || amount <= 0) return { ok: false, code: 'invalid_amount', message: 'montant invalide' };
+    if (!Number.isSafeInteger(amount) || amount <= 0) return { ok: false, code: 'invalid_amount', message: 'montant invalide' };
     const fee = this.fee(kind, amount);
     return { ok: true, value: { amount, fee, total: amount + fee, rule: kind === 'airtime' ? 'gratuit' : '1 % (min. 100, max. 2 500 FCFA)' } };
   }
 
   private debit(a: Account, type: Transaction['type'], amount: number, fee: number, counterparty: string): OpResult<Transaction> {
-    if (!Number.isFinite(amount) || amount <= 0) return { ok: false, code: 'invalid_amount', message: 'montant invalide' };
+    if (!Number.isSafeInteger(amount) || amount <= 0) return { ok: false, code: 'invalid_amount', message: 'montant invalide' };
     if (amount > this.dailyLimit) return { ok: false, code: 'limit_exceeded', message: 'plafond dépassé', details: { limit: this.dailyLimit } };
     if (a.balance < amount + fee) {
       return { ok: false, code: 'insufficient_funds', message: 'solde insuffisant', details: { balance: a.balance, required: amount + fee, missing: amount + fee - a.balance } };

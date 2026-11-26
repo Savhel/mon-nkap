@@ -36,6 +36,7 @@
 | NITHUB-AI marian-mt-bbc en↔pcm | CC-BY-4.0 | C | Non utilisé : pidgin nigérian, pas camerounais | — |
 | Enutrof marian-mt-pcm-en | MIT | C | Non utilisé (même raison) | — |
 | **Meta Omnilingual ASR** (CTC 300M/1B int8, conversion Sherpa-ONNX) | Apache-2.0 (LICENSE inclus dans l'archive du modèle) | **C** | **Autorisé, intégré** (voix → texte, 17 des 20 langues) | Attribution Meta |
+| PlotWeaver STORM (API REST) | Accès et facturation selon les conditions du fournisseur | Q | Facultatif, réponses du simulateur local uniquement, aucune distribution de poids | Configurer et écouter la voix exacte avant la démo. [Documentation](https://www.plotweaver.app/developers) |
 | sherpa-onnx-node 1.13.8 (moteur) | Apache-2.0 | **C** | Autorisé, intégré | — |
 | Piper fr_FR siwis medium | Jeu de données CC-BY 4.0, mais voix **affinée depuis la voix « lessac »**, dont le jeu de données a des conditions propres | ? | Utilisé pour la démo uniquement | Vérifier la licence lessac avant production, sinon basculer sur la voix TTS système Android |
 | Piper en_US amy low | Jeu de données mimic3-voices (« See URL ») | ? | Démo uniquement | Vérifier sur github.com/MycroftAI/mimic3-voices |

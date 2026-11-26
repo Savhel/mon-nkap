@@ -27,7 +27,13 @@ interface Sherpa {
 let sherpa: Sherpa | null = null;
 function so(): Sherpa { return (sherpa ??= require('sherpa-onnx-node') as Sherpa); }
 
+export const MAX_RECORDING_SECONDS = 20;
 export const ASR_MODEL = process.env.CT_ASR_MODEL ?? 'sherpa-onnx-omnilingual-asr-1600-languages-300M-ctc-int8-2025-11-12';
+
+export function asrAvailable(): boolean {
+  const dir = MODELS + ASR_MODEL + '/';
+  return existsSync(dir + 'model.int8.onnx') && existsSync(dir + 'tokens.txt');
+}
 
 let recognizer: SherpaRecognizer | null = null;
 function asr(): SherpaRecognizer {
@@ -43,14 +49,23 @@ function asr(): SherpaRecognizer {
 }
 
 /** Convertit n'importe quel audio (webm/opus du navigateur, m4a, mp3, wav…) en échantillons mono 16 kHz. */
-export async function toSamples16k(input: Uint8Array): Promise<Wave> {
+export async function toSamples16k(input: Uint8Array, maxSeconds?: number): Promise<Wave> {
   const { mkdtemp, writeFile, readFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const dir = await mkdtemp(tmpdir() + '/ct-');
   try {
     await writeFile(dir + '/in', input);
-    await execFileP('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-i', dir + '/in', '-ac', '1', '-ar', '16000', '-f', 'f32le', dir + '/out.raw']);
+    try {
+      await execFileP('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-nostdin', '-protocol_whitelist', 'file',
+        '-i', dir + '/in', '-vn', ...(maxSeconds === undefined ? [] : ['-t', String(maxSeconds + 0.1)]),
+        '-ac', '1', '-ar', '16000', '-f', 'f32le', dir + '/out.raw'], { timeout: 8000 });
+    } catch {
+      throw Object.assign(new Error('Audio illisible ou conversion indisponible.'), { status: 422 });
+    }
     const raw = await readFile(dir + '/out.raw');
+    if (maxSeconds !== undefined && raw.length > maxSeconds * 16000 * 4) {
+      throw Object.assign(new Error(`Limite : ${maxSeconds} secondes par enregistrement.`), { status: 413 });
+    }
     const samples = new Float32Array(raw.buffer.slice(raw.byteOffset, raw.byteOffset + raw.byteLength));
     return { samples, sampleRate: 16000 };
   } finally { await rm(dir, { recursive: true, force: true }); }
@@ -59,7 +74,8 @@ export async function toSamples16k(input: Uint8Array): Promise<Wave> {
 export interface Transcript { text: string; engine: string; audioSeconds: number; decodeMs: number }
 
 export async function transcribe(audio: Uint8Array): Promise<Transcript> {
-  const wav = await toSamples16k(audio);
+  if (!asrAvailable()) throw Object.assign(new Error('Modèle vocal absent. Écrivez votre demande ou installez les modèles.'), { status: 503 });
+  const wav = await toSamples16k(audio, MAX_RECORDING_SECONDS);
   const r = asr();
   const s = r.createStream();
   s.acceptWaveform({ samples: wav.samples, sampleRate: wav.sampleRate });
