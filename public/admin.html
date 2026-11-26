@@ -56,6 +56,7 @@
     <div class="tabs" role="tablist" id="tabs" hidden>
       <button role="tab" aria-selected="true" data-tab="keys">Clés API &amp; Entreprises</button>
       <button role="tab" aria-selected="false" data-tab="training">Entraînement &amp; Modèles</button>
+      <button role="tab" aria-selected="false" data-tab="connectors">Connecteurs &amp; Catalogue UI</button>
     </div>
   </div>
   <nav>
@@ -200,6 +201,86 @@
       <pre id="mt-res" hidden></pre>
     </div>
   </section>
+
+  <section id="panel-connectors" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Connecteur financier par institution (anti-SSRF)</h2>
+      <p class="muted">Chaque entreprise authentifiée par sa clé API peut pointer vers son propre backend (<code >mock</code>, <code >safinum</code> ou <code >http</code> REST public HTTPS).</p>
+      <form id="conn-form" class="row">
+        <div>
+          <label for="c-inst">Institution</label>
+          <input id="c-inst" required pattern="[a-zA-Z0-9._-]{2,64}" placeholder="ex. banqueA">
+        </div>
+        <div>
+          <label for="c-type">Type</label>
+          <select id="c-type">
+            <option value="mock">mock (démo)</option>
+            <option value="safinum">safinum (API SAFINUM)</option>
+            <option value="http">http (REST bancaire)</option>
+          </select>
+        </div>
+        <div style="flex:2 1 220px">
+          <label for="c-url">URL de base HTTPS</label>
+          <input id="c-url" placeholder="https://api.banque.cm/v1">
+        </div>
+        <div>
+          <label for="c-hdr">En-tête auth</label>
+          <input id="c-hdr" placeholder="x-api-key">
+        </div>
+        <div>
+          <label for="c-sec">Secret / Clé</label>
+          <input id="c-sec" type="password" placeholder="Optionnel">
+        </div>
+        <div style="flex:0 0 auto">
+          <button type="submit" class="btn">Enregistrer</button>
+        </div>
+      </form>
+      <div class="alert bad" id="c-err" hidden></div>
+      <div class="tablewrap" style="margin-top:14px">
+        <table>
+          <thead><tr><th>Institution</th><th>Type</th><th>URL de base</th><th>En-tête</th><th>Secret</th><th>Maj</th><th>Action</th></tr></thead>
+          <tbody id="conn-rows"></tbody>
+        </table>
+      </div>
+      <pre id="conn-test-res" hidden></pre>
+    </div>
+
+    <div class="card">
+      <h2>Catalogue UI personnalisable par institution</h2>
+      <form id="ui-form" class="row">
+        <div>
+          <label for="u-inst">Institution</label>
+          <input id="u-inst" required value="default" placeholder="default ou banqueA">
+        </div>
+        <div>
+          <label for="u-res">Clé ressource</label>
+          <input id="u-res" required placeholder="ex. transfer.confirmation">
+        </div>
+        <div>
+          <label for="u-lang">Langue</label>
+          <input id="u-lang" required value="dua" maxlength="3">
+        </div>
+        <div>
+          <label for="u-ch">Canal</label>
+          <select id="u-ch"><option value="*">* (tous)</option><option value="web">web</option><option value="mobile">mobile</option><option value="ussd">ussd</option></select>
+        </div>
+        <div style="flex:2 1 240px">
+          <label for="u-val">Libellé localisé</label>
+          <input id="u-val" required placeholder="Libellé dans la langue">
+        </div>
+        <div style="flex:0 0 auto">
+          <button type="submit" class="btn">Ajouter / Maj</button>
+        </div>
+      </form>
+      <div class="alert bad" id="u-err" hidden></div>
+      <div class="tablewrap" style="margin-top:14px">
+        <table>
+          <thead><tr><th>Institution</th><th>Ressource</th><th>Langue</th><th>Canal</th><th>Valeur</th><th>Qualité</th></tr></thead>
+          <tbody id="ui-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -226,6 +307,7 @@
     $('tabs').hidden = true;
     $('panel-keys').hidden = true;
     $('panel-training').hidden = true;
+    $('panel-connectors').hidden = true;
     $('logout-btn').hidden = true;
     if (msg) {
       $('auth-err').textContent = msg;
@@ -240,6 +322,7 @@
     const active = document.querySelector('[role="tab"][aria-selected="true"]')?.dataset.tab || 'keys';
     $('panel-keys').hidden = active !== 'keys';
     $('panel-training').hidden = active !== 'training';
+    $('panel-connectors').hidden = active !== 'connectors';
   }
 
   function kpi(value, label) {
@@ -385,10 +468,78 @@
       document.querySelectorAll('[role="tab"]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
       $('panel-keys').hidden = b.dataset.tab !== 'keys';
       $('panel-training').hidden = b.dataset.tab !== 'training';
+      $('panel-connectors').hidden = b.dataset.tab !== 'connectors';
       if (b.dataset.tab === 'keys') await loadKeys();
-      else await loadTraining();
+      else if (b.dataset.tab === 'training') await loadTraining();
+      else await loadConnectorsAndUi();
     };
   });
+
+  async function loadConnectorsAndUi() {
+    const [cData, uData] = await Promise.all([api('/v1/admin/connectors'), api('/v1/admin/ui-resources')]);
+    const ctb = $('conn-rows'); ctb.textContent = '';
+    for (const c of cData.connectors || []) {
+      const tr = document.createElement('tr');
+      for (const v of [c.institution, c.type, c.baseUrl || '—', c.authHeader || '—', c.hasSecret ? 'configuré' : 'aucun', c.updatedAt.slice(0, 19).replace('T', ' ')]) {
+        const td = document.createElement('td'); td.textContent = v; tr.append(td);
+      }
+      const act = document.createElement('td');
+      const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'secondary'; bt.textContent = 'Tester';
+      bt.onclick = async () => {
+        const r = await api('/v1/admin/connectors/test', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ institution: c.institution }) });
+        $('conn-test-res').textContent = JSON.stringify(r, null, 2);
+        $('conn-test-res').hidden = false;
+      };
+      act.append(bt); tr.append(act); ctb.append(tr);
+    }
+    const utb = $('ui-rows'); utb.textContent = '';
+    for (const e of uData.entries || []) {
+      const tr = document.createElement('tr');
+      for (const v of [e.institution, e.resource, e.language, e.channel || '*', e.value, e.quality]) {
+        const td = document.createElement('td'); td.textContent = v; tr.append(td);
+      }
+      utb.append(tr);
+    }
+  }
+
+  $('conn-form').onsubmit = async (e) => {
+    e.preventDefault(); $('c-err').hidden = true;
+    try {
+      await api('/v1/admin/connectors', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          institution: $('c-inst').value.trim(),
+          type: $('c-type').value,
+          baseUrl: $('c-url').value.trim() || undefined,
+          authHeader: $('c-hdr').value.trim() || undefined,
+          authSecret: $('c-sec').value || undefined,
+        }),
+      });
+      $('c-sec').value = '';
+      await loadConnectorsAndUi();
+    } catch (err) {
+      $('c-err').textContent = err.message; $('c-err').hidden = false;
+    }
+  };
+
+  $('ui-form').onsubmit = async (e) => {
+    e.preventDefault(); $('u-err').hidden = true;
+    try {
+      await api('/v1/admin/ui-resources', {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          institution: $('u-inst').value.trim(),
+          entries: [{ resource: $('u-res').value.trim(), language: $('u-lang').value.trim(), channel: $('u-ch').value, value: $('u-val').value.trim() }],
+        }),
+      });
+      $('u-val').value = '';
+      await loadConnectorsAndUi();
+    } catch (err) {
+      $('u-err').textContent = err.message; $('u-err').hidden = false;
+    }
+  };
 
   $('refresh-keys').onclick = () => loadKeys();
   $('admin-key-form').onsubmit = async (e) => {

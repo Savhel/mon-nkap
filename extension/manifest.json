@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Mon Nkap · Gateway Linguistique Bancaire",
+  "version": "1.0.0",
+  "description": "Assistant financier et localisation ciblée des interfaces bancaires dans les langues nationales du Cameroun.",
+  "permissions": ["storage", "activeTab", "sidePanel"],
+  "host_permissions": ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_page": "options.html",
+  "action": {
+    "default_title": "Ouvrir Mon Nkap"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://localhost/*", "http://127.0.0.1/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
+

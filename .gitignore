@@ -5,5 +5,7 @@ models/
 .env
 data/audit/
 data/api-keys.json
+data/connectors.json
+data/ui-resources.json
 .venv/
 mobile-android/www/
