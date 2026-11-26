@@ -1,0 +1,17 @@
+cle,fichier_d_origine,texte_natif,etat
+term_balance,AUDIO-2026-11-25-17-53-19.m4a,Balance na money wey remain insicde ya account,installé
+term_beneficiary,AUDIO-2026-11-25-17-53-20 (2).m4a,beneficiary na person wey di receive the money. you get for check yi name and ei numba,installé
+term_airtime,AUDIO-2026-11-25-17-53-20 (3).m4a,"Dey di use credit for call person ,send message or for settle bill",installé
+term_transfer,AUDIO-2026-11-25-17-53-20.m4a,Transfer na when you send money from ya account for another person ei account,installé
+term_history,AUDIO-2026-11-25-17-53-21.m4a,last transactions na the list of all ya transactions dem,installé
+term_withdraw,AUDIO-2026-11-25-17-53-22.m4a,withdraw mean say you di remove money from ya account,installé
+ask_amount,AUDIO-2026-11-25-18-29-37.m4a,you wan send how much ?,installé
+ask_which,AUDIO-2026-11-25-18-29-37 (4).m4a,plenty people them get this name. You wan send am for who ?,installé
+corrected,AUDIO-2026-11-25-18-29-38 (2).m4a,they don fix am,installé
+ask_intent,AUDIO-2026-11-25-18-29-38.m4a,"a no di undastand. You wan see ya balance, send mony, know the fees or see ya last transaction ?",installé
+cancelled,AUDIO-2026-11-25-18-29-40 (2).m4a,dey don cancel the transaction. Dey no send no mony,installé
+history_intro,AUDIO-2026-11-25-18-29-40.m4a,ya last transactions,installé
+,AUDIO-2026-11-25-18-29-36.m4a,,non installé : balance lue avec un montant d’exemple
+,AUDIO-2026-11-25-18-29-36 (2).m4a,,non installé : fee_quote lue avec des montants d’exemple
+,AUDIO-2026-11-25-18-08-37.m4a,,"non installé : nombres dits à la suite (liste), non découpés"
+,AUDIO-2026-11-25-18-04-10.m4a,,non installé : mots du lexique dits à la suite
