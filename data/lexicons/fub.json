@@ -11,11 +11,14 @@
    "nelde",
    "nelde ceede",
    "neldu",
-   "transfert"
+   "transfert",
+   "neldude",
+   "nildude"
   ],
   "fees": [
    "njoɓdi",
-   "frais"
+   "frais",
+   "coggu"
   ],
   "history": [
    "historique"
@@ -23,17 +26,21 @@
   "airtime": [
    "crédit",
    "recharge",
-   "credit"
+   "credit",
+   "kerdii"
   ],
   "bill_payment": [
    "facture",
    "eneo",
-   "camwater"
+   "camwater",
+   "yoɓude",
+   "faktiir"
   ],
   "explain_term": [],
   "help": [
    "aide",
-   "help"
+   "help",
+   "faabaade"
   ],
   "greeting": [
    "jam waali"
@@ -68,5 +75,50 @@
   "correction",
   "nombres en langue nationale",
   "explain_term"
- ]
+ ],
+ "dictionnaire": {
+  "source": "Dictionnaire fulfulde – français – English remis par les natifs (non versé : pas de licence connue)",
+  "statut": "variantes de reconnaissance seulement : les textes des natifs ne sont pas modifiés",
+  "ecartes": {
+   "balla (aide)": "à une lettre de « dalla » (unité de 5 FCFA) : une demande de solde serait prise pour une demande d’aide",
+   "heddude (rester)": "à deux lettres de « neldude » (envoyer) : les deux se déclenchaient l’un l’autre"
+  },
+  "mots": [
+   {
+    "mot": "neldude",
+    "sens": "envoyer qqch avec qqn, expédier",
+    "intention": "transfer"
+   },
+   {
+    "mot": "nildude",
+    "sens": "envoyer qqch à qqn",
+    "intention": "transfer"
+   },
+   {
+    "mot": "yoɓude",
+    "sens": "payer, rémunérer",
+    "intention": "bill_payment"
+   },
+   {
+    "mot": "faktiir",
+    "sens": "facture",
+    "intention": "bill_payment"
+   },
+   {
+    "mot": "coggu",
+    "sens": "prix, coût",
+    "intention": "fees"
+   },
+   {
+    "mot": "kerdii",
+    "sens": "crédit",
+    "intention": "airtime"
+   },
+   {
+    "mot": "faabaade",
+    "sens": "aider, assister, secourir",
+    "intention": "help"
+   }
+  ]
+ }
 }

@@ -208,3 +208,22 @@ me ye'ele nye mveane Zambe.` (retour : « je suis le don de Dieu ») ; peul → 
 **Décision** : MADLAD reste installé (chargé seulement à la demande) mais n'est routé pour aucune langue.
 Dès que les natifs auront fourni des phrases en basaa ou en bulu, l'identification de langue pourra vérifier ses
 sorties et la comparaison (`npm run mt:compare`) sera relancée.
+
+## Ghomala' : compréhension par la traduction (sonde du 26 novembre 2026)
+
+Le ghomala' fait partie du bac à sable SAFINUM et le modèle Flagship ghomala ↔ français est installé. Aucune phrase de
+natif n'existe pour le mesurer : la sonde a donc fait traduire 10 demandes françaises en ghomala' par le modèle, puis
+retraduire en français, et passé le résultat au moteur. Ce n'est pas une mesure de qualité, seulement un test du circuit.
+
+| Demande française | Retour en français | Compris |
+|---|---|---|
+| envoie de l'argent à Marie | « et a envoyé l'argent à Marie » | transfert |
+| je veux payer ma facture d'électricité | « Je veux, moi aussi, parce que je suis dans les cieux. » | — |
+| je veux retirer de l'argent | « je veux être là un argent fort. » | — |
+| oui | « Oui, je veux aussi. » | oui |
+| **annule** | « Car il est prière de dire : » | **transfert** |
+
+Une demande sur sept comprise, sorties de style biblique, et « annule » pris pour un transfert.
+
+**Décision** : le ghomala' n'est **pas** activé (compréhension « indisponible ») : une langue qui comprend « annuler »
+comme « envoyer de l'argent » serait un défaut majeur. Il faut des phrases de natifs.
