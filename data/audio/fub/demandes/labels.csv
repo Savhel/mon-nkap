@@ -25,3 +25,19 @@ mot_no.aac,lexique/non lex.aac,mot:no,CANCEL,kay,mot isolé
 mot_cancel.aac,lexique/annuler lex.aac,mot:cancel,CANCEL,mi djabbay,mot isolé
 mot_hello.aac,lexique/bonjour lex.aac,mot:hello,GREETING,mi sani,mot isolé
 mot_help.aac,lexique/aide lex.aac,mot:help,HELP,wallore,mot isolé
+tr1_b01.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 1",tr1,TRANSFER_MONEY,a yidi yerbinego boro djoy ha marie na,seconde série
+tr2_b02.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 2",tr2,TRANSFER_MONEY,a yidi yerbinego boro nogas et djoy ha marie na,seconde série
+tr4_b03.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 3",tr4,TRANSFER_MONEY,a yidi yerbinego boro temere ha numero do na  655778899,seconde série ; numéro dicté chiffre par chiffre
+tr3_b04.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 4",tr3,TRANSFER_MONEY,a yidi yerbinego tchede ha paul na,seconde série
+fee1_b06.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 6",fee1,CHECK_FEES,on yidi famougoh dallah noy be ta-a-ta ha yerbougo boro nogas,seconde série
+his1_b08.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 8",his1,VIEW_HISTORY,a yidi larougo tchede dje a yerbi be dje be yerbine ma daga boye ma na,seconde série
+air1_b09.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 9",air1,BUY_AIRTIME,a yidi sorougo credit dje boro na,seconde série
+cor1_b12.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 12",cor1,CORRECT,"nana boro djoy mi yidi yerbougo ,boro tati one",seconde série
+cor2_b13.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 13",cor2,CORRECT,"nana ha paul mi yidi yerbougo ,ha marie one",seconde série
+yes1_b14.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 14",yes1,CONFIRM,mi yidi yerbougo,seconde série
+no1_b15.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 15",no1,CANCEL,mi yida yerbougo,seconde série ; dit « mi yiɗaa yarɓugo »
+amb1_b16.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 16",amb1,TRANSFER_MONEY,mi yerbi tchede,seconde série
+term1_b17.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 17",term1,EXPLAIN_TERM,frais do ba wigonoy,seconde série
+term2_b18.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 18",term2,EXPLAIN_TERM,solde do ba wigonoy,seconde série
+lang1_b20.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 20",lang1,SWITCH_LANGUAGE,yetche doum be wolde am,seconde série
+mix1_b22.m4a,"AUDIO-2026-11-26-10-06-56.aac (demandes), morceau 22",mix1,TRANSFER_MONEY,mi  yerbi 2000 ha paul,seconde série
