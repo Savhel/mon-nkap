@@ -102,6 +102,27 @@ Permet aux entreprises d'obtenir leur propre clé API depuis l'interface `/porta
 
 - `POST /v1/portal/keys` avec `{ "institution": "afriland", "name": "Afriland First Bank" }` → `201 { "key": "nk_live_…", "record": { … } }`.
 
+### `POST /v1/gateway/interact` — point d'entrée canonique unifié (`CanonicalInteraction`)
+
+`{ "institutionId"?: "banqueB", "userId"?: "237677000001", "sessionId": "s1", "channel": "web", "input": { "type": "text" | "voice", "content": "…", "language"?: "dua" } }`
+Normalise l'interaction, route vers le connecteur financier de l'institution authentifiée et renvoie `EngineResult`.
+
+### `GET /v1/ui-resources?lang=&channel=` — catalogue UI personnalisable
+
+Renvoie les libellés d'interface de base complétés par les ressources personnalisées de l'institution appelante (ex. `transfer.confirmation`).
+
+### `GET /v1/sync/bundle` — synchronisation hybride Control Plane → Data Plane
+
+Renvoie `{ schema: "nkap-sync.v1", languages, packs, uiResources }` pour permettre à un Data Plane déployé *on-premise* de récupérer les packs validés et ressources UI de son institution.
+
+### `GET|PUT /v1/admin/connectors`, `POST /v1/admin/connectors/test` — registre de connecteurs (anti-SSRF)
+
+Associe chaque `institution` à son backend (`mock`, `safinum`, `http` REST public HTTPS) avec contrôle anti-SSRF (`UNSAFE_ENDPOINT` si adresse privée/locale, sauf `CT_ALLOW_PRIVATE_URLS=1`).
+
+### `GET|PUT /v1/admin/ui-resources` — gestion des libellés UI par institution
+
+Permet de déclarer ou mettre à jour les ressources d'interface par `institution`, `language` et `channel`.
+
 ### `GET|PUT /v1/admin/training/*` — entraînement des modèles depuis `/admin` (protégées par `x-admin-key`)
 
 - `GET /v1/admin/training/status` → état des tableurs `collecte/`, packs compilés, service MT et profils LangId.

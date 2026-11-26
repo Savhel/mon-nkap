@@ -30,6 +30,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { readFileSync } from 'node:fs';
 import { MockBackend } from '../backend/mock.ts';
 import { SafinumBackend } from '../backend/safinum.ts';
+import { ConnectorRegistry, RouterBackend, runWithInstitution } from '../backend/registry.ts';
 import { Engine, userSession, type Channel } from '../core/engine.ts';
 import { UssdChannel } from '../channels/ussd.ts';
 import { SmsChannel } from '../channels/sms.ts';
@@ -45,6 +46,8 @@ import { evaluateLanguage } from '../eval/evaluate.ts';
 import { uiLabels } from '../core/respond.ts';
 import { translateText } from '../core/translate.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
+import { UiCatalog } from '../linguistics/ui_catalog.ts';
+import { loadPack } from '../linguistics/pack.ts';
 import { getLangIdSummary, listCollecteLanguages, readCollecteSheet, refreshLangIdFromPacks, trainLanguagePack, writeCollecteSheet, type TrainerPaths } from '../linguistics/trainer.ts';
 import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
@@ -63,10 +66,22 @@ const STATIC: Record<string, [string, string]> = {
 
 const AUDIT_FILE = process.env.CT_AUDIT_FILE ?? fileURLToPath(new URL('../../data/audit/audit.jsonl', import.meta.url));
 
-export function createApp(engine?: Engine, opts: { auditFile?: string | null; keysFile?: string | null; trainerPaths?: TrainerPaths } = {}) {
+export interface AppOptions {
+  auditFile?: string | null;
+  keysFile?: string | null;
+  connectorsFile?: string | null;
+  uiResourcesFile?: string | null;
+  allowPrivateUrls?: boolean;
+  trainerPaths?: TrainerPaths;
+}
+
+export function createApp(engine?: Engine, opts: AppOptions = {}) {
   const audit = new AuditLog(opts.auditFile === null ? undefined : opts.auditFile ?? AUDIT_FILE);
   const useSafinum = process.env.CT_BACKEND === 'safinum' || !!process.env.CT_SAFINUM_KEY;
-  engine ??= new Engine(useSafinum ? new SafinumBackend() : new MockBackend(), 'fr', audit);
+  const fallbackBackend = useSafinum ? new SafinumBackend() : new MockBackend();
+  const connectors = new ConnectorRegistry({ file: opts.connectorsFile, allowPrivateUrls: opts.allowPrivateUrls });
+  const uiCatalog = new UiCatalog(opts.uiResourcesFile);
+  engine ??= new Engine(new RouterBackend(fallbackBackend, connectors), 'fr', audit);
   const keys = new ApiKeys(process.env.CT_API_KEYS ?? '', opts.keysFile);
   const limiter = new RateLimiter();
   const idem = new IdempotencyCache<unknown>();
@@ -144,9 +159,32 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
         if (typeof b.text !== 'string' || !b.text.trim()) return json(res, 400, { error: 'text requis' });
         const userSid = continuity && typeof b.userPhone === 'string' ? userSession(b.userPhone) : null;
-        const run = () => engine!.handle({ sessionId: userSid ?? String(b.sessionId ?? 'anon'), channel: channelOf(b.channel), lang: typeof b.lang === 'string' ? b.lang : undefined, text: b.text.slice(0, 1000), input: 'text', institution: institution ?? undefined });
+        const run = () => runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: userSid ?? String(b.sessionId ?? 'anon'), channel: channelOf(b.channel), lang: typeof b.lang === 'string' ? b.lang : undefined, text: b.text.slice(0, 1000), input: 'text', institution: institution ?? undefined }));
         if (!idemKey) return json(res, 200, await run());
         const { value, replayed } = idem.run(`message:${idemKey}`, run);
+        res.setHeader('idempotent-replayed', String(replayed));
+        return json(res, 200, await value);
+      }
+
+      if (req.method === 'POST' && url.pathname === '/v1/gateway/interact') {
+        const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
+        const input = b.input && typeof b.input === 'object' ? b.input as { type?: string; content?: string; language?: string } : null;
+        if (!input || typeof input.content !== 'string' || !input.content.trim()) return json(res, 400, { error: 'input.content requis' });
+        const inst = institution && institution !== 'local' ? institution : (typeof b.institutionId === 'string' && b.institutionId.trim() ? b.institutionId.trim() : 'local');
+        const userId = typeof b.userId === 'string' && b.userId.trim() ? b.userId.trim() : undefined;
+        const userSid = continuity && userId ? userSession(userId) : null;
+        const sessionId = userSid ?? String(b.sessionId ?? userId ?? 'gw-anon');
+        const run = () => runWithInstitution(inst, () => engine!.handle({
+          sessionId,
+          channel: channelOf(b.channel),
+          lang: typeof input.language === 'string' && input.language.trim() ? input.language.trim() : undefined,
+          accountId: userId ?? 'demo',
+          text: input.content!.slice(0, 1000),
+          input: input.type === 'voice' ? 'voice' : 'text',
+          institution: inst,
+        }));
+        if (!idemKey) return json(res, 200, await run());
+        const { value, replayed } = idem.run(`gw:${idemKey}`, run);
         res.setHeader('idempotent-replayed', String(replayed));
         return json(res, 200, await value);
       }
@@ -156,7 +194,7 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         if (typeof b.token !== 'string' || (typeof b.sessionId !== 'string' && typeof b.userPhone !== 'string')) return json(res, 400, { error: 'token et sessionId (ou userPhone) requis' });
         // Même session que /v1/message : si l'opération a été présentée avec userPhone, la confirmation y est rattachée.
         const sid = continuity && typeof b.userPhone === 'string' ? userSession(b.userPhone) : b.sessionId;
-        const run = () => engine!.confirmWithToken(sid, b.token, channelOf(b.channel), institution ?? undefined);
+        const run = () => runWithInstitution(institution ?? 'local', () => engine!.confirmWithToken(sid, b.token, channelOf(b.channel), institution ?? undefined));
         const { value, replayed } = idemKey ? idem.run(`confirm:${idemKey}`, run) : { value: run(), replayed: false };
         res.setHeader('idempotent-replayed', String(replayed));
         const r = await value as Awaited<ReturnType<typeof run>>;
@@ -308,10 +346,81 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         return json(res, 200, await translateText({ text: b.text.slice(0, 1000), from, to, allowDraft: !!b.allowDraft }));
       }
 
+      if (req.method === 'GET' && url.pathname === '/v1/admin/connectors') {
+        return json(res, 200, { connectors: connectors.list() });
+      }
+      if (req.method === 'PUT' && url.pathname === '/v1/admin/connectors') {
+        const b = JSON.parse((await body(req, 16 * 1024)).toString('utf8') || '{}');
+        const type = b.type;
+        if (typeof b.institution !== 'string' || !['mock', 'safinum', 'http'].includes(type)) {
+          return json(res, 400, { error: 'institution et type (mock|safinum|http) requis' });
+        }
+        try {
+          const saved = connectors.upsert({
+            institution: b.institution,
+            type,
+            baseUrl: typeof b.baseUrl === 'string' ? b.baseUrl : undefined,
+            authHeader: typeof b.authHeader === 'string' ? b.authHeader : undefined,
+            authEnvVar: typeof b.authEnvVar === 'string' ? b.authEnvVar : undefined,
+            authSecret: typeof b.authSecret === 'string' ? b.authSecret : undefined,
+          });
+          return json(res, 200, { connector: saved });
+        } catch (err) {
+          const code = (err as { code?: string; status?: number });
+          return json(res, code.status ?? 400, { error: code.code ?? 'connecteur_invalide', message: err instanceof Error ? err.message : String(err) });
+        }
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/connectors/test') {
+        const b = JSON.parse((await body(req, 4 * 1024)).toString('utf8') || '{}');
+        if (typeof b.institution !== 'string' || !b.institution.trim()) return json(res, 400, { error: 'institution requise' });
+        return json(res, 200, await connectors.testConnection(b.institution.trim(), typeof b.accountId === 'string' ? b.accountId : 'demo', fallbackBackend));
+      }
+
+      if (req.method === 'GET' && url.pathname === '/v1/admin/ui-resources') {
+        return json(res, 200, {
+          entries: uiCatalog.list({
+            institution: url.searchParams.get('institution') ?? undefined,
+            language: url.searchParams.get('lang') ?? undefined,
+            channel: url.searchParams.get('channel') ?? undefined,
+          }),
+        });
+      }
+      if (req.method === 'PUT' && url.pathname === '/v1/admin/ui-resources') {
+        const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
+        if (typeof b.institution !== 'string' || !Array.isArray(b.entries) || !b.entries.length) {
+          return json(res, 400, { error: 'institution et entries[] requis' });
+        }
+        try {
+          return json(res, 200, { saved: uiCatalog.upsert(b.institution, b.entries) });
+        } catch (err) {
+          return json(res, 400, { error: err instanceof Error ? err.message : 'catalogue invalide' });
+        }
+      }
+
       if (req.method === 'GET' && url.pathname === '/v1/labels') {
         const lang = url.searchParams.get('lang') ?? 'fr';
         if (!/^[a-z]{2,3}$/.test(lang)) return json(res, 400, { error: 'lang invalide' });
         return json(res, 200, uiLabels(lang));
+      }
+
+      if (req.method === 'GET' && url.pathname === '/v1/ui-resources') {
+        const lang = url.searchParams.get('lang') ?? 'fr';
+        const ch = url.searchParams.get('channel') ?? '*';
+        if (!/^[a-z]{2,3}$/.test(lang)) return json(res, 400, { error: 'lang invalide' });
+        return json(res, 200, { institution: institution ?? 'local', language: lang, channel: ch, resources: uiCatalog.resolve(institution ?? undefined, lang, ch) });
+      }
+
+      if (req.method === 'GET' && url.pathname === '/v1/sync/bundle') {
+        const langs = (url.searchParams.get('langs') ?? 'ewo,dua,fub,wes').split(',').map((s) => s.trim()).filter((s) => /^[a-z]{2,3}$/.test(s));
+        const packs = Object.fromEntries(langs.map((l) => [l, loadPack(l)]).filter(([, p]) => !!p));
+        return json(res, 200, {
+          schema: 'nkap-sync.v1',
+          generatedAt: new Date().toISOString(),
+          institution: institution ?? 'local',
+          languages,
+          packs,
+          uiResources: uiCatalog.list({ institution: institution ?? undefined }),
+        });
       }
 
       if (req.method === 'GET' && url.pathname === '/v1/eval') {
@@ -329,7 +438,7 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
         if (audio.length < 1000) return json(res, 400, { error: 'audio vide ou trop court' });
         const tr = await transcribe(new Uint8Array(audio));
         if (!tr.text) return json(res, 200, { transcript: tr, result: null, note: 'Rien n’a été reconnu. Parlez plus près du micro ou tapez votre demande.' });
-        const r = await engine.handle({ sessionId: url.searchParams.get('sessionId') ?? 'anon', channel: channelOf(url.searchParams.get('channel')), lang: url.searchParams.get('lang') ?? undefined, text: tr.text, input: 'voice' });
+        const r = await runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: url.searchParams.get('sessionId') ?? 'anon', channel: channelOf(url.searchParams.get('channel')), lang: url.searchParams.get('lang') ?? undefined, text: tr.text, input: 'voice', institution: institution ?? undefined }));
         return json(res, 200, { transcript: tr, result: r });
       }
 
@@ -419,7 +528,7 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
       json(res, status, { error: e instanceof Error ? e.message : String(e) });
     }
   });
-  return { server, engine, keys };
+  return { server, engine, keys, connectors, uiCatalog };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

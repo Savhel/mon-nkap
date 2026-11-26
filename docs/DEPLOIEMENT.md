@@ -55,6 +55,9 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 | `CT_SAFINUM_KEY` | clé d'équipe SAFINUM (`sbx_…`) ; active `SafinumBackend` (`POST /safinum/middleware`) | vide (`MockBackend`) |
 | `CT_SAFINUM_URL` | URL de l'API bancaire SAFINUM | `https://safinum.cm/api/v1` |
 | `CT_SAFINUM_GSM7_TRANSLIT` | `0` pour désactiver la translittération GSM-7 sur USSD SAFINUM | activée |
+| `CT_CONNECTORS_FILE` | fichier du registre de connecteurs par institution | `data/connectors.json` (si présent) |
+| `CT_UI_RESOURCES_FILE` | fichier du catalogue UI par institution | `data/ui-resources.json` (si présent) |
+| `CT_ALLOW_PRIVATE_URLS` | `1` pour autoriser des URL privées/localhost dans les connecteurs (dev uniquement) | désactivé (anti-SSRF) |
 | `CT_RATE_LIMIT` | requêtes POST par minute et par client | 120 |
 | `CT_CORS_ORIGINS` | sites autorisés à appeler l'API depuis un navigateur | tous (local) |
 | `CT_AUDIT_FILE` | fichier du journal d'audit chaîné | `data/audit/audit.jsonl` |
@@ -82,6 +85,13 @@ définir `CT_PUBLIC_URL` et `CT_IVR_RECORDING_HOSTS` pour le serveur vocal.
    CT_SAFINUM_KEY="sbx_votre_cle" npm run safinum -- endpoint https://votre-url-publique/safinum/middleware
    CT_SAFINUM_KEY="sbx_votre_cle" npm run safinum -- status
    ```
+
+## Extension navigateur Manifest V3 (`extension/`)
+
+1. Ouvrir `chrome://extensions` (ou `edge://extensions`) et activer le **Mode développeur**.
+2. Cliquer sur **Charger l'extension non empaquetée** et sélectionner le dossier `extension/`.
+3. Ouvrir les **Options** de l'extension pour renseigner l'URL du serveur (`http://localhost:8080` ou URL HTTPS) et la clé API (`x-api-key`) de l'entreprise.
+4. Cliquer sur l'icône Mon Nkap pour ouvrir le panneau latéral (**Side Panel**), discuter avec l'assistant ou cliquer sur **Traduire la page** (les champs saisis, mots de passe et montants ne sont jamais modifiés).
 
 ## Clés d'API pour les entreprises bancaires
 
