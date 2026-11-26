@@ -27,14 +27,14 @@ export interface NumberGrammar {
 const MULTIPLIERS = new Set([100, 1000, 1_000_000]);
 const isAtomic = (v: number) => v <= 19 || (v < 100 && v % 10 === 0) || MULTIPLIERS.has(v);
 
-type Seg = { v: number } | { c: string } | { other: string };
+type Seg = { v: number; digits?: true } | { c: string } | { other: string };
 
 /** Découpe une suite de jetons en expressions numériques connues (la plus longue d'abord). */
 function segment(toks: string[], words: Record<string, number>, connectors: Set<string>): Seg[] {
   const phrases = Object.keys(words).map((p) => p.split(' ')).sort((a, b) => b.length - a.length);
   const out: Seg[] = [];
   for (let i = 0; i < toks.length;) {
-    if (/^\d+$/.test(toks[i])) { out.push({ v: Number(toks[i]) }); i++; continue; }
+    if (/^\d+$/.test(toks[i])) { out.push({ v: Number(toks[i]), digits: true }); i++; continue; }
     const hit = phrases.find((p) => p.every((w, k) => toks[i + k] === w));
     if (hit) { out.push({ v: words[hit.join(' ')] }); i += hit.length; continue; }
     if (connectors.has(toks[i])) { out.push({ c: toks[i] }); i++; continue; }
@@ -130,18 +130,35 @@ export function learnGrammar(entries: NumberEntry[], opts: { validatedOnly?: boo
  * Le reste du texte est conservé (normalisé) : l'extraction habituelle des montants s'applique ensuite.
  */
 export function numeralize(text: string, g: NumberGrammar): string {
-  const toks = tokens(text);
-  if (!toks.length || !Object.keys(g.words).length) return text;
+  if (!Object.keys(g.words).length) return text;
+  // Un montant écrit en chiffres avec séparateur de milliers (« 12 500 », « 150.000 ») est un seul nombre :
+  // sans cela, « 12 500 » devenait 12 + 500 = 512.
+  const toks = tokens(text.replace(/\b\d{1,3}(?:[ .  ]\d{3})+\b/g, (m) => m.replace(/\D/g, '')));
+  if (!toks.length) return text;
   const segs = segment(toks, g.words, new Set(g.connectors));
   const out: string[] = [];
   let run: Item[] = [];
   let pending: string[] = [];
   const flush = () => {
-    if (run.length) { const v = compose(run, g.order); out.push(v === null ? '' : String(v)); }
+    // Des chiffres dits un par un (« six five five seven seven… ») sont une dictée, pas un montant :
+    // ils sont recollés (« 65577… ») pour que la détection des numéros de téléphone s'applique.
+    if (run.length >= 2 && run.every((x) => x !== '+' && x < 10)) out.push(run.join(''));
+    else if (run.length) { const v = compose(run, g.order); out.push(v === null ? '' : String(v)); }
     out.push(...pending);
     run = []; pending = [];
   };
-  for (const s of segs) {
+  for (let i = 0; i < segs.length; i++) {
+    const s = segs[i];
+    // Chiffres écrits : gardés tels quels, jamais additionnés à d'autres chiffres (sinon le numéro
+    // « 655 77 88 99 » devenait un montant). Devant un multiplicateur dit en mots, c'est un produit,
+    // quel que soit l'ordre de la langue (« 25 ké » = 25 × 1 000).
+    if ('v' in s && s.digits) {
+      flush();
+      const next = segs[i + 1];
+      if (next && 'v' in next && !next.digits && MULTIPLIERS.has(next.v)) { out.push(String(s.v * next.v)); i++; }
+      else out.push(String(s.v));
+      continue;
+    }
     if ('v' in s) { if (pending.length) run.push('+'); pending = []; run.push(s.v); } // liaison entre deux nombres
     else if ('c' in s && run.length) pending.push(s.c);
     else { flush(); out.push('c' in s ? s.c : s.other); }

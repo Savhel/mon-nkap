@@ -87,7 +87,12 @@ export function extractAmounts(text: string): AmountMatch[] {
   while (i < toks.length) {
     if (!isNumberWord(toks[i]) || toks[i] === 'k') { i++; continue; }
     let j = i;
-    while (j < toks.length && (isNumberWord(toks[j]) || (GLUE.has(toks[j]) && j + 1 < toks.length && isNumberWord(toks[j + 1])))) j++;
+    while (j < toks.length && (isNumberWord(toks[j]) || (GLUE.has(toks[j]) && j + 1 < toks.length && isNumberWord(toks[j + 1])))) {
+      // Après des chiffres, seul un multiplicateur prolonge le montant (« 5 mille », « 25 k »). Sinon
+      // « 3000 one » (particule « one » en fulfulde) devenait 3 001, et « 3000 5 » devenait 3 005.
+      if (j > i && /^\d+$/.test(toks[j - 1]) && !(HUNDRED.has(toks[j]) || THOUSAND.has(toks[j]) || MILLION.has(toks[j]))) break;
+      j++;
+    }
     // "un"/"une"/"one" seuls sont des articles ("un transfert"), pas des montants.
     const run = toks.slice(i, j);
     const lone = run.length === 1 && ['un', 'une', 'one'].includes(run[0]);

@@ -35,6 +35,14 @@ test("réparation des fautes d'ASR uniquement à côté d'un mot-nombre", () => 
   assert.deepEqual(v('pour deux mille'), [2000]); // « pour » n'est pas réparé en « four »
 });
 
+test("après des chiffres, seul un multiplicateur prolonge le montant", () => {
+  assert.deepEqual(v('boro 3000 one'), [3000]);        // « one » : particule en fulfulde, pas « 1 »
+  assert.deepEqual(v('3000 5'), [3000, 5]);
+  assert.deepEqual(v('5 mille'), [5000]);
+  assert.deepEqual(v('5 mille 500'), [5500]);
+  assert.deepEqual(v('2 thousand five hundred'), [2500]);
+});
+
 test('formatage FCFA', () => {
   assert.equal(formatFcfa(150000, 'fr'), '150 000 FCFA');
   assert.equal(formatFcfa(150000, 'en'), '150,000 FCFA');

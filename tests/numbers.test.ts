@@ -42,6 +42,21 @@ test('un montant jamais vu est composé par la grammaire, au milieu d’une phra
   assert.equal(numeralize('kilo ba', g), '2000');
 });
 
+test('les montants écrits en chiffres restent exacts dans une langue qui a sa grammaire des nombres', () => {
+  const g = learnGrammar(ZZ);
+  assert.equal(numeralize('lom 5 000 FCFA a Marie', g), 'lom 5000 fcfa a marie');
+  assert.equal(numeralize('lom 12 500 FCFA', g), 'lom 12500 fcfa');           // avant : 12 + 500 = 512
+  assert.equal(numeralize('lom 150.000 FCFA', g), 'lom 150000 fcfa');
+  assert.equal(numeralize('lom a 655 77 88 99', g), 'lom a 655 77 88 99');    // un numéro n'est pas additionné
+  assert.equal(numeralize('lom 25 kilo', g), 'lom 25000');                    // chiffres suivis d'un multiplicateur dit
+});
+
+test('des chiffres dictés un par un forment un numéro, pas un montant', () => {
+  const g = learnGrammar([...ZZ, e(6, 'sita'), e(9, 'nain')]);
+  assert.equal(numeralize('a sita tano tano', g), 'a 655');
+  assert.equal(numeralize('kilo tano', g), '5000');                           // multiplicateur + unité : un montant
+});
+
 test('un montant que la grammaire ne sait pas reconstruire est signalé, jamais deviné', () => {
   // « sept » et le pluriel « cents » n'ont jamais été donnés comme montants simples.
   const g = learnGrammar([...FR, e(7500, 'sept mille cinq cents')]);
