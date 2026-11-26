@@ -73,9 +73,15 @@ définir `CT_PUBLIC_URL` et `CT_IVR_RECORDING_HOSTS` pour le serveur vocal.
 ## Bac à sable SAFINUM (`https://safinum.cm/sandbox/docs`)
 
 1. Exposer le serveur sur une URL publique (ou tunnel `ngrok http 8080` / `cloudflared tunnel --url http://localhost:8080`).
-2. Démarrer Mon Nkap avec votre clé d'équipe SAFINUM :
+2. Démarrer Mon Nkap avec votre clé d'équipe SAFINUM (`CT_ALLOW_DRAFT=1` ajoute les langues encore en
+   brouillon, dont le fulfulde) :
    ```bash
-   CT_SAFINUM_KEY="sbx_votre_cle" npm start
+   CT_ALLOW_DRAFT=1 CT_SAFINUM_KEY="sbx_votre_cle" npm start
+   ```
+   Ou, pour ne pas retaper la clé : copier `.env.example` en `.env` (ignoré par Git, à recréer sur chaque
+   machine), y mettre la vraie clé, puis :
+   ```bash
+   node --env-file=.env src/api/server.ts
    ```
 3. Déclarer votre URL middleware auprès de SAFINUM pour chaque canal (`ussd`, `mobile`, `web`) :
    ```bash
