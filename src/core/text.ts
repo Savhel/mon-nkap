@@ -54,6 +54,19 @@ export function wordMatches(candidate: string, keyword: string): boolean {
  * Cherche une expression (un ou plusieurs mots) dans une liste de jetons, avec tolérance.
  * Renvoie l'indice du premier jeton trouvé, ou -1.
  */
+/**
+ * Squelette de consonnes : ce qui reste d'un mot quand on oublie les voyelles, les « h » et les graphies
+ * équivalentes. Les natifs écrivent souvent sans orthographe fixe (« tchede » / « ceede », « yerbinego ») et la
+ * reconnaissance vocale écrit autrement encore (« yarbungo », « chede ») : le squelette reste le même
+ * (« yrbng », « cd »). Les espaces sont retirés, car la reconnaissance vocale colle souvent les mots.
+ */
+export function skeleton(input: string): string {
+  return normalize(input)
+    .replace(/tch|ch|ts/g, 'c').replace(/dj|dy/g, 'j').replace(/sh/g, 's').replace(/ph/g, 'f').replace(/ck|q/g, 'k')
+    .replace(/[aeiouh' ]/g, '')
+    .replace(/(.)\1+/g, '$1');
+}
+
 /** Plus petite distance d'édition entre une expression et un passage du texte (mots collés compris). */
 export function phraseDistance(toks: string[], phrase: string): number {
   const p = tokens(phrase);

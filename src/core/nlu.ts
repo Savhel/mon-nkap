@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import type { Contact } from '../backend/types.ts';
 import { extractAmounts, extractPhones } from './amounts.ts';
-import { findPhrase, levenshtein, normalize, phraseDistance, tokens, tolerance, wordMatches } from './text.ts';
+import { findPhrase, levenshtein, normalize, phraseDistance, skeleton, tokens, tolerance, wordMatches } from './text.ts';
 import { numeralizeFor, runtimeFor } from '../linguistics/runtime.ts';
 
 export const INTENTS = ['balance', 'transfer', 'fees', 'history', 'airtime', 'bill_payment', 'withdraw', 'explain_term', 'help', 'greeting'] as const;
@@ -108,12 +108,25 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
 
   const scores: Partial<Record<Intent, number>> = {};
   const matched: string[] = [];
+  // Langue nationale : sans orthographe fixe, et transcrite par la voix autrement encore. Une expression dont le
+  // squelette de consonnes (4 au moins) se retrouve dans la phrase compte aussi, avec un poids plus faible.
+  // Jamais pour le français ni l'anglais, jamais pour oui / non ni pour les montants.
+  const nativeSkeleton = lang === 'fr' || lang === 'en' ? '' : skeleton(text);
+  const foreign = new Set(lexes.filter(([l]) => l === 'fr' || l === 'en').flatMap(([, lex]) => Object.values(lex.intents).flat().map((p) => normalize(p))));
   for (const [l, lex] of lexes) {
     const weight = l === lang ? 1 : 0.8;
     for (const intent of INTENTS) {
       for (const phrase of lex.intents[intent] ?? []) {
+        let s = 0;
         if (findPhrase(toks, phrase) >= 0) {
-          const s = weight * tokens(phrase).length;
+          // Dans une phrase en langue nationale, un mot français ou anglais seulement RESSEMBLANT pèse moins :
+          // « aidi » (« a yidi », je veux, en fulfulde) passait pour le français « aide ».
+          // (Le mot peut venir du lexique de la langue elle-même : le brouillon fulfulde contient « aide ».)
+          const p = tokens(phrase), exactHit = toks.some((_, i) => p.every((w, j) => toks[i + j] === w));
+          s = (nativeSkeleton && !exactHit && foreign.has(normalize(phrase)) ? 0.6 : weight) * p.length;
+        }
+        else if (nativeSkeleton && l === lang) { const k = skeleton(phrase); if (k.length >= 4 && nativeSkeleton.includes(k)) s = 0.7 * tokens(phrase).length; }
+        if (s) {
           if (s > (scores[intent] ?? 0) - 1e-9) matched.push(`${intent}:${phrase}`);
           scores[intent] = Math.max(scores[intent] ?? 0, s) + 0.01;
         }
