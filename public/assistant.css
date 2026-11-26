@@ -37,6 +37,8 @@
 .ca-fr summary::after { content: ""; width: 7px; height: 7px; margin-left: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform 150ms; }
 .ca-fr[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
 .ca-fr p { margin: 4px 0 0; }
+.ca-listen { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 0 12px; border: 1px solid var(--ca-line); background: var(--ca-page); color: var(--ca-brand); border-radius: 999px; font-size: 14px; font-weight: 500; }
+.ca-listen:hover { border-color: var(--ca-brand); }
 .ca-canon { display: none; margin: 10px 0 0; padding: 8px; border-radius: 8px; background: var(--ca-page); border: 1px dashed var(--ca-line); font: 12px/1.4 var(--nk-mono, monospace); white-space: pre-wrap; }
 .ca-details .ca-canon { display: block; }
 

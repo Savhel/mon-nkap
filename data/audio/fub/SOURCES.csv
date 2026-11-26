@@ -1,0 +1,36 @@
+cle,fichier_d_origine,texte_natif,etat
+ask_amount,reponses/4 rep.aac,one yidi yerbougo dalla noy,installé
+ask_which,reponses/7 rep.aac,yimbe djour mari inde mane.my gotelm,installé
+corrected,reponses/10 rep.aac,mine sandji,installé
+history_intro,reponses/20 rep.aac,dje boyma,installé
+hist_transfer_out,reponses/21 rep.aac,yerbi,installé
+hist_transfer_in,reponses/22 rep.aac,yotti,installé
+hist_airtime,reponses/23 rep.aac,credit,installé
+hist_bill,reponses/24 rep.aac,dje one yobbata,installé
+cancelled,reponses/26 rep.aac,mi yidda,installé
+greeting,reponses/29 rep.aac,"mine sani mone,one yidi waddougo di mai",installé
+not_understood,reponses/30 rep.aac,"mi famay,onr foti one wiya doum fere na",installé
+backend_error,reponses/32.aac,one fottay on wadda hounde djotta,installé
+term_beneficiary,definitions/bénéficiaire def.aac,beneficiaire do doum goddo dje a yerbinae ta tchede.larou hinede be lamba mako,installé
+term_pin,definitions/code pin def.aac,code pin do doum code secret mone.ta holine doum ha goddo sam,installé
+term_airtime,definitions/crédit def.aac,"credit  do bemane be yoynata,yerba sms,be interet",installé
+term_bill,definitions/facture def.aac,facture do tchede dje a yobata bana dje yite be diyame,installé
+term_history,definitions/historique def.aac,"holine ame tchede dje one yerbi ,dje be yerbine mone be dje one yobi",installé
+term_limit,definitions/plafond .aac,plafond do doum tchede dje manga man dje one foti one yerba balle gotel,installé
+term_withdraw,definitions/retrait def.aac,retrait do doum ittougo tchede ha compte mone,installé
+term_balance,definitions/solde def.aac,solde do doum tchede dje loutine ma,installé
+term_transfer,definitions/transfer def.aac,transfert do doum yerbinego tchede,installé
+n_10,nombres/11 nbre.aac,dalla didi,installé
+n_50,nombres/19.aac,dalla sappo,installé
+n_100,nombres/24.aac,dalla nogas,installé
+n_1000,nombres/29.aac,boro,installé
+n_2000,nombres/31nbre.aac,boro didi,installé
+n_3000,nombres/33 nbr.aac,boro tati,installé
+n_5000,nombres/34 nbr.aac,boro djoy,installé
+n_20000,nombres/39 nbr.aac,boro nogas,installé
+ask_intent,reponses/8 rep.aac,,à faire écouter par un natif : non installé
+help,reponses/28 rep.aac,,à faire écouter par un natif : non installé
+n_200,nombres/25.aac,,à faire écouter par un natif : non installé
+n_300,nombres/26.aac,,à faire écouter par un natif : non installé
+n_500,nombres/27.aac,,à faire écouter par un natif : non installé
+n_5,nombres/6 nomb.aac,,à faire écouter par un natif : non installé

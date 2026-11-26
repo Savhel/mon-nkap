@@ -1,0 +1,27 @@
+fichier,fichier_d_origine,situation_id,intention,texte_natif,commentaire
+bal1_01.aac,demandes/2 dem.aac,bal1,CONSULT_BALANCE,on yidi famougoh dallah noy loutine mone na,
+bal2_02.aac,demandes/5 dem.aac,bal2,CONSULT_BALANCE,a done mari dallah noy,
+tr1_03.aac,demandes/8 dem.aac,tr1,TRANSFER_MONEY,a yidi yerbinego boro djoy ha marie na,
+tr2_04.aac,demandes/11 dem.aac,tr2,TRANSFER_MONEY,a yidi yerbinego boro nogas et djoy ha marie na,
+tr2_05.aac,demandes/12 dem.aac,tr2,TRANSFER_MONEY,,"seconde version de tr2, avec « Aminatou » ; texte non écrit"
+tr3_06.aac,demandes/14 dem.aac,tr3,TRANSFER_MONEY,a yidi yerbinego tchede ha paul na,
+tr4_07.aac,demandes/18 dem.aac,tr4,TRANSFER_MONEY,a yidi yerbinego boro temere ha numero do na  655778899,
+fee1_08.aac,demandes/21 dem.aac,fee1,CHECK_FEES,on yidi famougoh dallah noy be ta-a-ta ha yerbougo boro nogas,
+his1_09.aac,demandes/27 dem.aac,his1,VIEW_HISTORY,a yidi larougo tchede dje a yerbi be dje be yerbine ma daga boye ma na,
+air1_10.aac,demandes/31 dem.aac,air1,BUY_AIRTIME,a yidi sorougo credit dje boro na,
+bill1_11.aac,demandes/34 dem.aac,bill1,PAY_BILL,on yidi yobougo facture yite mone dje boro sapoy et didi go na,
+wd1_12.aac,demandes/37 dem.aac,wd1,WITHDRAW_MONEY,on yidi ittougo boro mone sappo na,
+cor1_13.aac,demandes/43 dem.aac,cor1,CORRECT,"nana boro djoy mi yidi yerbougo ,boro tati one","fichier numéroté 43 (cor2), contenu de cor1"
+yes1_14.aac,demandes/45.aac,yes1,CONFIRM,mi yidi yerbougo,
+no1_15.aac,demandes/49.aac,no1,CANCEL,mi yida yerbougo,
+amb1_16.aac,demandes/52.aac,amb1,TRANSFER_MONEY,mi yerbi tchede,
+term1_17.aac,demandes/58.aac,term1,EXPLAIN_TERM,frais do ba wigonoy,"fichier numéroté 58 (term2), contenu de term1"
+lang1_18.aac,demandes/61.aac,lang1,SWITCH_LANGUAGE,yetche doum be wolde am,
+mix1_19.aac,demandes/64.aac,mix1,TRANSFER_MONEY,mi  yerbi 2000 ha paul,
+greet1_20.aac,demandes/67 .aac,greet1,GREETING,on yidi mi wadah doum to-one na,
+mot_yes.aac,lexique/oui lex.aac,mot:yes,CONFIRM,oho,mot isolé
+mot_confirm.aac,lexique/je confirme lex.aac,mot:confirm,CONFIRM,mi djabbi,mot isolé
+mot_no.aac,lexique/non lex.aac,mot:no,CANCEL,kay,mot isolé
+mot_cancel.aac,lexique/annuler lex.aac,mot:cancel,CANCEL,mi djabbay,mot isolé
+mot_hello.aac,lexique/bonjour lex.aac,mot:hello,GREETING,mi sani,mot isolé
+mot_help.aac,lexique/aide lex.aac,mot:help,HELP,wallore,mot isolé
