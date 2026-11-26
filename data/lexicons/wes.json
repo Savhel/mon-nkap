@@ -96,5 +96,19 @@
   "credit": "airtime",
   "bill": "bill",
   "pin": "pin"
+ },
+ "observed": {
+  "source": "data/audio/wes/demandes/labels.csv",
+  "intents": {
+   "balance": [
+    "still remain inside ma account"
+   ],
+   "fees": [
+    "dey di cut me how much"
+   ]
+  },
+  "language": [
+   "tok for me for my contry tok"
+  ]
  }
 }

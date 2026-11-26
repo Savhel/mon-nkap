@@ -222,3 +222,32 @@ test('En bulu, l’annonce traduite reste séparée des valeurs bancaires exacte
   assert.equal(turn.params.fee, 100);
   assert.ok(requests.every((request) => request.texts.every((text) => !/\d|Marie/.test(text))));
 });
+
+test('Un transfert en pidgin vers un numéro dicté garde le montant et les neuf chiffres dans le récapitulatif', async () => {
+  const engine = new Engine(new MockBackend());
+  const result = await engine.handle({
+    sessionId: 'pidgin-dictation', channel: 'mobile', lang: 'wes',
+    text: 'a wan send twenty five tasen for six five five seven seven eight eight nine nine',
+  });
+  assert.equal(result.status, 'awaiting_confirmation');
+  assert.equal(result.params.amount, 25000);
+  assert.equal(result.canonical.entities.beneficiary?.phone, '655778899');
+});
+
+test('Les formulations de la collecte indiquent une consultation, une explication ou un refus explicite', async () => {
+  const engine = new Engine(new MockBackend());
+  const turn = (sessionId: string, text: string, lang = 'fub') => engine.handle({ sessionId, channel: 'mobile', lang, text });
+  assert.equal((await turn('solde-fub', 'a done mari dallah noy')).intent, 'balance');
+  assert.equal((await turn('historique-fub', 'a yidi larougo tchede dje a yerbi be dje be yerbine ma daga boye ma na')).intent, 'history');
+  const glossary = await turn('frais-fub', 'frais do ba wigonoy');
+  assert.equal(glossary.intent, 'explain_term');
+  assert.equal(glossary.params.term, 'fees');
+  const quote = await turn('devis-fub', 'envoie 5000 à Marie');
+  assert.equal(quote.status, 'awaiting_confirmation');
+  const refusal = await turn('devis-fub', 'mi yida yerbougo');
+  assert.equal(refusal.status, 'cancelled');
+  assert.deepEqual(await engine.confirmWithToken('devis-fub', quote.canonical.confirmationToken!, 'web'), { error: 'jeton_invalide' });
+  const language = await turn('langue-wes', 'tok for me for my contry tok', 'wes');
+  assert.equal(language.intent, 'language_switch');
+  assert.equal(language.status, 'needs_clarification');
+});

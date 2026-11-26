@@ -1,0 +1,29 @@
+{
+  "fub": {
+    "tr1_03.aac": { "montant": 5000, "destinataire": "Marie" },
+    "tr1_b01.m4a": { "montant": 5000, "destinataire": "Marie" },
+    "tr3_06.aac": { "destinataire": "Paul", "clarification": true },
+    "tr3_b04.m4a": { "destinataire": "Paul", "clarification": true },
+    "tr4_07.aac": { "numero": "655778899" },
+    "tr4_b03.m4a": { "numero": "655778899" },
+    "cor2_b13.m4a": { "destinataire": "Marie" },
+    "mix1_19.aac": { "montant": 2000, "destinataire": "Paul", "clarification": true },
+    "mix1_b22.m4a": { "montant": 2000, "destinataire": "Paul", "clarification": true },
+    "amb1_16.aac": { "clarification": true },
+    "amb1_b16.m4a": { "clarification": true }
+  },
+  "wes": {
+    "tr1_02.m4a": { "montant": 5000, "destinataire": "Marie" },
+    "tr2_03.m4a": { "montant": 25000, "destinataire": "Aminatou" },
+    "tr4_05.m4a": { "montant": 150000, "numero": "655778899" },
+    "tr3_06.m4a": { "destinataire": "Paul", "clarification": true },
+    "fee1_08.m4a": { "montant": 20000 },
+    "air1_09.m4a": { "montant": 1000 },
+    "bill1_10.m4a": { "montant": 12500 },
+    "cor1_12.m4a": { "montant": 3000 },
+    "wd1_13.m4a": { "montant": 10000 },
+    "cor2_16.m4a": { "destinataire": "Marie" },
+    "mix1_19.m4a": { "montant": 2000, "destinataire": "Paul", "clarification": true },
+    "amb1_15.m4a": { "clarification": true }
+  }
+}

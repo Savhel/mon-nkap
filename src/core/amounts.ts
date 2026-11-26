@@ -20,6 +20,8 @@ const MILLION = new Set(['million', 'millions', 'mio']);
 const GLUE = new Set(['et', 'and']);
 // Multiplicateurs du pidgin (mille) : jamais comptés ici, seulement repérés pour ne pas lire un montant tronqué.
 const FOREIGN_MULTIPLIERS = new Set(['tasen', 'tausen', 'tauzen', 'ke', 'kay']);
+const PHONE_NUMBER = /(?<!\d)(?:\+?237[ .\u00a0\u202f-]?)?([62](?:[ .\u00a0\u202f-]?\d){8})(?!\d)/g;
+
 const CURRENCY = new Set(['f', 'fr', 'frs', 'franc', 'francs', 'fcfa', 'cfa', 'xaf']);
 
 export interface AmountMatch { value: number; start: number; end: number; raw: string; currency: boolean }
@@ -83,7 +85,7 @@ function valueOf(run: string[]): number | null {
 
 export function extractAmounts(text: string): AmountMatch[] {
   // Les numéros de téléphone ne sont jamais des montants.
-  const toks = numberTokens(text.replace(/(?:\+?237[ .-]?)?[62](?:[ .\-\u00a0]?\d){8}(?![\d])/g, ' '));
+  const toks = numberTokens(text.replace(PHONE_NUMBER, ' '));
   const found: AmountMatch[] = [];
   let i = 0;
   while (i < toks.length) {
@@ -114,10 +116,41 @@ export function extractAmounts(text: string): AmountMatch[] {
 
 /** Numéros camerounais : 9 chiffres commençant par 6 (mobile) ou 2 (fixe), avec ou sans +237. */
 export function extractPhones(text: string): string[] {
-  const compact = text.replace(/(?<=\d)[ .\-\u00a0](?=\d)/g, '');
-  const out: string[] = [];
-  for (const m of compact.matchAll(/(?:\+?237)?([62]\d{8})(?!\d)/g)) out.push(m[1]);
-  return out;
+  return [...text.matchAll(PHONE_NUMBER)].map((match) => match[1].replace(/\D/g, ''));
+}
+
+/** Regroupe uniquement une dictée entière de chiffres, sans correction approximative. */
+export function normalizeSpokenPhones(text: string): string {
+  const words = [...text.matchAll(/[\p{L}\p{M}\d]+/gu)];
+  let result = '';
+  let from = 0;
+  let sequence: RegExpMatchArray[] = [];
+  let hasWords = false;
+  let digits = '';
+  function flush() {
+    if (hasWords && digits.length >= 7) {
+      const phone = /^(?:237)?[62]\d{8}$/.test(digits) ? digits : ' ';
+      result += text.slice(from, sequence[0].index) + phone;
+      const last = sequence.at(-1)!;
+      from = last.index! + last[0].length;
+    }
+    sequence = [];
+    hasWords = false;
+    digits = '';
+  }
+  for (const word of words) {
+    const token = normalize(word[0]);
+    const digit = /^\d$/.test(token);
+    const value = digit ? Number(token) : Object.hasOwn(UNITS, token) ? UNITS[token] : undefined;
+    const previous = sequence.at(-1);
+    if (previous && !/^[\s,.-]+$/.test(text.slice(previous.index! + previous[0].length, word.index))) flush();
+    if (value === undefined || value >= 10) { flush(); continue; }
+    sequence.push(word);
+    hasWords ||= !digit;
+    digits += String(value);
+  }
+  flush();
+  return result + text.slice(from);
 }
 
 export function formatFcfa(value: number, lang: string): string {

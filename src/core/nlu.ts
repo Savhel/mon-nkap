@@ -5,8 +5,9 @@
 
 import { readFileSync } from 'node:fs';
 import type { Contact } from '../backend/types.ts';
-import { extractAmounts, extractPhones } from './amounts.ts';
+import { extractAmounts, extractPhones, normalizeSpokenPhones } from './amounts.ts';
 import { findPhrase, levenshtein, normalize, phraseDistance, skeleton, tokens, tolerance, wordMatches } from './text.ts';
+import { allowDraft } from '../linguistics/pack.ts';
 import { numeralizeFor, runtimeFor } from '../linguistics/runtime.ts';
 
 export const INTENTS = ['balance', 'transfer', 'fees', 'history', 'airtime', 'bill_payment', 'withdraw', 'explain_term', 'help', 'greeting'] as const;
@@ -21,6 +22,7 @@ export interface Lexicon {
   beneficiaryMarkers: string[];
   terms: Record<string, string>;
   possessives?: string[];
+  observed?: { source: string; intents?: Partial<Record<Intent, string[]>>; deny?: string[]; language?: string[] };
 }
 
 export interface Interpretation {
@@ -39,6 +41,7 @@ export interface Interpretation {
   isDeny: boolean;
   isCorrection: boolean;
   switchTo?: string;
+  asksLanguage?: boolean;
 }
 
 const lexiconCache = new Map<string, Lexicon | null>();
@@ -109,6 +112,13 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   // Code-switching : on écoute toujours le lexique de la langue choisie, plus le français et l'anglais.
   const lexes = [...new Set([lang, 'fr', 'en'])].map((l) => [l, loadLexicon(l)] as const).filter((x): x is readonly [string, Lexicon] => x[1] !== null);
 
+  const observed = allowDraft() ? loadLexicon(lang)?.observed : undefined;
+  const exactPhrase = (phrase: string) => {
+    const words = tokens(phrase);
+    return toks.some((_, index) => words.every((word, offset) => toks[index + offset] === word));
+  };
+  const asksLanguage = observed?.language?.some((phrase) => normalize(text) === normalize(phrase)) ?? false;
+
   const scores: Partial<Record<Intent, number>> = {};
   const matched: string[] = [];
   // Langue nationale : sans orthographe fixe, et transcrite par la voix autrement encore. Une expression dont le
@@ -137,13 +147,22 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
     }
   }
 
+  for (const [intent, phrases] of Object.entries(observed?.intents ?? {}) as [Intent, string[]][]) {
+    const match = phrases.find(exactPhrase);
+    if (match) {
+      scores[intent] = Math.max(scores[intent] ?? 0, tokens(match).length + 1);
+      matched.push(`${intent}:${match}`);
+    }
+  }
+
   // Montants dits avec les mots de la langue (grammaire apprise des natifs) → chiffres, puis extraction habituelle.
   // Le pidgin arrive souvent étiqueté français ou anglais (le bac à sable SAFINUM ne le propose pas) : « five tasen »
   // devenait 5 FCFA. En français ou en anglais, un multiplicateur pidgin fait appliquer la grammaire du pidgin.
-  const numText = numeralizeFor(lang, text);
+  const withPhones = normalizeSpokenPhones(text);
+  const numText = numeralizeFor(lang, withPhones);
   const pidginAmount = (lang === 'fr' || lang === 'en') && toks.some((t) => PIDGIN_MULTIPLIERS.has(t));
   const amounts = extractAmounts(pidginAmount ? numeralizeFor('wes', numText) : numText).map((a) => a.value);
-  const phones = [...new Set(extractPhones(text))];
+  const phones = [...new Set(extractPhones(withPhones))];
   const phone = phones.length === 1 ? phones[0] : undefined;
   const { candidates, text: beneficiaryText } = matchContacts(toks, contacts);
   // Fournisseur : mot exact seulement (la tolérance aux fautes faisait de « coûtent » un « courant », donc ENEO).
@@ -179,8 +198,9 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   const confirmHeard = lexes.some(([, lex]) => anyPhrase(toks, lex.confirm) !== undefined);
   const denyHeard = lexes.some(([, lex]) => anyPhrase(toks, lex.deny) !== undefined);
   const clearlyYes = confirmHeard && nearest((l) => l.deny) - nearest((l) => l.confirm) >= 2;
-  const isConfirm = clearlyYes || /^(1|oui|yes)$/.test(normalize(text));
-  const isDeny = (denyHeard && !clearlyYes) || /^(2|non|no)$/.test(normalize(text));
+  const explicitDenial = observed?.deny?.some((phrase) => normalize(text) === normalize(phrase)) ?? false;
+  const isConfirm = !explicitDenial && (clearlyYes || /^(1|oui|yes)$/.test(normalize(text)));
+  const isDeny = explicitDenial || (denyHeard && !clearlyYes) || /^(2|non|no)$/.test(normalize(text));
   const isCorrection = lexes.some(([, lex]) => anyPhrase(toks, lex.correction) !== undefined);
 
   let switchTo: string | undefined;
@@ -193,5 +213,5 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   const intent = top && top[1] >= 0.5 ? top[0] : null;
   const confidence = !top ? 0 : Math.min(1, top[1] / ((second?.[1] ?? 0) + top[1]));
 
-  return { intent, confidence, scores, matched, amounts, phone, phones, beneficiaryCandidates: candidates, beneficiaryText, biller, term, isConfirm, isDeny, isCorrection, switchTo };
+  return { intent, confidence, scores, matched, amounts, phone, phones, beneficiaryCandidates: candidates, beneficiaryText, biller, term, isConfirm, isDeny, isCorrection, switchTo, asksLanguage };
 }

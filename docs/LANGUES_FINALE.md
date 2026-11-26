@@ -46,10 +46,22 @@ VRAM pour le modèle par défaut `omniASR_LLM_300M_v2`. Ces chiffres viennent de
 restent à confirmer sur la machine de démo.
 [Guide Meta](https://github.com/facebookresearch/omnilingual-asr/blob/main/src/omnilingual_asr/models/inference/README.md)
 
-Comparer les transcriptions avec `CT_ALLOW_DRAFT=1 node tools/eval-voice.ts fub` et
-`CT_ALLOW_DRAFT=1 node tools/eval-voice.ts wes`. Le rapport précise le moteur utilisé par fichier.
-Cette mesure réutilise les phrases collectées. Pour mesurer la généralisation, préparer des phrases
-et des voix nouvelles, avec trois contrôles distincts pour l’intention, le montant et le bénéficiaire.
+Comparer le texte de référence et la sortie du micro avec `CT_ALLOW_DRAFT=1 node tools/eval-voice.ts fub`
+et `CT_ALLOW_DRAFT=1 node tools/eval-voice.ts wes`. Utiliser `--texte-seul` pour évaluer le moteur
+sur les transcriptions du dépôt, sans modèle vocal. `--details` affiche aussi le résultat de chaque
+fichier. Le rapport distingue l’intention, les montants, les bénéficiaires, les numéros et les
+clarifications. Il signale les confirmations entendues à tort et les exécutions inattendues.
+Les champs financiers ne sont mesurés que lorsqu’ils disposent d’une annotation explicite.
+
+Les transcriptions de la collecte couvrent 41 demandes en fulfulde et 23 en pidgin. Avec les variantes
+de la collecte activées et le même protocole de mesure, le fulfulde passe de 24 à 38 intentions exactes sur 41, et le pidgin de 20 à 23 sur 23. Les deux
+formulations fulfulde d’acceptation « mi yidi yerbougo » laissent encore le récapitulatif en attente.
+Le refus explicite « mi yida yerbougo » annule le brouillon. Les exemples servent aussi à affiner
+le lexique. Pour mesurer la généralisation, préparer des phrases et des voix nouvelles.
+
+Un numéro camerounais peut être dicté chiffre par chiffre en français ou en anglais camerounais
+du parcours pidgin. Le parseur exige neuf chiffres (+237 facultatif). Une suite incomplète
+n’est pas réutilisée comme montant.
 
 ## Traduire les réponses
 
@@ -61,3 +73,10 @@ l’accepte. La confirmation reste une action explicite. [Sources Flagship](http
 Les formes cardinales et le protocole vocal ont des tests locaux. Le test du protocole envoie de
 l’audio réel à un fournisseur simulé pour vérifier le format et le code de langue. Les performances
 du modèle conditionné et la qualité des annonces traduites restent à mesurer sur la machine de démo.
+
+## Ajouter les contributions d’une langue
+
+`npm run collecte -- bas bum` crée les feuilles à remplir pour le basaa et le bulu. Un relecteur
+distinct peut ensuite valider les entrées. `npm run import-collecte -- bas bum` les rend disponibles
+avec les packs. Les menus USSD utilisent aussi les libellés des packs validés. Pour les libellés
+de menus, viser 17 caractères sur une seule ligne afin de tenir sur l’écran USSD.

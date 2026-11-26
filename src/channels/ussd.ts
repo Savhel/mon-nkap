@@ -9,6 +9,7 @@
 // C'est ce qui garantit la même interprétation sur tous les canaux.
 
 import { readFileSync } from 'node:fs';
+import { loadPack, usable } from '../linguistics/pack.ts';
 import { userSession, type Engine, type EngineResult } from '../core/engine.ts';
 
 export const USSD_IDLE_MS = 2 * 60_000;
@@ -41,9 +42,22 @@ const FALLBACK_LABELS: Record<string, Record<string, string>> = {
 type Pack = { phrases: Record<string, Record<string, string>>; ui: Record<string, Record<string, string>> };
 const pack: Pack = JSON.parse(readFileSync(new URL('../../data/mboa-pack.json', import.meta.url), 'utf8'));
 
+const MENUS: Record<string, string> = {
+  step_balance: 'menu_balance', transfer_title: 'menu_transfer', step_fees: 'menu_fees', history: 'menu_history',
+  airtime: 'menu_airtime', bill: 'menu_bill', language: 'menu_language', free_text: 'menu_free_text', next: 'menu_more',
+};
+
+function localizedMenu(id: string, lang: string): string | undefined {
+  const entry = loadPack(lang)?.responses[MENUS[id]];
+  if (!entry || !usable(entry)) return;
+  const text = entry.text.trim();
+  const limit = id === 'free_text' ? 29 : id === 'next' ? 22 : 17;
+  return text.length > 0 && text.length <= limit && !/[\r\n]/.test(text) ? text : undefined;
+}
+
 function label(id: string, lang: string): string {
   const e = pack.phrases[id] ?? pack.ui[id];
-  return e?.[lang] ?? FALLBACK_LABELS[id]?.[lang] ?? e?.fr ?? FALLBACK_LABELS[id]?.fr ?? id;
+  return localizedMenu(id, lang) ?? e?.[lang] ?? FALLBACK_LABELS[id]?.[lang] ?? e?.fr ?? FALLBACK_LABELS[id]?.fr ?? id;
 }
 
 interface UssdState { lang?: string; stage: 'lang' | 'main' | 'engine'; pages?: string[]; page?: number; done?: boolean; input: string; expires: number; screen: string; token?: string }
@@ -56,11 +70,18 @@ export class UssdChannel {
   constructor(engine: Engine, opts: { continuity?: boolean } = {}) { this.engine = engine; this.continuity = !!opts.continuity; }
 
   private langMenu(): string {
-    return `${FALLBACK_LABELS.choose_lang.fr} / ${FALLBACK_LABELS.choose_lang.en}\n` + LANGS.map(([, n], i) => `${i + 1}. ${n}`).join('\n');
+    const choices = LANGS.map(([code, name], i) => {
+      const localized = MAIN.filter(({ label }) => localizedMenu(label, code)).length;
+      if (!name.endsWith(' (menu FR)') || !localized) return `${i + 1}. ${name}`;
+      return `${i + 1}. ${name.replace(' (menu FR)', localized === MAIN.length ? '' : ' (mixte)')}`;
+    });
+    return `${FALLBACK_LABELS.choose_lang.fr} / ${FALLBACK_LABELS.choose_lang.en}\n${choices.join('\n')}`;
   }
 
   private mainMenu(lang: string): string {
-    return `${label('menu_title', lang)}\n` + MAIN.map((m) => `${m.key}. ${label(m.label, lang)}`).join('\n') + `\n${label('free_text', lang)}`;
+    const menu = `${label('menu_title', lang)}\n` + MAIN.map((m) => `${m.key}. ${label(m.label, lang)}`).join('\n');
+    const guide = `\n${label('free_text', lang)}`;
+    return menu.length + guide.length <= USSD_MAX ? menu + guide : menu;
   }
 
   /** Coupe une ligne trop longue aux espaces ordinaires. Les montants utilisent une espace fine

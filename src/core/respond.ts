@@ -106,6 +106,7 @@ function frenchAndEnglish(r: ReplyKind, lang: 'fr' | 'en'): string {
     case 'history': return (fr ? 'Vos dernières opérations : ' : 'Your latest operations: ') + r.items.map((t) => `${t.date.slice(0, 10)} ${histLabel(t, lang)} ${F(t.amount)}${t.counterparty ? ` (${t.counterparty})` : ''}`).join(' ; ') + '.';
     case 'explain': return GLOSSARY[r.term]?.[lang] ?? (fr ? 'Je ne connais pas encore ce terme.' : "I don't know this term yet.");
     case 'cancelled': return fr ? 'Opération annulée. Aucun argent n’a été envoyé.' : 'Operation cancelled. No money was sent.';
+    case 'which_language': return fr ? 'Dans quelle langue voulez-vous continuer ?' : 'Which language would you like to use?';
     case 'language_switched': return fr ? 'D’accord, on continue en français.' : "OK, let's continue in English.";
     case 'help': return fr ? 'Je peux : donner votre solde, envoyer de l’argent, expliquer les frais, montrer l’historique, acheter du crédit, payer une facture.' : 'I can: give your balance, send money, explain fees, show your history, buy airtime, pay a bill.';
     case 'greeting': return fr ? 'Bonjour ! Que voulez-vous faire ? Solde, transfert, frais ou historique.' : 'Hello! What would you like to do? Balance, transfer, fees or history.';
@@ -213,7 +214,7 @@ function nativeReply(r: ReplyKind, lang: string): { text: string; quality: Quali
     }
     case 'explain': text = D(r.term); break;
     case 'language_switched': text = T('language_switched', { langue: LANG_NAMES[lang] ?? lang }); break;
-    case 'cancelled': case 'help': case 'greeting': case 'not_understood': case 'backend_error': text = T(r.kind); break;
+    case 'cancelled': case 'help': case 'greeting': case 'not_understood': case 'backend_error': case 'which_language': text = T(r.kind); break;
   }
   if (text === null) return null;
   return { text, quality: used.every((e) => e.validated) ? 'validated' : 'draft' };

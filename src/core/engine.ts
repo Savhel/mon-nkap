@@ -154,7 +154,7 @@ export class Engine {
         const g = identify(req.text, model);
         if (g.lang) {
           let switched = false;
-          const signal = (x: Interpretation) => !!x.intent || x.isConfirm || x.isDeny || x.isCorrection;
+          const signal = (x: Interpretation) => x.asksLanguage || !!x.intent || x.isConfirm || x.isDeny || x.isCorrection;
           if (g.lang !== s.lang && !it.switchTo && loadLexicon(g.lang) && !signal(it)) {
             const alt = interpret(req.text, g.lang, contacts);
             if (signal(alt)) { it = alt; s.lang = g.lang; switched = true; }
@@ -167,7 +167,7 @@ export class Engine {
       // ne doit jamais remplacer une demande reconnue (« mon solde » devenait un transfert en Ewondo).
       // Les montants et numéros restent ceux du texte d'origine (la traduction les perd ou les invente).
       const menuKey = /^\s*\d\s*$/.test(req.text);
-      if (FLAGSHIP_LANGS[s.lang] && !it.intent && !it.isConfirm && !it.isDeny && !it.isCorrection && !menuKey) {
+      if (FLAGSHIP_LANGS[s.lang] && !it.intent && !it.isConfirm && !it.isDeny && !it.isCorrection && !it.asksLanguage && !menuKey) {
         const mt = await toFrench(s.lang, req.text);
         if (mt) {
           const viaFr = interpret(mt.fr, 'fr', contacts);
@@ -251,6 +251,10 @@ export class Engine {
       s.lang = it.switchTo;
       if (s.pending?.stage === 'confirm') return { ...(await this.prompt(s)), intent: 'language_switch' };
       return { kind: { kind: 'language_switched' }, status: 'answered', intent: 'language_switch' };
+    }
+
+    if (it.asksLanguage && !it.switchTo) {
+      return { kind: { kind: 'which_language' }, status: 'needs_clarification', intent: 'language_switch' };
     }
 
     const p = s.pending;

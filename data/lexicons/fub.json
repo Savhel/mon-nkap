@@ -120,5 +120,33 @@
     "intention": "help"
    }
   ]
+ },
+ "observed": {
+  "source": "data/audio/fub/demandes/labels.csv",
+  "intents": {
+   "balance": [
+    "dallah noy loutine",
+    "mari dallah noy"
+   ],
+   "fees": [
+    "be ta a ta"
+   ],
+   "history": [
+    "tchede dje a yerbi be dje be yerbine"
+   ],
+   "withdraw": [
+    "ittougo boro"
+   ],
+   "explain_term": [
+    "do ba wigonoy"
+   ]
+  },
+  "deny": [
+   "mi yida yerbougo",
+   "mi yiɗaa yarɓugo"
+  ],
+  "language": [
+   "yetche doum be wolde am"
+  ]
  }
 }

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { Engine } from '../src/core/engine.ts';
 import { MockBackend } from '../src/backend/mock.ts';
 import { UssdChannel, USSD_MAX } from '../src/channels/ussd.ts';
+import { loadPack, setPack } from '../src/linguistics/pack.ts';
 import { SmsChannel } from '../src/channels/sms.ts';
 
 let backend: MockBackend, engine: Engine, ussd: UssdChannel, sms: SmsChannel;
@@ -118,4 +119,20 @@ test('Cohérence multicanale : la même demande donne la même intention et les 
     assert.equal(r.status, web.status);
   }
   assert.deepEqual(new Set([web.channel, mob.channel, s.channel, u.channel]), new Set(['web', 'mobile', 'sms', 'ussd']));
+});
+
+test('USSD : une contribution relue localise le menu dès que le pack est chargé', async (t) => {
+  const previous = loadPack('bas');
+  t.after(() => setPack('bas', previous));
+  setPack('bas', {
+    schema: 'ct-langpack.v1', lang: 'bas', generatedAt: '2026-11-26', source: 'test',
+    numbers: [], concepts: {}, utterances: [], definitions: {}, rejected: [],
+    responses: {
+      menu_transfer: { text: 'Transfert local', author: 'auteur de test', reviewer: 'relecteur de test', validated: true },
+    },
+  });
+  const { screens } = await dial('bas-menu', ['8']);
+  assert.match(screens[0], /Basaa \(mixte\)/);
+  assert.match(screens[1], /2\. Transfert local/);
+  assert.ok(screens[1].length - 4 <= USSD_MAX);
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { extractAmounts, extractPhones, formatFcfa } from '../src/core/amounts.ts';
+import { extractAmounts, extractPhones, formatFcfa, normalizeSpokenPhones } from '../src/core/amounts.ts';
 
 const v = (t: string) => extractAmounts(t).map((a) => a.value);
 
@@ -46,4 +46,19 @@ test("après des chiffres, seul un multiplicateur prolonge le montant", () => {
 test('formatage FCFA', () => {
   assert.equal(formatFcfa(150000, 'fr'), '150 000 FCFA');
   assert.equal(formatFcfa(150000, 'en'), '150,000 FCFA');
+});
+
+test('une dictée complète donne le numéro sans altérer le montant en lettres', () => {
+  const text = normalizeSpokenPhones('a wan send twenty five thousand for six five five, seven seven, eight eight, nine nine');
+  assert.deepEqual(extractPhones(text), ['655778899']);
+  assert.deepEqual(v(text), [25000]);
+  const withCountry = normalizeSpokenPhones('deux trois sept six cinq cinq sept sept huit huit neuf neuf');
+  assert.deepEqual(extractPhones(withCountry), ['655778899']);
+});
+
+test('un numéro dicté incomplet ou une longue suite ne donnent jamais un numéro tronqué', () => {
+  const text = normalizeSpokenPhones('envoie 5000 à six cinq cinq sept sept huit huit neuf');
+  assert.deepEqual(extractPhones(text), []);
+  assert.deepEqual(v(text), [5000]);
+  assert.deepEqual(extractPhones('1655778899'), []);
 });
