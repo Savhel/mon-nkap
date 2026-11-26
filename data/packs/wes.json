@@ -1,12 +1,1265 @@
 {
  "schema": "ct-langpack.v1",
  "lang": "wes",
- "generatedAt": "2026-11-24T01:17:37.302Z",
+ "generatedAt": "2026-11-26T14:28:07.421Z",
  "source": "collecte/wes",
- "numbers": [],
- "concepts": {},
- "utterances": [],
- "responses": {},
- "definitions": {},
+ "numbers": [
+  {
+   "value": 1,
+   "text": "one",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 2,
+   "text": "two",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 3,
+   "text": "three",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 4,
+   "text": "four",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 5,
+   "text": "five",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 6,
+   "text": "six",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 7,
+   "text": "seven",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 8,
+   "text": "eight",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 9,
+   "text": "nine",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 10,
+   "text": "ten",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 11,
+   "text": "eleven",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 12,
+   "text": "twelf",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 15,
+   "text": "fifteen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 20,
+   "text": "twenty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 25,
+   "text": "twenty five",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 30,
+   "text": "thirty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 40,
+   "text": "forty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 50,
+   "text": "fifty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 60,
+   "text": "sixty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 70,
+   "text": "seventy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 80,
+   "text": "eighty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 90,
+   "text": "ninety",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 100,
+   "text": "won hundred",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 200,
+   "text": "two hundred",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 300,
+   "text": "three hundred",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 500,
+   "text": "five hundred",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 750,
+   "text": "seven fifty",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 1000,
+   "text": "one tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 1000,
+   "text": "one ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 1500,
+   "text": "one five",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 2000,
+   "text": "two tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 2000,
+   "text": "two ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 2500,
+   "text": "two five",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 3000,
+   "text": "three tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 3000,
+   "text": "three ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 5000,
+   "text": "five tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 5000,
+   "text": "five ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 7500,
+   "text": "seven five",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 10000,
+   "text": "ten tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 10000,
+   "text": "ten ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 12500,
+   "text": "twelve five",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 15000,
+   "text": "fifteen tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 15000,
+   "text": "fifteen ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 20000,
+   "text": "twenty tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 20000,
+   "text": "twenty ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 25000,
+   "text": "twenty five tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 25000,
+   "text": "twenty five ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 50000,
+   "text": "fifty tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 50000,
+   "text": "fifty ké",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 100000,
+   "text": "won hundred tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 150000,
+   "text": "won hundred and fifty tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 200000,
+   "text": "two hundred tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 250000,
+   "text": "two hundred and fifty tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 500000,
+   "text": "five hundred tasen",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 1000000,
+   "text": "one million",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ ],
+ "concepts": {
+  "money": [
+   {
+    "text": "a get mony",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "account": [
+   {
+    "text": "ma bank account",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "Mobile mony",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "balance": [
+   {
+    "text": "mony wey remain inside ma account",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "send": [
+   {
+    "text": "send",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "receive": [
+   {
+    "text": "receive",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "fees": [
+   {
+    "text": "fees",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "cost": [
+   {
+    "text": "na how mosh",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "how_much": [
+   {
+    "text": "how mosh",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "history": [
+   {
+    "text": "last transactions",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "airtime": [
+   {
+    "text": "a wan buy credit",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "bill": [
+   {
+    "text": "bill",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "electricity": [
+   {
+    "text": "light",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "water": [
+   {
+    "text": "wata",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "pay": [
+   {
+    "text": "pay",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "withdraw": [
+   {
+    "text": "withdraw",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "yes": [
+   {
+    "text": "yes",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "yeah",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "a don hear",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "okay",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "no problem",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "no": [
+   {
+    "text": "no",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "confirm": [
+   {
+    "text": "okay no problem",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "cancel": [
+   {
+    "text": "cancel",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "leave am",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "correction": [
+   {
+    "text": "no a be wan tok say",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "no instead",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "to": [
+   {
+    "text": "a wan send mony for",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "my": [
+   {
+    "text": "ma",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "number": [
+   {
+    "text": "numba",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "pin": [
+   {
+    "text": "pin",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "help": [
+   {
+    "text": "helep me",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "a no di undastand",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "hello": [
+   {
+    "text": "morning",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "goo morning",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "thanks": [
+   {
+    "text": "thank you",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "what_is": [
+   {
+    "text": "na weti",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   },
+   {
+    "text": "ei mean say weti",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "speak_language": [
+   {
+    "text": "tok for me for…",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ]
+ },
+ "utterances": [
+  {
+   "situation": "bal1",
+   "intent": "CONSULT_BALANCE",
+   "text": "a wan know how much still remain inside ma account",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "bal2",
+   "intent": "CONSULT_BALANCE",
+   "text": "a wan know ma balance",
+   "expect": {},
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr1",
+   "intent": "TRANSFER_MONEY",
+   "text": "a wan send 5 000 FCFA for Marie",
+   "expect": {
+    "amount": 5000,
+    "beneficiary": "Marie"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr2",
+   "intent": "TRANSFER_MONEY",
+   "text": "a wan send twenty five tasen for Aminatou",
+   "expect": {
+    "amount": 25000,
+    "beneficiary": "Aminatou"
+   },
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr3",
+   "intent": "TRANSFER_MONEY",
+   "text": "a wan send mony for Paul",
+   "expect": {
+    "beneficiary": "Paul"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr4",
+   "intent": "TRANSFER_MONEY",
+   "text": "a wan send 150 000 FCFA for 655 77 88 99 (six five five, seven seven, eight eight, nine nine)",
+   "expect": {
+    "amount": 150000,
+    "phone": "655778899"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "fee1",
+   "intent": "CHECK_FEES",
+   "text": "fees for send 20 000 FCFA na how much",
+   "expect": {
+    "amount": 20000
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "fee2",
+   "intent": "CHECK_FEES",
+   "text": "dey di cut me how much when a di send mony",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "his1",
+   "intent": "VIEW_HISTORY",
+   "text": "a wan see ma last transactions",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "air1",
+   "intent": "BUY_AIRTIME",
+   "text": "a wan credit for 1 000 FCFA",
+   "expect": {
+    "amount": 1000
+   },
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "bill1",
+   "intent": "PAY_BILL",
+   "text": "a wan pay light bill for 12 500 FCFA",
+   "expect": {
+    "amount": 12500,
+    "biller": "ENEO"
+   },
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "wd1",
+   "intent": "WITHDRAW_MONEY",
+   "text": "a wan withdraw 10 000 FCFA for machine",
+   "expect": {
+    "amount": 10000
+   },
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "cor1",
+   "intent": "CORRECT",
+   "text": "no, a wan send na 3 000 FCFA",
+   "expect": {
+    "amount": 3000
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "cor2",
+   "intent": "CORRECT",
+   "text": "no, a wan send for Marie",
+   "expect": {
+    "beneficiary": "Marie"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "yes1",
+   "intent": "CONFIRM",
+   "text": "yes",
+   "expect": {},
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "no1",
+   "intent": "CANCEL",
+   "text": "no, a wan cancel",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "amb1",
+   "intent": "TRANSFER_MONEY",
+   "text": "a wan send mony",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "term1",
+   "intent": "EXPLAIN_TERM",
+   "text": "fees na weti",
+   "expect": {
+    "term": "fees"
+   },
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "term2",
+   "intent": "EXPLAIN_TERM",
+   "text": "balance na weti",
+   "expect": {
+    "term": "balance"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "lang1",
+   "intent": "SWITCH_LANGUAGE",
+   "text": "tok for me for my contry tok",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "mix1",
+   "intent": "TRANSFER_MONEY",
+   "text": "je veux send 2 000 FCFA for Paul",
+   "expect": {
+    "amount": 2000,
+    "beneficiary": "Paul"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "greet1",
+   "intent": "GREETING",
+   "text": "morning",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "greet1",
+   "intent": "GREETING",
+   "text": "afternoon",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "greet1",
+   "intent": "GREETING",
+   "text": "evening",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ ],
+ "responses": {
+  "balance": {
+   "text": "ya balance na {solde}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "fee_quote": {
+   "text": "to send {montant}, the fees na {frais}.they go remove {total} for ya account",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_amount": {
+   "text": "you wan send how much ?",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_amount_to": {
+   "text": "you wan send how much for {nom} ?",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_beneficiary": {
+   "text": "you wan send {montant} for who ? Give one numba or one name",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_which": {
+   "text": "plenty people them get this name. You wan send am for who ?",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_intent": {
+   "text": "a no di undastand. You wan see ya balance, send mony, know the fees or see ya last transaction ?",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "confirm_transfer": {
+   "text": "you wan send {montant} for {nom} {numero}. Fees : {frais}. Total : {total}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "corrected": {
+   "text": "they don fix am",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "transfer_done": {
+   "text": "succesfull transfer : you don send {montant} for {nom}.Reference {reference}. New balance {solde}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "confirm_airtime": {
+   "text": "you wan send credit for {montant} for this numba {numero}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "airtime_done": {
+   "text": "you don send credit for {montant} for {numero} your balance na {solde}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "confirm_bill": {
+   "text": "Pay {fournisseur} bill for {montant} the fees na {frais} and the total na {total}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "bill_done": {
+   "text": "You don pay {fournisseur} bill for {montant} your new balance na {solde}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "confirm_withdraw": {
+   "text": "you wan remove {montant} fees {frais} and the total na {total} You confirm am",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "history_intro": {
+   "text": "ya last transactions",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_sent": {
+   "text": "sent",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_received": {
+   "text": "received",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_airtime": {
+   "text": "credit",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_bill": {
+   "text": "bill",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_withdraw": {
+   "text": "Withdraw",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "cancelled": {
+   "text": "dey don cancel the transaction. Dey no send no mony",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "language_switched": {
+   "text": "okay. We continue for {langue}",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "help": {
+   "text": "a fit : give ya balance, send money, explain the fees, show the last transactions, buy credit, pay bill",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "greeting": {
+   "text": "morning. You wan do weti ? Balance, transfer, fees or last transaction",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "not_understood": {
+   "text": "a no di undastand. You fit tok am for anoda way ?",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "which_language": {
+   "text": "a no di undastand. You fit tok for anoda language ?",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "backend_error": {
+   "text": "the service no di work for now. Dey nova do any transaction. Try again",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_confirm": {
+   "text": "Confirm",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_cancel": {
+   "text": "Cancel",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_balance": {
+   "text": "Balance",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_transfer": {
+   "text": "Send money",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_fees": {
+   "text": "Fees",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_history": {
+   "text": "Last transactions",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_airtime": {
+   "text": "Credit",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_bill": {
+   "text": "Settle Bill",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_withdraw": {
+   "text": "Withdraw",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_language": {
+   "text": "Language",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_more": {
+   "text": "More",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_free_text": {
+   "text": "write ya demand",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ },
+ "definitions": {
+  "fees": {
+   "text": "fees na money wey dey di cut am when you  send money for another person or when you wan remove money from ya account",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "balance": {
+   "text": "Balance na money wey remain insicde ya account",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "transfer": {
+   "text": "Transfer na when you send money from ya account for another person ei account",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "beneficiary": {
+   "text": "beneficiary na person wey di receive the money. you get for check yi name and ei numba",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "airtime": {
+   "text": "Dey di use credit for call person ,send message or for settle bill",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "bill": {
+   "text": "bill na money wey you pay because you  don use some services like wata,light",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "history": {
+   "text": "last transactions na the list of all ya transactions dem",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "pin": {
+   "text": "Pin na ya secret code; No ever give am for some person even for agent",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "limit": {
+   "text": "limit na the highest amount you fit send for one day",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "withdraw": {
+   "text": "withdraw mean say you di remove money from ya account",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ },
  "rejected": []
 }
