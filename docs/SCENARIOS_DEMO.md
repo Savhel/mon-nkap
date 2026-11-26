@@ -9,10 +9,10 @@ et `/tableau` (onglet Journal) pour montrer l'interprétation de chaque requête
 
 ## Parcours jury en 90 secondes
 
-1. Ouvrir `/mobile`, `/banque`, `/canaux` et `/tableau` sur le même serveur. Choisir **Fulfulde**.
+1. Sur `/`, ouvrir **Préparer un essai** et choisir **Fulfulde**. L’accueil génère un identifiant partagé par ses liens vers les trois canaux et les reçus.
 2. Demander au jury un montant entre **2 000 et 10 000 FCFA** et le saisir dans « a yidi yerbinego [montant] FCFA ha Marie na » (formulation de collecte, brouillon). Si le jury parle, lui laisser corriger la transcription, appuyer sur **Envoyer**, puis vérifier le récapitulatif avant **Confirmer**.
 3. Corriger avec « non plutôt [nouveau montant] FCFA ». Vérifier le numéro **655778899**, les frais et le total, puis confirmer. Sur USSD, choisir la langue avec **5**, entrer une demande libre ou choisir **2** pour un transfert guidé. Suivre **98** si l’écran propose une suite et **1** pour confirmer. **0** revient au menu depuis le dialogue. Une session expire après deux minutes d’inactivité.
-4. Rejouer l’opération corrigée sur un deuxième canal. Dans **Comparer les canaux**, montrer le montant, les frais, le total et le bénéficiaire identiques, avec une référence distincte par transfert et la durée de chaque confirmation. L’onglet **Journal** montre aussi les tours de clarification et de correction.
+4. Revenir à l’accueil de l’essai, cocher **Rejouer directement le montant corrigé** et ouvrir un deuxième canal. Depuis **Voir les reçus de cet essai**, le tableau filtre les opérations liées à cet identifiant. Le téléchargement fournit les reçus exécutés sous forme JSON. Dans **Comparer les canaux**, montrer le montant, les frais, le total et le bénéficiaire identiques, avec une référence distincte par transfert et la durée de chaque confirmation. L’onglet **Journal** montre aussi les tours de clarification et de correction.
 5. Pour une explication financière à l’oral, demander la définition des frais. Le bouton de lecture utilise un clip complet lorsqu’il existe. Le récapitulatif reste visible pour tous les montants, y compris si aucun enregistrement ne couvre une réponse.
 
 `node --test tests/finale.test.ts tests/safinum.test.ts` vérifie les transferts via les endpoints locaux,

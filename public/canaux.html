@@ -83,6 +83,7 @@
 <main>
   <section class="card" id="ussd">
     <h2>USSD <span class="tag">*126# · écran 182 caractères</span></h2>
+    <p class="notice" id="ussd-guide" hidden></p>
     <div class="phone">
       <div class="screen" id="screen" role="status">Composez *126# pour commencer.</div>
       <div class="ussdin"><input id="ukey" aria-label="Choix ou demande USSD" placeholder="Chiffre ou demande"><button id="usend">OK</button></div>
@@ -117,13 +118,22 @@
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const rnd = () => Math.random().toString(36).slice(2, 8);
+const demo = new URLSearchParams(location.search);
+const trial = demo.get('trial');
 let ussd, phone, web;
+const juryLanguages = { fr: '1', en: '2', ewo: '3', dua: '4', fub: '5', wes: '6' };
 function fresh() {
   ussd = { id: 'sim-' + rnd(), keys: [], open: false };
   phone = '+2376' + String(Math.floor(Math.random() * 1e8)).padStart(8, '0');
   web = 'web-' + rnd();
   $('smsnum').textContent = phone;
   $('screen').textContent = 'Composez *126# pour commencer.';
+  const guide = $('ussd-guide');
+  const key = juryLanguages[demo.get('lang')];
+  const draft = demo.get('draft')?.slice(0, 160);
+  guide.hidden = !trial || !key || !draft;
+  if (!guide.hidden) guide.textContent = `Composez *126#, choisissez la langue avec ${key}, puis saisissez votre demande. L’exemple est prérempli.`;
+  $('ukey').value = draft || '';
   $('thread').innerHTML = ''; $('web').innerHTML = ''; $('verdict').textContent = '';
 }
 const post = async (path, data) => {
@@ -135,8 +145,11 @@ const post = async (path, data) => {
 async function ussdSend(key) {
   if (!ussd.open) { ussd = { id: 'sim-' + rnd(), keys: [], open: true }; }
   else ussd.keys.push(key);
-  const res = await post('/ussd', { sessionId: ussd.id, phoneNumber: phone, serviceCode: '*126#', text: ussd.keys.join('*') });
+  const res = await post('/ussd', { sessionId: ussd.id, phoneNumber: phone, serviceCode: '*126#', text: ussd.keys.join('*'), trial });
   const end = res.startsWith('END');
+  if (ussd.keys.length === 1 && ussd.keys[0] === juryLanguages[demo.get('lang')] && demo.get('draft')) {
+    $('ukey').value = demo.get('draft').slice(0, 160);
+  }
   $('screen').innerHTML = esc(res.slice(4)) + (end ? '<span class="end">— Session terminée —</span>' : '');
   if (end) ussd.open = false;
   refreshLog();

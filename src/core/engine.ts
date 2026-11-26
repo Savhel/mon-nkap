@@ -37,7 +37,11 @@ interface Pending {
 
 interface Session { id: string; lang: string; accountId: string; pending?: Pending; turns: number }
 
-export interface EngineRequest { sessionId: string; channel: Channel; text: string; lang?: string; accountId?: string; input?: 'text' | 'voice' | 'dtmf'; institution?: string }
+export function juryTrial(value: unknown): string | undefined {
+  return typeof value === 'string' && /^[a-f0-9]{12}$/.test(value) ? value : undefined;
+}
+
+export interface EngineRequest { sessionId: string; channel: Channel; text: string; lang?: string; accountId?: string; input?: 'text' | 'voice' | 'dtmf'; institution?: string; trial?: string }
 
 /**
  * Clé de session commune à tous les canaux pour un même utilisateur (numéro de téléphone camerounais, 9 chiffres) :
@@ -49,6 +53,7 @@ export function userSession(phone: string): string | null {
 }
 
 export interface EngineResult {
+  trial?: string;
   institution: string;
   sessionId: string;
   channel: Channel;
@@ -88,13 +93,13 @@ export class Engine {
    * Confirmation par jeton (bouton « Confirmer » d'une application bancaire) : n'exécute que si le jeton est
    * celui de l'opération actuellement présentée et n'a pas expiré. Un jeton déjà utilisé ne vaut plus rien.
    */
-  async confirmWithToken(sessionId: string, token: string, channel: Channel, institution?: string): Promise<EngineResult | { error: string }> {
+  async confirmWithToken(sessionId: string, token: string, channel: Channel, institution?: string, trial?: string): Promise<EngineResult | { error: string }> {
     const key = this.sessionKey(sessionId, institution);
     return this.inOrder<EngineResult | { error: string }>(key, () => {
       const p = this.sessions.get(key)?.pending;
       if (!p || p.stage !== 'confirm' || p.token !== token) return Promise.resolve({ error: 'jeton_invalide' });
       if (Date.now() > (p.expires ?? 0)) return Promise.resolve({ error: 'jeton_expire' });
-      return this.handleTurn({ sessionId, channel, text: '1', input: 'dtmf', institution });
+      return this.handleTurn({ sessionId, channel, text: '1', input: 'dtmf', institution, trial });
     });
   }
 
@@ -206,13 +211,13 @@ export class Engine {
       evidence: it.matched, operation: op ? OPS[op] : null, resources: pack ? { [`pack:${s.lang}`]: pack.generatedAt } : {},
     });
     const result: EngineResult = {
-      institution: req.institution ?? 'local', sessionId: s.id, channel: req.channel, lang: s.lang, request: req.text, intent: out.intent, params, status: out.status,
+      ...(req.trial ? { trial: req.trial } : {}), institution: req.institution ?? 'local', sessionId: s.id, channel: req.channel, lang: s.lang, request: req.text, intent: out.intent, params, status: out.status,
       reply, transaction: out.tx, latencyMs: Math.round(performance.now() - t0), errors,
       understanding: { matched: it.matched, confidence, ...via, ...(detected ? { detectedLanguage: detected } : {}) }, canonical, at: new Date().toISOString(),
     };
     if (this.audit && op && ['executed', 'cancelled', 'failed'].includes(out.status) && out.intent !== null) {
       this.audit.append({
-        institution: req.institution ?? 'local', sessionId: s.id, channel: req.channel, language: s.lang, operation: canonical.operation ?? OPS[op],
+        ...(req.trial ? { trial: req.trial } : {}), institution: req.institution ?? 'local', sessionId: s.id, channel: req.channel, language: s.lang, operation: canonical.operation ?? OPS[op],
         act: canonical.act, status: out.status, amount: canonical.entities.amount, fee: canonical.entities.fee,
         beneficiary: canonical.entities.beneficiary?.phone ?? canonical.entities.beneficiary?.name ?? canonical.entities.biller, reference: canonical.entities.reference,
       });
@@ -240,7 +245,10 @@ export class Engine {
       // 2a. Choix entre plusieurs bénéficiaires (chiffre au clavier ou nom).
       if (p.stage === 'choose' && p.options) {
         const digit = raw.trim().match(/^\d$/)?.[0];
-        const chosen = digit ? p.options[Number(digit) - 1] : it.beneficiaryCandidates.length === 1 ? it.beneficiaryCandidates[0] : undefined;
+        const matchingOptions = p.options.filter((option) => it.phone
+          ? option.phone === it.phone
+          : !it.phones.length && it.beneficiaryCandidates.some((candidate) => candidate.phone === option.phone));
+        const chosen = digit ? p.options[Number(digit) - 1] : matchingOptions.length === 1 ? matchingOptions[0] : undefined;
         if (chosen) { p.beneficiary = { name: chosen.name, phone: chosen.phone }; p.options = undefined; p.stage = 'collect'; return { ...(await this.advance(s)), intent: 'choose' }; }
         if (it.isDeny) return this.cancel(s);
         return { kind: { kind: 'ask_which_beneficiary', options: p.options.map((o) => ({ name: o.name, phone: o.phone })) }, status: 'needs_clarification', intent: 'choose' };
@@ -256,7 +264,7 @@ export class Engine {
         return { kind: { kind: 'ask_amount' }, status: 'needs_clarification', intent: 'correction' };
       }
       const newAmount = it.isCorrection && it.amounts.length > 1 ? it.amounts.at(-1) : it.amounts[0];
-      const newBenef = this.resolveBeneficiary(it, contacts);
+      const newBenef = p.op === 'transfer' || p.op === 'airtime' ? this.resolveBeneficiary(it, contacts) : { kind: 'none' as const };
       const changes = (newAmount !== undefined && newAmount !== p.amount) || (newBenef.kind === 'one' && newBenef.value.phone !== p.beneficiary?.phone) || newBenef.kind === 'many';
       const otherIntent = it.intent && it.intent !== (p.op === 'bill' ? 'bill_payment' : p.op) && !['greeting', 'help'].includes(it.intent) && !changes;
 
@@ -265,7 +273,7 @@ export class Engine {
         const corrected: 'amount' | 'beneficiary' = newAmount !== undefined && newAmount !== p.amount ? 'amount' : 'beneficiary';
         if (newAmount !== undefined) p.amount = newAmount;
         if (newBenef.kind === 'one') p.beneficiary = newBenef.value;
-        if (newBenef.kind === 'many') { p.options = newBenef.options; p.stage = 'choose'; return { kind: { kind: 'ask_which_beneficiary', options: newBenef.options.map((o) => ({ name: o.name, phone: o.phone })) }, status: 'needs_clarification', intent: 'correction' }; }
+        if (newBenef.kind === 'many') { p.token = undefined; p.options = newBenef.options; p.stage = 'choose'; return { kind: { kind: 'ask_which_beneficiary', options: newBenef.options.map((o) => ({ name: o.name, phone: o.phone })) }, status: 'needs_clarification', intent: 'correction' }; }
         const wasConfirm = p.stage === 'confirm';
         const r = await this.advance(s, wasConfirm ? corrected : undefined);
         return { ...r, intent: wasConfirm ? 'correction' : r.intent };
@@ -309,7 +317,15 @@ export class Engine {
         const op = it.intent === 'bill_payment' ? 'bill' : it.intent;
         if (it.amounts.length > 1 && !it.isCorrection) return { kind: { kind: 'ask_amount' }, status: 'needs_clarification', intent: it.intent };
         s.pending = { op, stage: 'collect', amount: it.isCorrection && it.amounts.length > 1 ? it.amounts.at(-1) : it.amounts[0], biller: it.biller };
-        if (op === 'airtime') s.pending.beneficiary = { name: it.phone ?? 'mon numéro', phone: it.phone ?? 'mon numéro' };
+        if (op === 'airtime') {
+          const recipient = this.resolveBeneficiary(it, contacts);
+          if (recipient.kind === 'many') {
+            s.pending.options = recipient.options;
+            s.pending.stage = 'choose';
+            return { kind: { kind: 'ask_which_beneficiary', options: recipient.options }, status: 'needs_clarification', intent: 'airtime' };
+          }
+          s.pending.beneficiary = recipient.kind === 'one' ? recipient.value : { name: 'mon numéro', phone: 'mon numéro' };
+        }
         if (op === 'transfer') {
           const b = this.resolveBeneficiary(it, contacts);
           if (b.kind === 'one') s.pending.beneficiary = b.value;
@@ -324,6 +340,10 @@ export class Engine {
   }
 
   private resolveBeneficiary(it: Interpretation, contacts: Contact[]): { kind: 'none' } | { kind: 'one'; value: { name: string; phone: string } } | { kind: 'many'; options: Contact[] } {
+    if (it.phones.length > 1) {
+      return { kind: 'many', options: it.phones.slice(0, 6).map((phone) =>
+        contacts.find((contact) => contact.phone === phone) ?? { id: phone, name: phone, phone }) };
+    }
     if (it.phone) {
       const c = contacts.find((x) => x.phone === it.phone);
       return { kind: 'one', value: { name: c?.name ?? it.phone, phone: it.phone } };

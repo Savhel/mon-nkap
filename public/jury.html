@@ -29,7 +29,7 @@
         <h1>La banque dans votre langue</h1>
         <p class="jury-intro">Consultez un solde, vérifiez des frais ou préparez un transfert depuis un mobile, le web ou un téléphone à touches.</p>
         <div class="jury-links">
-          <a class="jury-button jury-primary" href="#canaux">Essayer la démo <span aria-hidden="true">↓</span></a>
+          <a class="jury-button jury-primary" href="#essai">Préparer un essai <span aria-hidden="true">↓</span></a>
           <a class="jury-button jury-secondary" href="/tableau">Comparer les opérations <span aria-hidden="true">↗</span></a>
         </div>
       </div>
@@ -46,18 +46,40 @@
     </div>
   </section>
   <div class="jury-wrap jury-main">
+    <section id="essai" aria-labelledby="titre-essai" class="jury-trial">
+      <div class="jury-section-head"><h2 id="titre-essai">Préparer un transfert</h2><a id="trial-dashboard" href="/tableau">Voir les reçus de cet essai ↗</a></div>
+      <form id="trial-form">
+        <label>Langue <select name="lang">
+          <option value="fub">Fulfulde</option><option value="ewo">Ewondo</option><option value="dua">Duala</option><option value="fr">Français</option>
+        </select></label>
+        <label>Bénéficiaire fictif <select name="recipient">
+          <option value="Marie">Marie Ngo Bassa</option><option value="Aminatou">Aminatou Bello</option>
+        </select></label>
+        <label>Montant de départ (FCFA) <input id="trial-amount" name="amount" type="number" inputmode="numeric" value="5000" min="1" max="50000" step="1" required></label>
+        <label>Montant corrigé (FCFA) <input name="corrected" type="number" inputmode="numeric" value="3600" min="1" max="50000" step="1" required></label>
+      </form>
+      <label class="jury-replay"><input id="trial-replay" type="checkbox"> Rejouer directement le montant corrigé sur le canal suivant</label>
+      <div class="jury-preview">
+        <p><strong id="trial-request-label">Demande à relire</strong><output id="trial-request" for="trial-amount"></output></p>
+        <p><strong>Correction à saisir</strong><output id="trial-correction" for="trial-amount"></output></p>
+      </div>
+      <div class="jury-trial-actions">
+        <span id="trial-reference" class="jury-muted"></span>
+        <button id="trial-new" type="button">Nouvel essai</button>
+      </div>
+    </section>
     <section id="canaux" aria-labelledby="titre-canaux">
       <div class="jury-section-head"><h2 id="titre-canaux">Choisissez votre canal</h2><a href="/canaux">SMS et serveur vocal ↗</a></div>
       <div class="jury-channels">
-        <a class="jury-channel" href="/mobile?lang=fub">
+        <a class="jury-channel" href="/mobile?lang=fub" id="trial-mobile">
           <span aria-hidden="true" class="jury-channel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10 18h4"/></svg></span>
           <strong>Application mobile</strong><span>Texte, micro et récapitulatif</span><span aria-hidden="true" class="jury-arrow">↗</span>
         </a>
-        <a class="jury-channel" href="/banque?lang=fub">
+        <a class="jury-channel" href="/banque?lang=fub" id="trial-web">
           <span aria-hidden="true" class="jury-channel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65"><rect x="2.5" y="4" width="19" height="16" rx="2.5"/><path d="M2.5 9h19M6 6.5h1m2 0h1"/></svg></span>
           <strong>Banque web</strong><span>Assistant intégré à l’espace client</span><span aria-hidden="true" class="jury-arrow">↗</span>
         </a>
-        <a class="jury-channel" href="/canaux#ussd">
+        <a class="jury-channel" href="/canaux#ussd" id="trial-ussd">
           <span aria-hidden="true" class="jury-channel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M8 9h8M8 12.5h1m2.5 0h1m2.5 0h1M8 16h1m2.5 0h1m2.5 0h1"/></svg></span>
           <strong>Simulateur USSD</strong><span>Menus au clavier avec <kbd>*126#</kbd></span><span aria-hidden="true" class="jury-arrow">↗</span>
         </a>

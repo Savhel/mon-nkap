@@ -8,6 +8,57 @@
     parent.append(element);
     return element;
   };
+  const form = document.getElementById('trial-form');
+  const replay = document.getElementById('trial-replay');
+  const paths = { mobile: '/mobile', web: '/banque', ussd: '/canaux' };
+  const phrases = {
+    fub: (amount, name) => `a yidi yerbinego ${amount} FCFA ha ${name} na`,
+    ewo: (amount, name) => `lóm mɔ́nə ${amount} FCFA à ${name}`,
+    dua: (amount, name) => `lóma mɔ́ni ${amount} FCFA à ${name}`,
+    fr: (amount, name) => `Envoie ${amount} FCFA à ${name}`,
+  };
+  const params = new URLSearchParams(location.search);
+  const makeTrial = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), (byte) => byte.toString(16).padStart(2, '0')).join('');
+  let trial = /^[a-f0-9]{12}$/.test(params.get('trial') || '') ? params.get('trial') : makeTrial();
+
+  function updateTrial() {
+    const fields = new FormData(form);
+    const values = { lang: fields.get('lang'), recipient: fields.get('recipient'), amount: fields.get('amount'), corrected: fields.get('corrected') };
+    const valid = form.checkValidity();
+    const value = replay.checked ? values.corrected : values.amount;
+    const draft = valid ? phrases[values.lang](value, values.recipient) : '';
+    document.getElementById('trial-request-label').textContent = values.lang === 'fr'
+      ? 'Demande à relire' : 'Exemple du lexique · brouillon';
+    document.getElementById('trial-request').textContent = draft || 'Entrez deux montants entre 1 et 50 000 FCFA.';
+    document.getElementById('trial-correction').textContent = valid ? `Non, plutôt ${values.corrected} FCFA` : '—';
+    document.getElementById('trial-reference').textContent = 'Essai ' + trial.toUpperCase();
+    const home = new URLSearchParams({ trial, ...values, ...(replay.checked ? { replay: '1' } : {}) });
+    history.replaceState(null, '', '?' + home + location.hash);
+    document.getElementById('trial-dashboard').href = '/tableau?' + home;
+    for (const [key, path] of Object.entries(paths)) {
+      const link = document.getElementById('trial-' + key);
+      if (valid) {
+        const query = new URLSearchParams({ lang: values.lang, trial, draft });
+        if (!replay.checked) query.set('correction', `Non, plutôt ${values.corrected} FCFA`);
+        link.href = path + '?' + query + (key === 'ussd' ? '#ussd' : '');
+      } else {
+        link.removeAttribute('href');
+      }
+      link.setAttribute('aria-disabled', String(!valid));
+    }
+  }
+  for (const name of ['lang', 'recipient', 'amount', 'corrected']) {
+    const field = form.elements.namedItem(name);
+    const value = params.get(name);
+    if (value && (field.tagName !== 'SELECT' || [...field.options].some((option) => option.value === value))) field.value = value;
+  }
+  replay.checked = params.get('replay') === '1';
+  form.addEventListener('input', updateTrial);
+  form.addEventListener('submit', (event) => event.preventDefault());
+  replay.addEventListener('change', updateTrial);
+  document.getElementById('trial-new').onclick = () => { trial = makeTrial(); replay.checked = false; updateTrial(); };
+  updateTrial();
+
   client.languages().then((registry) => {
     const table = add(wrapper, 'table');
     const header = add(add(table, 'thead'), 'tr');

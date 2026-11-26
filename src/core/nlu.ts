@@ -30,6 +30,7 @@ export interface Interpretation {
   matched: string[];
   amounts: number[];
   phone?: string;
+  phones: string[];
   beneficiaryCandidates: Contact[];
   beneficiaryText?: string;
   biller?: string;
@@ -142,14 +143,15 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   const numText = numeralizeFor(lang, text);
   const pidginAmount = (lang === 'fr' || lang === 'en') && toks.some((t) => PIDGIN_MULTIPLIERS.has(t));
   const amounts = extractAmounts(pidginAmount ? numeralizeFor('wes', numText) : numText).map((a) => a.value);
-  const phone = extractPhones(text)[0];
+  const phones = [...new Set(extractPhones(text))];
+  const phone = phones.length === 1 ? phones[0] : undefined;
   const { candidates, text: beneficiaryText } = matchContacts(toks, contacts);
   // Fournisseur : mot exact seulement (la tolérance aux fautes faisait de « coûtent » un « courant », donc ENEO).
   const exact = (k: string) => { const p = tokens(k); return toks.some((_, i) => p.every((w, j) => toks[i + j] === w)); };
   const biller = Object.entries(BILLERS).find(([, kws]) => kws.some(exact))?.[0];
 
   // Indices structurels : un montant + un bénéficiaire sans verbe reconnu évoque un transfert.
-  if (!scores.transfer && amounts.length && (candidates.length || phone) && !scores.airtime && !scores.bill_payment) scores.transfer = 0.6;
+  if (!scores.transfer && amounts.length && (candidates.length || phones.length) && !scores.airtime && !scores.bill_payment) scores.transfer = 0.6;
   // "frais" l'emporte sur "transfert" dans "combien coûtent les frais d'un transfert".
   if (scores.fees && scores.transfer) scores.fees += 0.5;
   let term: string | undefined;
@@ -191,5 +193,5 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   const intent = top && top[1] >= 0.5 ? top[0] : null;
   const confidence = !top ? 0 : Math.min(1, top[1] / ((second?.[1] ?? 0) + top[1]));
 
-  return { intent, confidence, scores, matched, amounts, phone, beneficiaryCandidates: candidates, beneficiaryText, biller, term, isConfirm, isDeny, isCorrection, switchTo };
+  return { intent, confidence, scores, matched, amounts, phone, phones, beneficiaryCandidates: candidates, beneficiaryText, biller, term, isConfirm, isDeny, isCorrection, switchTo };
 }

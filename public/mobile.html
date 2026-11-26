@@ -202,7 +202,8 @@
     get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
   };
-  var lang = new URLSearchParams(location.search).get('lang') || store.get('nk-lang') || 'fr';
+  var demo = new URLSearchParams(location.search);
+  var lang = demo.get('lang') || store.get('nk-lang') || 'fr';
   var assistant = null, home = null, languages = [];
 
   // Services de l'accueil : libellé traduit par le serveur (/v1/labels), demande envoyée au moteur.
@@ -318,11 +319,12 @@
     if (assistant) return;
     home = MonNkap.connect(server, { channel: 'mobile', lang: 'fr', sessionId: 'accueil-' + Math.random().toString(36).slice(2, 10) });
     assistant = A.mount($('assistant'), {
-      server: server, channel: 'mobile', lang: lang, bare: true,
+      server: server, channel: 'mobile', lang: lang, bare: true, trial: demo.get('trial'), draft: demo.get('draft'), correction: demo.get('correction'),
       empty: { title: 'Comment puis-je vous aider ?', text: 'Écrivez ou dites votre demande dans votre langue, ou choisissez une action ci-dessous.' },
       onLang: function (code) { applyLang(code, true); },
     });
     renderGrid();
+    if (demo.get('draft')) openChat();
     home.languages().then(function (reg) {
       languages = MonNkap.demoLanguages(reg);
       if (!languages.some(function (l) { return l.code === lang; })) lang = 'fr';

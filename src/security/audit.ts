@@ -10,6 +10,7 @@ export interface AuditEvent {
   at: string;              // ISO 8601
   institution: string;     // identifiant de l'institution (jamais la clé d'API elle-même)
   sessionId: string;
+  trial?: string;
   channel: string;
   language: string;
   operation: string | null;

@@ -14,8 +14,6 @@ import type {
   FeeQuote,
   FinancialBackend,
   OpResult,
-  PendingTransactionHandle,
-  PendingTransactionInput,
   Transaction,
 } from './types.ts';
 
@@ -285,28 +283,26 @@ export class RouterBackend implements FinancialBackend {
   withdraw(accountId: string, amount: number) { return this.current().withdraw(accountId, amount); }
   history(accountId: string, limit: number) { return this.current().history(accountId, limit); }
 
-  createPending(accountId: string, input: PendingTransactionInput): Promise<OpResult<PendingTransactionHandle>> {
-    const b = this.current();
-    if (b.createPending) return b.createPending(accountId, input);
-    return b.quoteFee(accountId, input.op === 'bill' ? 'bill' : input.op, input.amount).then((q) =>
-      q.ok ? { ok: true, value: { id: `local-${Date.now()}`, amount: q.value.amount, fee: q.value.fee, total: q.value.total } } : q,
-    );
+  // Exposer uniquement les capacités du connecteur actif. Pour les autres,
+  // le moteur conserve le devis et appelle le débit direct après confirmation.
+  get createPending(): FinancialBackend['createPending'] {
+    const backend = this.current();
+    return backend.createPending?.bind(backend);
   }
-  updatePending(txId: string, input: PendingTransactionInput): Promise<OpResult<PendingTransactionHandle>> {
-    const b = this.current();
-    if (b.updatePending) return b.updatePending(txId, input);
-    return b.quoteFee('demo', input.op === 'bill' ? 'bill' : input.op, input.amount).then((q) =>
-      q.ok ? { ok: true, value: { id: txId, amount: q.value.amount, fee: q.value.fee, total: q.value.total } } : q,
-    );
+  get updatePending(): FinancialBackend['updatePending'] {
+    const backend = this.current();
+    return backend.updatePending?.bind(backend);
   }
-  confirmPending(txId: string): Promise<OpResult<Transaction>> {
-    const b = this.current();
-    if (b.confirmPending) return b.confirmPending(txId);
-    return Promise.resolve({ ok: false, code: 'backend_error', message: 'confirmPending non supporté sans createPending natif' });
+  get confirmPending(): FinancialBackend['confirmPending'] {
+    const backend = this.current();
+    return backend.confirmPending?.bind(backend);
   }
-  cancelPending(txId: string): Promise<void> {
-    const b = this.current();
-    return b.cancelPending ? b.cancelPending(txId) : Promise.resolve();
+  get reconcilePending(): FinancialBackend['reconcilePending'] {
+    const backend = this.current();
+    return backend.reconcilePending?.bind(backend);
+  }
+  get cancelPending(): FinancialBackend['cancelPending'] {
+    const backend = this.current();
+    return backend.cancelPending?.bind(backend);
   }
 }
-

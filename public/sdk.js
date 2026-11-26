@@ -28,7 +28,7 @@
       setLang: function (l) { lang = l; },
       setApiKey: function (k) { apiKey = k || ''; },
       message: async function (text) {
-        var r = await call('/v1/message', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: session, channel: channel, lang: lang, text: text, userPhone: opts.userPhone }) });
+        var r = await call('/v1/message', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: session, channel: channel, lang: lang, text: text, userPhone: opts.userPhone, trial: opts.trial }) });
         lang = r.lang; // le moteur peut changer de langue en cours de conversation
         return r;
       },
@@ -41,7 +41,7 @@
       },
       /** Confirme l'opération présentée, avec le jeton reçu (result.canonical.confirmationToken). */
       confirm: async function (token) {
-        return call('/v1/confirm', { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': 'confirm-' + token }, body: JSON.stringify({ sessionId: session, token: token, channel: channel, userPhone: opts.userPhone }) });
+        return call('/v1/confirm', { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': 'confirm-' + token }, body: JSON.stringify({ sessionId: session, token: token, channel: channel, userPhone: opts.userPhone, trial: opts.trial }) });
       },
       /** Analyse sans dialogue ni exécution : représentation canonique d'une phrase. */
       analyze: async function (text) {

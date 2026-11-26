@@ -106,7 +106,7 @@ export class UssdChannel {
   }
 
   /** Traite une requête de la passerelle et renvoie la réponse « CON … » ou « END … ». */
-  async handle(p: { sessionId: string; phoneNumber: string; text: string }): Promise<{ response: string; result?: EngineResult }> {
+  async handle(p: { sessionId: string; phoneNumber: string; text: string; trial?: string }): Promise<{ response: string; result?: EngineResult }> {
     const inputs = p.text === '' ? [] : p.text.split('*');
     const key = JSON.stringify([p.phoneNumber, p.sessionId]);
     const engineSid = (this.continuity && userSession(p.phoneNumber)) || `ussd:${key}`;
@@ -155,14 +155,14 @@ export class UssdChannel {
       if (m) utterance = m.utterance;
       st.stage = 'engine';
     } else if (last === '0') {
-      await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: 'annuler', input: 'dtmf' });
+      await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: 'annuler', input: 'dtmf', trial: p.trial });
       st.stage = 'main'; st.pages = undefined; st.token = undefined;
       return screen(`CON ${this.mainMenu(lang)}`);
     }
 
     const r = last === '1' && st.token
-      ? await this.engine.confirmWithToken(engineSid, st.token, 'ussd')
-      : await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: utterance, input: 'dtmf' });
+      ? await this.engine.confirmWithToken(engineSid, st.token, 'ussd', undefined, p.trial)
+      : await this.engine.handle({ sessionId: engineSid, channel: 'ussd', lang, text: utterance, input: 'dtmf', trial: p.trial });
     if ('error' in r) return screen('END Récapitulatif expiré ou modifié. Reprenez la demande.');
     st.token = r.canonical.confirmationToken;
     st.lang = r.lang;

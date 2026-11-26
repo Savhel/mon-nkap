@@ -7,7 +7,8 @@
   var base = me ? new URL(me.src).origin : '';
   var lang = (me && me.dataset.lang) || 'fr';
   var demo = me?.dataset.demoLaunch === 'true';
-  if (demo) lang = new URLSearchParams(location.search).get('lang') || lang;
+  var launch = demo ? new URLSearchParams(location.search) : null;
+  if (launch) lang = launch.get('lang') || lang;
   var apiKey = (me && me.dataset.apiKey) || '';
   function load(tag, attrs) { return new Promise(function (ok, ko) { var e = document.createElement(tag); Object.assign(e, attrs); e.onload = ok; e.onerror = ko; document.head.append(e); }); }
   Promise.all([
@@ -35,7 +36,7 @@
     var content = document.createElement('div'); content.className = 'ctw-body';
     panel.append(head, content);
     document.body.append(panel, btn);
-    window.MonNkapAssistant.mount(content, { server: base, channel: 'web', lang: lang, apiKey: apiKey });
+    window.MonNkapAssistant.mount(content, { server: base, channel: 'web', lang: lang, apiKey: apiKey, trial: launch?.get('trial'), draft: launch?.get('draft'), correction: launch?.get('correction') });
     var opener = btn;
     function show(open, trigger) {
       panel.hidden = !open;
@@ -51,7 +52,7 @@
         trigger.hidden = false;
         trigger.onclick = function () { show(true, trigger); };
       });
-      if (new URLSearchParams(location.search).has('lang')) show(true);
+      if (launch.has('lang')) show(true);
     }
   }).catch(function () { /* le site de la banque continue de fonctionner sans l'assistant */ });
 })();

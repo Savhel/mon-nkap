@@ -54,7 +54,7 @@
 
   function mount(root, opts) {
     opts = opts || {};
-    var ct = g.MonNkap.connect(opts.server || '', { channel: opts.channel || 'web', lang: opts.lang || 'fr', apiKey: opts.apiKey || '' });
+    var ct = g.MonNkap.connect(opts.server || '', { channel: opts.channel || 'web', lang: opts.lang || 'fr', apiKey: opts.apiKey || '', trial: opts.trial });
     var lang = opts.lang || 'fr';
     root.classList.add('ca');
     var langSel = null, info = null;
@@ -70,6 +70,7 @@
     var form = el('form', 'ca-form');
     var mode = el('p', 'ca-mode'); mode.hidden = true; mode.setAttribute('role', 'status');
     var input = el('input', 'ca-input'); input.placeholder = 'Écrivez votre demande…'; input.setAttribute('aria-label', 'Votre demande'); input.autocomplete = 'off';
+    if (opts.draft) input.value = opts.draft.slice(0, 160);
     var mic = el('button', 'ca-mic'); mic.type = 'button'; mic.setAttribute('aria-label', 'Parler'); mic.append(icon('mic', 20));
     var go = el('button', 'ca-send'); go.type = 'submit'; go.setAttribute('aria-label', 'Envoyer'); go.append(icon('arrowUp', 20));
     form.append(input, mic, go);
@@ -227,6 +228,15 @@
         yes.onclick = function () { yes.disabled = no.disabled = true; busy(true); ct.confirm(c.confirmationToken).then(function (x) { busy(false); render(x); }).catch(function (err) { busy(false); bubble('err', 'Confirmation refusée : ' + err.message); }); };
         no.onclick = function () { yes.disabled = no.disabled = true; send('2', native && m[1] ? m[1].label : 'Annuler'); };
         row.append(no, yes); b.append(row);
+        if (opts.trial && opts.correction && c.act !== 'CORRECT') {
+          var correct = el('button', 'ca-listen ca-actions', 'Préparer la correction de l’essai');
+          correct.type = 'button';
+          correct.onclick = function () {
+            input.value = opts.correction.slice(0, 120);
+            input.focus();
+          };
+          b.append(correct);
+        }
       } else if (done && (ent.reference || (r.params && typeof r.params.balance === 'number'))) {
         var t = el('dl', 'ca-receipt');
         if (ent.reference) receiptRow(t, 'Référence', String(ent.reference));

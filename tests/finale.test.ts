@@ -11,14 +11,14 @@ import { Engine, type EngineResult } from '../src/core/engine.ts';
 process.env.CT_ALLOW_DRAFT = '1';
 
 test('Finale : transfert en fulfulde, montant libre, correction, même opération sur mobile, web et USSD', async (t) => {
-  const backend = new MockBackend();
-  const { server, engine } = createApp(new Engine(backend), { auditFile: null, keysFile: null });
+  const { server, engine } = createApp(undefined, { auditFile: null, keysFile: null, connectorsFile: null });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => server.close());
   const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   const post = (path: string, body: object) => fetch(base + path, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
   });
+  const trial = '25af10b15c01';
   const amount = 6200 + Number.parseInt(randomUUID().slice(0, 3), 16) % 1800;
   const correctedAmount = amount - 725;
   const request = `a yidi yerbinego ${amount} FCFA ha Marie na`;
@@ -27,8 +27,8 @@ test('Finale : transfert en fulfulde, montant libre, correction, même opératio
 
   for (const channel of ['mobile', 'web'] as const) {
     const sessionId = `finale-${channel}`;
-    const message = async (text: string) => (await post('/v1/message', { sessionId, channel, text, lang: 'fub' })).json() as Promise<EngineResult>;
-    const confirm = (turn: EngineResult) => post('/v1/confirm', { sessionId, channel, token: turn.canonical.confirmationToken });
+    const message = async (text: string) => (await post('/v1/message', { sessionId, channel, text, lang: 'fub', trial })).json() as Promise<EngineResult>;
+    const confirm = (turn: EngineResult) => post('/v1/confirm', { sessionId, channel, token: turn.canonical.confirmationToken, trial });
     const initial = await message(request);
     assert.equal(initial.status, 'awaiting_confirmation');
     assert.equal(initial.params.amount, amount);
@@ -47,7 +47,7 @@ test('Finale : transfert en fulfulde, montant libre, correction, même opératio
   let text = '';
   const ussd = async (input?: string) => {
     if (input) text += (text ? '*' : '') + input;
-    const response = await post('/ussd', { sessionId: 'finale-ussd', phoneNumber: '670000123', text });
+    const response = await post('/ussd', { sessionId: 'finale-ussd', phoneNumber: '670000123', text, trial });
     assert.equal(response.status, 200);
     const screen = await response.text();
     assert.ok(screen.slice(4).length <= 182, screen);
@@ -72,15 +72,18 @@ test('Finale : transfert en fulfulde, montant libre, correction, même opératio
   assert.equal(receipt.lang, 'fub');
   operations.push(receipt.canonical);
 
-  const fee = backend.fee('transfer', correctedAmount);
+  const fee = 100;
   for (const op of operations) {
     assert.equal(op.operation, 'TRANSFER_MONEY');
     assert.equal(op.entities.amount, correctedAmount);
     assert.equal(op.entities.fee, fee);
     assert.equal(op.entities.beneficiary?.phone, '655778899');
   }
-  const balance = await backend.getBalance('demo');
-  assert.equal(balance.value.balance, 150000 - 3 * (correctedAmount + fee));
+  const balance = await (await post('/v1/message', { sessionId: 'no-trial', channel: 'web', text: 'solde' })).json() as EngineResult;
+  const journal = await (await fetch(base + '/v1/events?trial=' + trial)).json() as EngineResult[];
+  assert.ok(journal.every((event) => event.trial === trial && !event.canonical.confirmationToken));
+  assert.deepEqual(journal.filter((event) => event.status === 'executed').map((event) => event.channel).sort(), ['mobile', 'ussd', 'web']);
+  assert.equal(balance.params.balance, 150000 - 3 * (correctedAmount + fee));
 });
 
 test('Un récapitulatif USSD expire et ne confirme jamais une version modifiée sur web', async (t) => {
@@ -148,4 +151,24 @@ test('Ewondo et duala : le mot de transfert du lexique prépare un récapitulati
     assert.equal(turn.canonical.entities.beneficiary?.phone, '655778899');
     assert.ok(turn.reply.quality === 'draft' || turn.reply.quality === 'fallback');
   }
+});
+
+test('Une correction avec deux numéros annule le premier récapitulatif et demande un choix', async () => {
+  const backend = new MockBackend();
+  const engine = new Engine(backend);
+  const sessionId = 'trial-two-phones';
+  const turn = (text: string) => engine.handle({ sessionId, channel: 'web', text });
+  const original = await turn('envoie 6500 à Marie');
+  assert.equal(original.status, 'awaiting_confirmation');
+  const ambiguous = await turn('non plutôt au 677112233 ou au 655778899');
+  assert.equal(ambiguous.status, 'needs_clarification');
+  assert.equal(ambiguous.canonical.confirmationToken, undefined);
+  assert.equal(ambiguous.reply.menu?.length, 2);
+  assert.deepEqual(await engine.confirmWithToken(sessionId, original.canonical.confirmationToken!, 'web'), { error: 'jeton_invalide' });
+  const chosen = await turn('677112233');
+  assert.equal(chosen.status, 'awaiting_confirmation');
+  assert.equal(chosen.canonical.entities.beneficiary?.phone, '677112233');
+  assert.equal(chosen.canonical.entities.amount, 6500);
+  const balance = await backend.getBalance('demo');
+  assert.equal(balance.value.balance, 150000);
 });

@@ -224,3 +224,10 @@ indique que les deux directions avec le français sont chargées.
 
 `POST /v1/voice?mode=transcribe` transcrit l’audio et renvoie `result: null`. Ce mode n’ouvre
 pas de tour bancaire. Le dialogue commence après la relecture et l’envoi du texte.
+
+### Essai du jury
+
+Les simulateurs locaux peuvent envoyer `trial` sur `/v1/message`, `/v1/confirm` et `/ussd`.
+C’est un identifiant de suivi de 12 caractères hexadécimaux qui apparaît sur les tours associés.
+`GET /v1/events?trial=<identifiant>` filtre les tours avant de limiter la taille du journal. L’identifiant
+sert à comparer les démonstrations. Les sessions et les confirmations gardent leurs contrôles habituels.

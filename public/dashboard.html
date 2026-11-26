@@ -22,6 +22,9 @@
   .kpi b { display:block; font-size:28px; font-weight:600; font-variant-numeric:tabular-nums; } .kpi span { color:var(--muted); font-size:13px; }
   .langblock { margin-bottom:16px; } .langblock h2 { font-size:1rem; margin:0 0 8px; }
   .note { color:var(--muted); }
+  .trial-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; margin-bottom:8px; }
+  .trial-tools a,.trial-tools button { min-height:44px; display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:9px; background:var(--card); color:var(--accent); text-decoration:none; font:inherit; font-weight:650; padding:5px 11px; }
+  .trial-tools button:disabled { opacity:.55; }
   #compare h2 { font-size:clamp(1.2rem,3vw,1.65rem); letter-spacing:-.032em; }
   #compare table { min-width:720px; }
   .tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; }
@@ -47,7 +50,12 @@
 </div></header>
 <main>
   <section id="compare" role="tabpanel">
-    <h2>Dernier transfert exécuté par canal</h2>
+    <h2 id="comparison-title">Dernier transfert exécuté par canal</h2>
+    <div id="trial-tools" class="trial-tools" hidden>
+      <a id="open-trial" href="/#essai">Retour à l’essai</a>
+      <button type="button" id="export-trial" disabled>Télécharger les reçus</button>
+      <a href="/tableau">Voir tous les essais</a>
+    </div>
     <p id="comparison-status" class="note" role="status">En attente du journal…</p>
     <div class="tablewrap"><table><thead><tr><th>Canal</th><th>Langue</th><th>Bénéficiaire</th><th>Montant</th><th>Frais</th><th>Total</th><th>Référence</th><th>Durée de confirmation</th></tr></thead><tbody id="comparison-rows"></tbody></table></div>
   </section>
@@ -99,6 +107,20 @@
     return out.join('\n');
   }
   var Q = { validated: ['validé', 'ok'], draft: ['brouillon', 'warn'], machine: ['trad. auto', 'warn'], fallback: ['repli fr', 'bad'] };
+  var params = new URLSearchParams(location.search);
+  var trial = /^[a-f0-9]{12}$/.test(params.get('trial') || '') ? params.get('trial') : '';
+  var receipts = [];
+  if (trial) {
+    $('#comparison-title').textContent = 'Reçus de l’essai ' + trial.toUpperCase();
+    $('#trial-tools').hidden = false;
+    $('#open-trial').href = '/?' + params + '#essai';
+    $('#export-trial').onclick = function () {
+      var file = new Blob([JSON.stringify({ trial: trial, receipts: receipts }, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(file), link = el('a');
+      link.href = url; link.download = 'mon-nkap-' + trial + '.json';
+      link.click(); setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    };
+  }
   var CHANNELS = { mobile: 'Mobile', web: 'Web', ussd: 'USSD' };
   function compareTransfers(events) {
     var rows = $('#comparison-rows');
@@ -109,6 +131,13 @@
         return e.channel === channel && e.status === 'executed' && e.canonical.operation === 'TRANSFER_MONEY';
       });
     }).filter(Boolean);
+    if (trial) {
+      receipts = events.filter(function (turn) { return turn.status === 'executed' && turn.canonical.operation === 'TRANSFER_MONEY'; })
+        .map(function (turn) {
+          return { at: turn.at, channel: turn.channel, language: turn.lang, durationMs: turn.latencyMs, operation: turn.canonical.operation, entities: turn.canonical.entities };
+        });
+      $('#export-trial').disabled = !receipts.length;
+    }
     latest.forEach(function (turn) {
       var p = turn.canonical.entities, recipient = p.beneficiary || {}, row = el('tr');
       [CHANNELS[turn.channel], turn.lang, [recipient.name, recipient.phone].filter(Boolean).join(' · '),
@@ -142,7 +171,10 @@
       : 'Les derniers transferts diffèrent. Rejouez le même montant et le même bénéficiaire pour vérifier la cohérence.';
   }
   function loadLog() {
-    fetch('/v1/events').then(function (r) { return r.json(); }).then(function (evs) {
+    fetch('/v1/events' + (trial ? '?trial=' + trial : '')).then(function (r) {
+      if (!r.ok) throw new Error('Journal indisponible');
+      return r.json();
+    }).then(function (evs) {
       compareTransfers(evs);
       var tb = $('#rows'); tb.textContent = '';
       evs.forEach(function (e) {
@@ -158,7 +190,7 @@
         tr.append(el('td', 'bad', (e.errors || []).join(' ; ')));
         tb.append(tr);
       });
-    }).catch(function () {});
+    }).catch(function () { $('#comparison-status').textContent = 'Le journal de la démo ne répond pas.'; });
   }
   function loadAudit() {
     fetch('/v1/audit').then(function (r) { return r.json(); }).then(function (a) {

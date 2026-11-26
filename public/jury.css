@@ -65,3 +65,22 @@ a.jury-secondary:hover { background: #ffffff12; }
   .jury-channel-icon { grid-row: span 2; align-self: center; margin: 0; }
   .jury-channel strong { padding-right: 26px; }
 }
+
+.jury-trial { padding: clamp(16px, 4vw, 25px); background: var(--nk-card); border: 1px solid var(--nk-line); border-radius: 19px; }
+.jury-trial form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.jury-trial form label { display: grid; gap: 5px; font-size: .83rem; font-weight: 690; }
+.jury-trial form input, .jury-trial form select { width: 100%; min-height: 44px; min-width: 0; padding: 7px 9px; border: 1px solid var(--nk-line); border-radius: 8px; background: var(--nk-bg); color: var(--nk-ink); font: inherit; }
+.jury-replay { display: flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 44px; font-size: .86rem; }
+.jury-replay input { width: 18px; height: 18px; flex: none; accent-color: var(--nk-secondary); }
+.jury-preview { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
+.jury-preview p { margin: 0; padding: 10px 12px; border: 1px solid var(--nk-line); border-radius: 10px; background: var(--nk-bg); overflow-wrap: anywhere; }
+.jury-preview strong { display: block; color: var(--nk-muted); font-size: .8rem; }
+.jury-preview output { font-size: .94rem; }
+.jury-trial-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; margin-top: 8px; }
+.jury-trial-actions span { margin: 0; }
+.jury-trial-actions button { min-height: 44px; border: 0; background: transparent; padding: 0 8px; color: var(--nk-secondary); font: inherit; font-weight: 700; font-size: .86rem; }
+.jury-channel[aria-disabled="true"] { opacity: .5; }
+@media (max-width: 740px) {
+  .jury-trial form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jury-preview { grid-template-columns: minmax(0, 1fr); }
+}

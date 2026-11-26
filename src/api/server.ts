@@ -31,7 +31,7 @@ import { readFileSync } from 'node:fs';
 import { MockBackend } from '../backend/mock.ts';
 import { SafinumBackend } from '../backend/safinum.ts';
 import { ConnectorRegistry, RouterBackend, runWithInstitution } from '../backend/registry.ts';
-import { Engine, userSession, type Channel } from '../core/engine.ts';
+import { Engine, juryTrial, userSession, type Channel } from '../core/engine.ts';
 import { UssdChannel } from '../channels/ussd.ts';
 import { SmsChannel } from '../channels/sms.ts';
 import { IvrChannel, toAfricasTalkingXml, type IvrTurn } from '../channels/ivr.ts';
@@ -196,7 +196,9 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
 
       if (req.method === 'GET' && url.pathname === '/v1/events') {
         const events = officialEngine ? [...engine.log, ...officialEngine.log].sort((a, b) => a.at.localeCompare(b.at)) : engine.log;
-        const visible = events.filter((r) => r.institution === institution || (r.institution === 'safinum' && institution === 'local'));
+        const trial = juryTrial(url.searchParams.get('trial'));
+        const visible = events.filter((r) => (!trial || r.trial === trial) &&
+          (r.institution === institution || (r.institution === 'safinum' && institution === 'local')));
         return json(res, 200, visible.slice(-200).reverse().map((r) => ({ ...r, canonical: { ...r.canonical, confirmationToken: undefined } })));
       }
 
@@ -204,7 +206,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
         if (typeof b.text !== 'string' || !b.text.trim()) return json(res, 400, { error: 'text requis' });
         const userSid = continuity && typeof b.userPhone === 'string' ? userSession(b.userPhone) : null;
-        const run = () => runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: userSid ?? String(b.sessionId ?? 'anon'), channel: channelOf(b.channel), lang: typeof b.lang === 'string' ? b.lang : undefined, text: b.text.slice(0, 1000), input: 'text', institution: institution ?? undefined }));
+        const run = () => runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: userSid ?? String(b.sessionId ?? 'anon'), channel: channelOf(b.channel), lang: typeof b.lang === 'string' ? b.lang : undefined, text: b.text.slice(0, 1000), input: 'text', institution: institution ?? undefined, trial: juryTrial(b.trial) }));
         if (!idemKey) return json(res, 200, await run());
         const { value, replayed } = idem.run(`message:${idemKey}`, run);
         res.setHeader('idempotent-replayed', String(replayed));
@@ -244,7 +246,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         if (typeof b.token !== 'string' || (typeof b.sessionId !== 'string' && typeof b.userPhone !== 'string')) return json(res, 400, { error: 'token et sessionId (ou userPhone) requis' });
         // Même session que /v1/message : si l'opération a été présentée avec userPhone, la confirmation y est rattachée.
         const sid = continuity && typeof b.userPhone === 'string' ? userSession(b.userPhone) : b.sessionId;
-        const run = () => runWithInstitution(institution ?? 'local', () => engine!.confirmWithToken(sid, b.token, channelOf(b.channel), institution ?? undefined));
+        const run = () => runWithInstitution(institution ?? 'local', () => engine!.confirmWithToken(sid, b.token, channelOf(b.channel), institution ?? undefined, juryTrial(b.trial)));
         const { value, replayed } = idemKey ? idem.run(`confirm:${idemKey}`, run) : { value: run(), replayed: false };
         res.setHeader('idempotent-replayed', String(replayed));
         const r = await value as Awaited<ReturnType<typeof run>>;
@@ -496,7 +498,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       if (req.method === 'POST' && url.pathname === '/ussd') {
         const f = await fields(req);
         if (!f.sessionId) return json(res, 400, { error: 'sessionId requis' });
-        const out = await ussd.handle({ sessionId: f.sessionId.slice(0, 100), phoneNumber: f.phoneNumber ?? '', text: (f.text ?? '').slice(0, 500) });
+        const out = await ussd.handle({ sessionId: f.sessionId.slice(0, 100), phoneNumber: f.phoneNumber ?? '', text: (f.text ?? '').slice(0, 500), trial: juryTrial(f.trial) });
         res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
         return res.end(out.response);
       }
