@@ -54,6 +54,20 @@ export function wordMatches(candidate: string, keyword: string): boolean {
  * Cherche une expression (un ou plusieurs mots) dans une liste de jetons, avec tolérance.
  * Renvoie l'indice du premier jeton trouvé, ou -1.
  */
+/** Plus petite distance d'édition entre une expression et un passage du texte (mots collés compris). */
+export function phraseDistance(toks: string[], phrase: string): number {
+  const p = tokens(phrase);
+  if (!p.length) return Infinity;
+  let best = Infinity;
+  for (let i = 0; i + p.length <= toks.length; i++) {
+    let d = 0;
+    for (let k = 0; k < p.length; k++) d += levenshtein(toks[i + k], p[k]);
+    best = Math.min(best, d);
+  }
+  if (p.length > 1) { const glued = p.join(''); for (const t of toks) best = Math.min(best, levenshtein(t, glued)); }
+  return best;
+}
+
 export function findPhrase(toks: string[], phrase: string): number {
   const p = tokens(phrase);
   if (!p.length) return -1;

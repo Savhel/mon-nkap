@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import type { Contact } from '../backend/types.ts';
 import { extractAmounts, extractPhones } from './amounts.ts';
-import { findPhrase, levenshtein, normalize, tokens, wordMatches } from './text.ts';
+import { findPhrase, levenshtein, normalize, phraseDistance, tokens, tolerance, wordMatches } from './text.ts';
 import { numeralizeFor, runtimeFor } from '../linguistics/runtime.ts';
 
 export const INTENTS = ['balance', 'transfer', 'fees', 'history', 'airtime', 'bill_payment', 'withdraw', 'explain_term', 'help', 'greeting'] as const;
@@ -145,8 +145,21 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   if (scores.explain_term && (!term || possessive)) delete scores.explain_term;
   if (scores.explain_term) for (const k of Object.keys(scores) as Intent[]) if (k !== 'explain_term') scores[k] = (scores[k] ?? 0) * 0.5;
 
-  const isConfirm = lexes.some(([, lex]) => anyPhrase(toks, lex.confirm) !== undefined) || /^(1|oui|yes)$/.test(normalize(text));
-  const isDeny = lexes.some(([, lex]) => anyPhrase(toks, lex.deny) !== undefined) || /^(2|non|no)$/.test(normalize(text));
+  // « Oui » ou « non » : avec la tolérance aux fautes, les deux peuvent être entendus à la fois. En fulfulde,
+  // « mi djabbi » (je confirme) et « mi djabbay » (j'annule) ne diffèrent que par la fin, et la reconnaissance
+  // vocale a rendu « annuler » par « mijabai », pris pour un oui. On garde le plus proche, et un oui n'est
+  // retenu que s'il est NETTEMENT plus proche (2 lettres d'écart au moins). Dans le doute, rien n'est confirmé.
+  // Seules comptent les expressions réellement proches (tolérance + 1) : « no », très court, est à deux
+  // lettres de presque tout mot court et ne doit pas bloquer un « mi jabbi ».
+  const nearest = (pick: (l: Lexicon) => string[]) => Math.min(Infinity, ...lexes.flatMap(([, lex]) => pick(lex).map((p) => {
+    const d = phraseDistance(toks, p);
+    return d <= tolerance(p.replace(/\s+/g, '')) + 1 ? d : Infinity;
+  })));
+  const confirmHeard = lexes.some(([, lex]) => anyPhrase(toks, lex.confirm) !== undefined);
+  const denyHeard = lexes.some(([, lex]) => anyPhrase(toks, lex.deny) !== undefined);
+  const clearlyYes = confirmHeard && nearest((l) => l.deny) - nearest((l) => l.confirm) >= 2;
+  const isConfirm = clearlyYes || /^(1|oui|yes)$/.test(normalize(text));
+  const isDeny = (denyHeard && !clearlyYes) || /^(2|non|no)$/.test(normalize(text));
   const isCorrection = lexes.some(([, lex]) => anyPhrase(toks, lex.correction) !== undefined);
 
   let switchTo: string | undefined;
