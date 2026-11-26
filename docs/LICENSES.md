@@ -19,7 +19,13 @@
 
 | Ressource | Licence constatée | Catégorie | Statut dans le projet | Action requise |
 |---|---|---|---|---|
-| Flagship AI, cameroon-int8 | Fiche du dépôt : CC BY-NC 4.0. README de l'organisation **et README de chaque paire** (ex. `ewondo-francais/README.md`) : `license: cc-by-4.0` | **?** puis NC | Bloqué en production, démo possible (NC) | Écrire à Flagship (lingo.cm) pour clarifier la licence et autoriser le concours puis le déploiement |
+| Flagship AI, cameroon-int8 | Fiche du dépôt : CC BY-NC 4.0. README de l'organisation **et README de chaque paire** (ex. `ewondo-francais/README.md`) : `license: cc-by-4.0` | **?** puis NC | Démo du concours (NC) : ewondo et yemba n'existent que sous cette forme | Écrire à Flagship (lingo.cm) pour l'ewondo et le yemba avant un déploiement |
+| Flagship AI, paires d'origine fp32 (`flagship-ai/fufulde-francais`, `francais-fufulde`, ghomala, bulu, pinyin) | CC BY 4.0 (métadonnées des dépôts, 26 novembre 2026) | **C** | **Autorisé** : `python3 services/fetch_flagship.py --ccby` les convertit en int8. Conversion de `fufulde-francais` et `francais-fufulde` **identique octet pour octet** au pack NC (`model.bin`, vocabulaire, config, tokenizers) | Attribution Flagship AI / Lingo (lingo.cm) |
+| Tokenizer Helsinki-NLP/opus-mt-en-fr (`source.spm`, `target.spm`, `vocab.json`) | Apache-2.0 | **C** | Autorisé : ce sont exactement les fichiers fournis dans les paires Flagship (empreintes identiques) | Attribution Helsinki-NLP / OPUS |
+| maseyan/French_Medumba (paires français ↔ médumba `byv`) | CC BY 4.0, accès sur demande (dépôt « gated ») | **C** | Non téléchargé : demande d'accès à faire avec le compte Hugging Face de l'équipe | Attribution |
+| masakhane/mafand (dont français ↔ ghomala `bbj`, actualités) | CC BY-NC 4.0 | NC | Utilisable pour le concours (vérification du vocabulaire), pas embarqué | — |
+| facebook/mms-tts-pcm (pidgin **nigérian**), mms-tts-ful (fulfulde, variété non précisée), mms-tts-ybb (yemba) | CC BY-NC 4.0 | NC | Démo du concours possible ; à faire écouter par un natif avant usage. Aucune voix MMS pour duala, bassa, ewondo, ghomala, médumba | — |
+| Griot-MT (`bivariant/Griot-MT-1.3B-ALL`, ewondo et fulfulde ↔ français) | Aucune licence déclarée (fiche et API, 26 novembre 2026) | **?** | Bloqué ; 1,4 milliard de paramètres, 4,5 Go, scores publiés par l'auteur seul | Demander une licence à l'auteur |
 | Flagship cameroon_bibles, ghomala-spoken-bible | CC-BY-4.0 selon le README (fiches non lues) | ? | Non utilisé | Vérifier les fiches |
 | OPUS-MT tc-bible-big …-bnt (Helsinki-NLP) | Apache-2.0 | **C** | Autorisé (secours fr/en→langue) | Attribution Helsinki-NLP / OPUS |
 | NLLB-200 (Meta) | CC BY-NC 4.0 (modèles), MIT (code) | NC | Inutile : seul fuv est couvert, et c'est la mauvaise variété | — |
