@@ -1,12 +1,934 @@
 {
  "schema": "ct-langpack.v1",
  "lang": "fub",
- "generatedAt": "2026-11-24T01:17:37.300Z",
+ "generatedAt": "2026-11-26T05:26:22.127Z",
  "source": "collecte/fub",
- "numbers": [],
- "concepts": {},
- "utterances": [],
- "responses": {},
- "definitions": {},
- "rejected": []
+ "numbers": [
+  {
+   "value": 5,
+   "text": "sisi",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 10,
+   "text": "dalla didi",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 25,
+   "text": "dalla djoy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 50,
+   "text": "dalla sappo",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 100,
+   "text": "dalla nogas",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 200,
+   "text": "djapane nay",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 300,
+   "text": "djapane djego",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 500,
+   "text": "termere",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 1000,
+   "text": "boro",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 1500,
+   "text": "boro be reta",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 2000,
+   "text": "boro didi",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 2500,
+   "text": "borodidi be reta",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 3000,
+   "text": "boro tati",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 5000,
+   "text": "boro djoy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 7500,
+   "text": "boro djeddi be reta",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 10000,
+   "text": "boro sappo",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 12500,
+   "text": "boro sappoy didi be reta",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 15000,
+   "text": "boro sappoy et djoy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 20000,
+   "text": "boro nogas",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "value": 25000,
+   "text": "boro nogas et djoy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ ],
+ "concepts": {
+  "money": [
+   {
+    "text": "tchede",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "account": [
+   {
+    "text": "pelele tchede djodata",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "balance": [
+   {
+    "text": "tchede dje loutine ma",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "send": [
+   {
+    "text": "yerbougo",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "receive": [
+   {
+    "text": "djabougo",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "fees": [
+   {
+    "text": "tchede dje be ta-a-ta",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "cost": [
+   {
+    "text": "djede man",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "how_much": [
+   {
+    "text": "dalla noy",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "history": [
+   {
+    "text": "ko a wadi boyma",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "airtime": [
+   {
+    "text": "tchede hoynougo",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "bill": [
+   {
+    "text": "facture",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "electricity": [
+   {
+    "text": "yite",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "water": [
+   {
+    "text": "diyame",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "pay": [
+   {
+    "text": "yobba",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "withdraw": [
+   {
+    "text": "itta",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "yes": [
+   {
+    "text": "oho",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "no": [
+   {
+    "text": "kay",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "confirm": [
+   {
+    "text": "mi djabbi",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "cancel": [
+   {
+    "text": "mi djabbay",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "correction": [
+   {
+    "text": "sanedjou",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "to": [
+   {
+    "text": "ha",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "my": [
+   {
+    "text": "dje am",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "number": [
+   {
+    "text": "lamba",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "pin": [
+   {
+    "text": "codema",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "help": [
+   {
+    "text": "wallore",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "hello": [
+   {
+    "text": "mi sani",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "thanks": [
+   {
+    "text": "sokko",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "what_is": [
+   {
+    "text": "di mai",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ],
+  "speak_language": [
+   {
+    "text": "wolwiname",
+    "author": "",
+    "reviewer": "",
+    "validated": false
+   }
+  ]
+ },
+ "utterances": [
+  {
+   "situation": "bal1",
+   "intent": "CONSULT_BALANCE",
+   "text": "on yidi famougoh dallah noy loutine mone na",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "bal2",
+   "intent": "CONSULT_BALANCE",
+   "text": "a done mari dallah noy",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr1",
+   "intent": "TRANSFER_MONEY",
+   "text": "a yidi yerbinego boro djoy ha marie na",
+   "expect": {
+    "amount": 5000,
+    "beneficiary": "Marie"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr2",
+   "intent": "TRANSFER_MONEY",
+   "text": "a yidi yerbinego boro nogas et djoy ha marie na",
+   "expect": {
+    "amount": 25000,
+    "beneficiary": "Aminatou"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr3",
+   "intent": "TRANSFER_MONEY",
+   "text": "a yidi yerbinego tchede ha paul na",
+   "expect": {
+    "beneficiary": "Paul"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "tr4",
+   "intent": "TRANSFER_MONEY",
+   "text": "a yidi yerbinego boro temere ha numero do na  655778899",
+   "expect": {
+    "amount": 150000,
+    "phone": "655778899"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "fee1",
+   "intent": "CHECK_FEES",
+   "text": "on yidi famougoh dallah noy be ta-a-ta ha yerbougo boro nogas",
+   "expect": {
+    "amount": 20000
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "his1",
+   "intent": "VIEW_HISTORY",
+   "text": "a yidi larougo tchede dje a yerbi be dje be yerbine ma daga boye ma na",
+   "expect": {},
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "air1",
+   "intent": "BUY_AIRTIME",
+   "text": "a yidi sorougo credit dje boro na",
+   "expect": {
+    "amount": 1000
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "bill1",
+   "intent": "PAY_BILL",
+   "text": "on yidi yobougo facture yite mone dje boro sapoy et didi go na",
+   "expect": {
+    "amount": 12500,
+    "biller": "ENEO"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "wd1",
+   "intent": "WITHDRAW_MONEY",
+   "text": "on yidi ittougo boro mone sappo na",
+   "expect": {
+    "amount": 10000
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "cor1",
+   "intent": "CORRECT",
+   "text": "nana boro djoy mi yidi yerbougo ,boro tati one",
+   "expect": {
+    "amount": 3000
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "cor2",
+   "intent": "CORRECT",
+   "text": "nana ha paul mi yidi yerbougo ,ha marie one",
+   "expect": {
+    "beneficiary": "Marie"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "yes1",
+   "intent": "CONFIRM",
+   "text": "mi yidi yerbougo",
+   "expect": {},
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "no1",
+   "intent": "CANCEL",
+   "text": "mi yida yerbougo",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "amb1",
+   "intent": "TRANSFER_MONEY",
+   "text": "mi yerbi tchede",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "term1",
+   "intent": "EXPLAIN_TERM",
+   "text": "frais do ba wigonoy",
+   "expect": {
+    "term": "fees"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "term2",
+   "intent": "EXPLAIN_TERM",
+   "text": "solde do ba wigonoy",
+   "expect": {
+    "term": "balance"
+   },
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "lang1",
+   "intent": "SWITCH_LANGUAGE",
+   "text": "yetche doum be wolde am",
+   "expect": {},
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "mix1",
+   "intent": "TRANSFER_MONEY",
+   "text": "mi  yerbi 2000 ha paul",
+   "expect": {
+    "amount": 2000,
+    "beneficiary": "Paul"
+   },
+   "split": "train",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  {
+   "situation": "greet1",
+   "intent": "GREETING",
+   "text": "on yidi mi wadah doum to-one na",
+   "expect": {},
+   "split": "test",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ ],
+ "responses": {
+  "ask_amount": {
+   "text": "one yidi yerbougo dalla noy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_which": {
+   "text": "yimbe djour mari inde mane.my gotelm",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "ask_intent": {
+   "text": "mi nanaye bodoume,on yiddi yerbougo larougo ko loutine mone na,yerbougona.",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "corrected": {
+   "text": "mine sandji",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "history_intro": {
+   "text": "dje boyma",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_sent": {
+   "text": "yerbi",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_received": {
+   "text": "yotti",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_airtime": {
+   "text": "credit",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_bill": {
+   "text": "dje one yobbata",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "hist_withdraw": {
+   "text": "ittougo",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "cancelled": {
+   "text": "mi yidda",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "help": {
+   "text": "mi foti mi hokatchede dje loutti ,mi foti mi yerbba,mi foti mi hossa",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "greeting": {
+   "text": "mine sani mone,one yidi waddougo di mai",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "not_understood": {
+   "text": "mi famay,onr foti one wiya doum fere na",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "which_language": {
+   "text": "mi anda wolde,one yiddi wolde dje toy",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "backend_error": {
+   "text": "one fottay on wadda hounde djotta",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_confirm": {
+   "text": "djabbeh",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_cancel": {
+   "text": "salleh",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_balance": {
+   "text": "dje loutti",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_transfer": {
+   "text": "yerbe djede",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_fees": {
+   "text": "dalla",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_history": {
+   "text": "dje boyma",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_airtime": {
+   "text": "credit",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_bill": {
+   "text": "yobe tchede dje be emmatta",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_withdraw": {
+   "text": "ittougo",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_language": {
+   "text": "wolde",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_more": {
+   "text": "louttoudoum",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "menu_free_text": {
+   "text": "winde ko one yiddi",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ },
+ "definitions": {
+  "fees": {
+   "text": "frais do doum tchede dje be ta-a-ta to a do yerbe tchede",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "balance": {
+   "text": "solde do doum tchede dje loutine ma",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "transfer": {
+   "text": "transfert do doum yerbinego tchede",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "beneficiary": {
+   "text": "beneficiaire do doum goddo dje a yerbinae ta tchede.larou hinede be lamba mako",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "airtime": {
+   "text": "credit  do bemane be yoynata,yerba sms,be interet",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "bill": {
+   "text": "facture do tchede dje a yobata bana dje yite be diyame",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "history": {
+   "text": "holine ame tchede dje one yerbi ,dje be yerbine mone be dje one yobi",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "pin": {
+   "text": "code pin do doum code secret mone.ta holine doum ha goddo sam",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "limit": {
+   "text": "plafond do doum tchede dje manga man dje one foti one yerba balle gotel",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
+  "withdraw": {
+   "text": "retrait do doum ittougo tchede ha compte mone",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  }
+ },
+ "rejected": [
+  {
+   "sheet": "reponses",
+   "row": 2,
+   "reason": "repères à garder : {solde} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 3,
+   "reason": "repères à garder : {frais} {montant} {total} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 5,
+   "reason": "repères à garder : {nom} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 6,
+   "reason": "repères à garder : {montant} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 9,
+   "reason": "repères à garder : {frais} {montant} {nom} {numero} {total} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 11,
+   "reason": "repères à garder : {montant} {nom} {reference} {solde} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 12,
+   "reason": "repères à garder : {montant} {numero} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 13,
+   "reason": "repères à garder : {montant} {numero} {solde} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 14,
+   "reason": "repères à garder : {fournisseur} {frais} {montant} {total} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 15,
+   "reason": "repères à garder : {fournisseur} {montant} {solde} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 16,
+   "reason": "repères à garder : {frais} {montant} {total} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 17,
+   "reason": "repères à garder : {montant} {solde} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 18,
+   "reason": "repères à garder : {manque} {requis} {solde} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 19,
+   "reason": "repères à garder : {plafond} ; trouvés : aucun"
+  },
+  {
+   "sheet": "reponses",
+   "row": 27,
+   "reason": "repères à garder : {langue} ; trouvés : aucun"
+  }
+ ]
 }

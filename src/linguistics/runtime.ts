@@ -45,13 +45,19 @@ const forms = (p: LangPack, id: string) => (p.concepts[id] ?? []).filter(usable)
 export function learnPhrases(p: LangPack, grammar: NumberGrammar): LearnedPhrase[] {
   const numberWords = new Set(Object.keys(grammar.words).flatMap((w) => w.split(' ')));
   const train = p.utterances.filter((u) => u.split === 'train' && usable(u));
+  // Mots outils : un mot présent dans les phrases d'au moins 3 intentions différentes (« je veux », « je »…)
+  // ne dit rien de l'intention. Sans ce filtre, avec peu de phrases, « a yidi » (« je veux ») devenait un
+  // mot-clé de transfert en fulfulde.
+  const intentsOf = new Map<string, Set<string>>();
+  for (const u of train) for (const w of new Set(tokens(u.text))) (intentsOf.get(w) ?? intentsOf.set(w, new Set()).get(w)!).add(u.intent);
+  const functionWords = new Set([...intentsOf].filter(([, s]) => s.size >= 3).map(([w]) => w));
   const byPhrase = new Map<string, Map<string, number>>();
   for (const u of train) {
     const t = tokens(u.text).filter((w) => !/^\d+$/.test(w));
     const grams = new Set<string>();
     t.forEach((w, i) => { grams.add(w); if (i + 1 < t.length) grams.add(`${w} ${t[i + 1]}`); });
     for (const g of grams) {
-      if (g.split(' ').some((w) => NOT_KEYWORDS.has(w) || numberWords.has(w)) || g.replace(/ /g, '').length < 3) continue;
+      if (g.split(' ').some((w) => NOT_KEYWORDS.has(w) || numberWords.has(w) || functionWords.has(w)) || g.replace(/ /g, '').length < 3) continue;
       const m = byPhrase.get(g) ?? new Map<string, number>();
       m.set(u.intent, (m.get(u.intent) ?? 0) + 1);
       byPhrase.set(g, m);
