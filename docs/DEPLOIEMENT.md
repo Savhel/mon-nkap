@@ -50,7 +50,7 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 | `PORT` | port HTTP | 8080 |
 | `CT_API_KEYS` | `institution:clé,…` — clés statiques sur `/v1/*` | vide = ouvert (local seulement, sauf registre) |
 | `CT_KEYS_FILE` | fichier du registre persistant des clés d'entreprises (empreintes SHA-256) | `data/api-keys.json` (si présent) |
-| `CT_PORTAL_SIGNUP` | `0` pour désactiver la création libre de clés sur `/portail` | activée |
+| `CT_PORTAL_SIGNUP` | `1` pour ouvrir la création libre de clés sur `/portail` (démonstration seulement : n'importe quel visiteur obtient alors une clé) | fermée : clés émises par `npm run keys` ou `/admin` |
 | `CT_ADMIN_KEY` | secret d'administration requis dans `x-admin-key` pour `/v1/admin/*` (`/admin`) | vide (`503` sur `/v1/admin/*`) |
 | `CT_SAFINUM_KEY` | clé d'équipe SAFINUM (`sbx_…`) ; active `SafinumBackend` (`POST /safinum/middleware`) | vide (`MockBackend`) |
 | `CT_SAFINUM_URL` | URL de l'API bancaire SAFINUM | `https://safinum.cm/api/v1` |

@@ -16,7 +16,7 @@ after(() => {
   setLangIdModel(undefined);
 });
 
-test('portail client (/portail) : auto-génération de clé API et blocage si CT_PORTAL_SIGNUP=0', async () => {
+test('portail client (/portail) : auto-génération de clé API et fermée par défaut, ouverte avec CT_PORTAL_SIGNUP=1', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'mon-nkap-portal-'));
   const keysFile = join(dir, 'api-keys.json');
   const prevSignup = process.env.CT_PORTAL_SIGNUP;
@@ -33,6 +33,17 @@ test('portail client (/portail) : auto-génération de clé API et blocage si CT
     assert.equal(portalHtml.status, 200);
     assert.match(await portalHtml.text(), /Portail Entreprises/);
 
+    // Par défaut, la création libre est fermée
+    const closedCfg = await fetch(`${base}/v1/portal/config`).then((r) => r.json()) as { signupEnabled: boolean };
+    assert.equal(closedCfg.signupEnabled, false);
+    const closed = await fetch(`${base}/v1/portal/keys`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ institution: 'intrus', name: 'Intrus' }),
+    });
+    assert.equal(closed.status, 403);
+
+    process.env.CT_PORTAL_SIGNUP = '1';
     const cfg = await fetch(`${base}/v1/portal/config`).then((r) => r.json()) as { signupEnabled: boolean };
     assert.equal(cfg.signupEnabled, true);
 
@@ -57,7 +68,7 @@ test('portail client (/portail) : auto-génération de clé API et blocage si CT
     assert.equal(trBody.institution, 'uba-cm');
     assert.equal(trBody.text, 'Bank o internet');
 
-    // Désactivation de l'auto-inscription
+    // Toute autre valeur que 1 referme l'auto-inscription
     process.env.CT_PORTAL_SIGNUP = '0';
     const disabled = await fetch(`${base}/v1/portal/keys`, {
       method: 'POST',

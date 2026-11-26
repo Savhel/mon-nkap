@@ -63,6 +63,10 @@ const STATIC: Record<string, [string, string]> = {
 
 const AUDIT_FILE = process.env.CT_AUDIT_FILE ?? fileURLToPath(new URL('../../data/audit/audit.jsonl', import.meta.url));
 
+/** Création libre de clés sur /portail : fermée par défaut, sinon n'importe qui obtiendrait une clé et la protection
+ *  par clé d'API ne servirait plus à rien. Ouverte seulement avec CT_PORTAL_SIGNUP=1 (démonstration). */
+const portalSignupEnabled = () => process.env.CT_PORTAL_SIGNUP === '1';
+
 export function createApp(engine?: Engine, opts: { auditFile?: string | null; keysFile?: string | null; trainerPaths?: TrainerPaths } = {}) {
   const audit = new AuditLog(opts.auditFile === null ? undefined : opts.auditFile ?? AUDIT_FILE);
   const useSafinum = process.env.CT_BACKEND === 'safinum' || !!process.env.CT_SAFINUM_KEY;
@@ -237,10 +241,10 @@ export function createApp(engine?: Engine, opts: { auditFile?: string | null; ke
       }
 
       if (req.method === 'GET' && url.pathname === '/v1/portal/config') {
-        return json(res, 200, { signupEnabled: process.env.CT_PORTAL_SIGNUP !== '0' });
+        return json(res, 200, { signupEnabled: portalSignupEnabled() });
       }
       if (req.method === 'POST' && url.pathname === '/v1/portal/keys') {
-        if (process.env.CT_PORTAL_SIGNUP === '0') {
+        if (!portalSignupEnabled()) {
           return json(res, 403, { error: 'auto_inscription_desactivee', message: "La création libre est désactivée. Contactez l'administrateur." });
         }
         const b = JSON.parse((await body(req, 8 * 1024)).toString('utf8') || '{}');

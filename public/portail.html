@@ -149,7 +149,7 @@ const msg = await ct.message('envoie 5000 a Marie');`;
       if (cfg.signupEnabled) {
         $('portal-state').textContent = 'Création libre activée : générez immédiatement votre clé d’intégration.';
       } else {
-        $('portal-state').textContent = 'Création libre désactivée sur ce serveur. Demandez une clé via l’administration (/admin).';
+        $('portal-state').textContent = 'Les clés sont délivrées par l’administrateur de ce serveur. Contactez-le pour obtenir la vôtre.';
         $('issue-btn').disabled = true;
       }
     } catch {

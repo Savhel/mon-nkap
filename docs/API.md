@@ -98,7 +98,7 @@ Routes d'administration protégées par l'en-tête `x-admin-key` (comparé à la
 
 ### `GET /v1/portal/config`, `POST /v1/portal/keys` — auto-inscription portail client (`/portail`)
 
-Permet aux entreprises d'obtenir leur propre clé API depuis l'interface `/portail` (désactivable via `CT_PORTAL_SIGNUP=0`, qui renvoie alors `403 auto_inscription_desactivee`).
+Permet aux entreprises d'obtenir leur propre clé API depuis l'interface `/portail`. **Fermé par défaut** (`403 auto_inscription_desactivee`) : sinon n'importe quel visiteur obtiendrait une clé. À ouvrir seulement pour une démonstration avec `CT_PORTAL_SIGNUP=1` ; en production, les clés sont émises par l'administrateur (`npm run keys` ou `/admin`).
 
 - `POST /v1/portal/keys` avec `{ "institution": "afriland", "name": "Afriland First Bank" }` → `201 { "key": "nk_live_…", "record": { … } }`.
 
