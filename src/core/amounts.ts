@@ -18,6 +18,8 @@ const HUNDRED = new Set(['cent', 'cents', 'hundred']);
 const THOUSAND = new Set(['mille', 'mil', 'thousand', 'k']);
 const MILLION = new Set(['million', 'millions', 'mio']);
 const GLUE = new Set(['et', 'and']);
+// Multiplicateurs du pidgin (mille) : jamais comptés ici, seulement repérés pour ne pas lire un montant tronqué.
+const FOREIGN_MULTIPLIERS = new Set(['tasen', 'tausen', 'tauzen', 'ke', 'kay']);
 const CURRENCY = new Set(['f', 'fr', 'frs', 'franc', 'francs', 'fcfa', 'cfa', 'xaf']);
 
 export interface AmountMatch { value: number; start: number; end: number; raw: string; currency: boolean }
@@ -98,7 +100,10 @@ export function extractAmounts(text: string): AmountMatch[] {
     const lone = run.length === 1 && ['un', 'une', 'one'].includes(run[0]);
     const v = lone ? null : valueOf(run);
     const isPhone = run.length === 1 && /^[62]\d{8}$/.test(run[0]);
-    if (v !== null && !isPhone) {
+    // Suivi d'un multiplicateur d'une autre langue que ce lecteur ne sait pas compter (« five tasen » en pidgin) :
+    // le montant est incomplet. Mieux vaut ne rien lire (le moteur redemande) que lire 5 au lieu de 5 000.
+    const foreignMultiplier = j < toks.length && FOREIGN_MULTIPLIERS.has(toks[j]);
+    if (v !== null && !isPhone && !foreignMultiplier) {
       const currency = j < toks.length && CURRENCY.has(toks[j]);
       found.push({ value: v, start: i, end: j, raw: run.join(' '), currency });
     }

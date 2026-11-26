@@ -73,6 +73,8 @@ const LANGUAGE_NAMES: Record<string, string[]> = {
   fr: ['francais', 'french'], en: ['anglais', 'english'], ewo: ['ewondo'], dua: ['duala', 'douala'],
   fub: ['fulfulde', 'foulfoulde', 'peul', 'fulani'], wes: ['pidgin', 'kamtok'], bas: ['bassa', 'basaa'], bum: ['bulu', 'boulou'],
 };
+/** Multiplicateurs du pidgin (« five tasen » = 5 000, « ten ké » = 10 000), écrits sans accent. */
+export const PIDGIN_MULTIPLIERS = new Set(['tasen', 'tausen', 'tauzen', 'ke', 'kay']);
 const SWITCH_MARKERS = ['parle', 'parlez', 'en', 'in', 'langue', 'language', 'speak', 'talk', 'change', 'passe', 'continue', 'continuer', 'tok'];
 const BILLERS: Record<string, string[]> = { ENEO: ['eneo', 'electricite', 'courant', 'electricity', 'light'], CAMWATER: ['camwater', 'eau', 'water'], CANAL: ['canal', 'canal plus'] };
 
@@ -135,7 +137,11 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   }
 
   // Montants dits avec les mots de la langue (grammaire apprise des natifs) → chiffres, puis extraction habituelle.
-  const amounts = extractAmounts(numeralizeFor(lang, text)).map((a) => a.value);
+  // Le pidgin arrive souvent étiqueté français ou anglais (le bac à sable SAFINUM ne le propose pas) : « five tasen »
+  // devenait 5 FCFA. En français ou en anglais, un multiplicateur pidgin fait appliquer la grammaire du pidgin.
+  const numText = numeralizeFor(lang, text);
+  const pidginAmount = (lang === 'fr' || lang === 'en') && toks.some((t) => PIDGIN_MULTIPLIERS.has(t));
+  const amounts = extractAmounts(pidginAmount ? numeralizeFor('wes', numText) : numText).map((a) => a.value);
   const phone = extractPhones(text)[0];
   const { candidates, text: beneficiaryText } = matchContacts(toks, contacts);
   // Fournisseur : mot exact seulement (la tolérance aux fautes faisait de « coûtent » un « courant », donc ENEO).

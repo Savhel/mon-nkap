@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseCsv } from './csv.ts';
 import { buildPack, packReport, type Sheets } from './importer.ts';
-import { loadPack, PACK_DIR, setPack, type LangPack } from './pack.ts';
+import { loadPack, PACK_DIR, setPack, usable, type LangPack } from './pack.ts';
 import { clearRuntimeCache, runtimeFor } from './runtime.ts';
 import { buildProfile, loadLangId, setLangIdModel, type LangIdModel, type LangProfile } from './langid.ts';
 import { evaluateLanguage, type LangEvaluation } from '../eval/evaluate.ts';
@@ -209,7 +209,8 @@ export function refreshLangIdFromPacks(langs: string[], paths?: TrainerPaths): {
     const packFile = join(packsDir, `${l}.json`);
     const pack = existsSync(packFile) ? JSON.parse(readFileSync(packFile, 'utf8')) as LangPack : loadPack(l);
     if (!pack) continue;
-    const trainTexts = pack.utterances.filter((u) => u.split === 'train' && u.validated).map((u) => u.text);
+    // Même règle que le moteur : phrases validées, et brouillons des natifs seulement si CT_ALLOW_DRAFT=1.
+    const trainTexts = pack.utterances.filter((u) => u.split === 'train' && usable(u)).map((u) => u.text);
     if (!trainTexts.length) continue;
     if (!existing.profiles[l] && trainTexts.length < 3) continue;
     existing.profiles[l] = mergeLangProfile(existing.profiles[l], trainTexts);

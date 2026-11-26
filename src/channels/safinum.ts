@@ -134,6 +134,7 @@ function mapSafinumIntent(r: EngineResult): SafinumIntent {
 }
 
 const VALID_CHANNELS = new Set<Channel>(['mobile', 'web', 'ussd', 'sms', 'ivr', 'atm', 'api']);
+const LANG_ALIASES: Record<string, string> = { pcm: 'wes', pidgin: 'wes', kamtok: 'wes' };
 
 export class SafinumChannel {
   private engine: Engine;
@@ -154,6 +155,8 @@ export class SafinumChannel {
     const rawText = (req.input?.text ?? '').trim();
 
     let lang: string | undefined = typeof req.language === 'string' && req.language.trim() ? req.language.trim().toLowerCase() : undefined;
+    // Le pidgin camerounais a le code « wes » ; « pcm » (pidgin nigérian, code souvent employé) et « pidgin » y mènent aussi.
+    if (lang && LANG_ALIASES[lang]) lang = LANG_ALIASES[lang];
     if (!lang && rawText) {
       const model = loadLangId();
       if (model) {
