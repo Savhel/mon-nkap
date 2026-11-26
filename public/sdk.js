@@ -32,8 +32,9 @@
         lang = r.lang; // le moteur peut changer de langue en cours de conversation
         return r;
       },
-      voice: async function (blob) {
+      voice: async function (blob, opts) {
         var q = new URLSearchParams({ sessionId: session, channel: channel, lang: lang });
+        if (opts && opts.transcribeOnly) q.set('mode', 'transcribe');
         var r = await call('/v1/voice?' + q, { method: 'POST', body: blob });
         if (r.result) lang = r.result.lang;
         return r;
@@ -68,5 +69,22 @@
       reset: function () { session = 'sdk-' + Math.random().toString(36).slice(2, 10); },
     };
   }
-  g.MonNkap = { connect: connect };
+  function demoLanguages(registry) {
+    var languages = registry.languages || [];
+    if (!registry.demoLanguages) return languages.filter(function (l) { return l.capabilities?.understanding?.status !== 'unavailable'; });
+    return registry.demoLanguages.map(function (code) {
+      return languages.find(function (language) { return language.code === code; });
+    }).filter(Boolean);
+  }
+  var bankingLabels = {
+    reference: 'Assistant bancaire', collected: 'Collecte native · brouillon', guided: 'Parcours guidé · brouillon',
+    translation: 'Traduction expérimentale', none: 'Exploration',
+  };
+  function languageLabel(language) {
+    var experience = language.experience || {};
+    var label = bankingLabels[experience.banking];
+    if (experience.banking === 'none' && experience.microphone) return 'Transcription seule';
+    return label || (language.capabilities?.understanding?.status === 'draft' ? 'Brouillon' : 'Texte');
+  }
+  g.MonNkap = { connect: connect, demoLanguages: demoLanguages, languageLabel: languageLabel };
 })(typeof window !== 'undefined' ? window : globalThis);

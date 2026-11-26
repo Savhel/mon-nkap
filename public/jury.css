@@ -1,0 +1,67 @@
+.jury {
+  margin: 0;
+  color: var(--nk-ink);
+  background: var(--nk-bg);
+}
+.jury * { box-sizing: border-box; }
+.jury a { color: inherit; }
+.jury-wrap { width: min(1120px, 100% - 48px); margin-inline: auto; }
+.jury-bar { background: #10273a; color: #fcfaf3; border-bottom: 1px solid #ffffff1f; }
+.jury-top { min-height: 74px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 28px; }
+.jury-brand { display: inline-flex; align-items: center; gap: 11px; font-size: 1.18rem; font-weight: 750; text-decoration: none; }
+.jury-top nav { display: flex; flex-wrap: wrap; column-gap: clamp(14px, 3vw, 32px); }
+.jury-top nav a { display: inline-flex; align-items: center; min-height: 44px; font-size: .88rem; text-decoration: none; }
+.jury-top nav a:hover, .jury-footer a:hover { text-decoration: underline; text-underline-offset: .23em; }
+.jury-hero {
+  background: radial-gradient(ellipse at 90% 4%, #285b68, transparent 56%), #10273a;
+  color: #fcfaf3;
+  padding-block: clamp(35px, 6vw, 78px);
+}
+.jury-hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(290px, .85fr); gap: clamp(26px, 6vw, 82px); align-items: center; }
+.jury-event { margin: 0 0 15px; color: #eac88f; font-size: .87rem; font-weight: 700; }
+.jury h1 { margin: 0; max-width: 12ch; font-size: clamp(2.65rem, 6.9vw, 5.85rem); line-height: .99; letter-spacing: -.068em; font-weight: 680; }
+.jury-intro { margin: 23px 0 25px; color: #e1ebeb; font-size: clamp(1rem, 2vw, 1.17rem); max-width: 46ch; }
+.jury-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.jury-button { display: inline-flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 49px; padding: 8px 16px; border: 1px solid transparent; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; }
+a.jury-primary { background: #f2c782; color: #1e252d; }
+a.jury-primary:hover { background: #ffdaa0; }
+a.jury-secondary { border-color: #ffffff40; color: #fff; }
+a.jury-secondary:hover { background: #ffffff12; }
+.jury-check { padding: clamp(19px, 4vw, 31px); background: #edeee9; color: #152d39; border-radius: 23px; border: 1px solid #ffffff94; box-shadow: 0 18px 42px #03142055; }
+.jury-check h2 { margin: 0 0 13px; font-size: clamp(1.45rem, 2.75vw, 2.05rem); line-height: 1.15; letter-spacing: -.04em; }
+.jury-kicker { margin: 0 0 8px; color: #445e5e; font-size: .82rem; font-weight: 740; }
+.jury-check ol { padding-left: 1.55em; margin: 0; }
+.jury-check li { padding: 8px 0 8px 5px; }
+.jury-check li::marker { font-weight: 750; color: #8a521e; }
+.jury-check li + li { border-top: 1px solid #28414b20; }
+.jury-local { margin: 14px 0 0; color: #365551; font-weight: 680; font-size: .8rem; }
+.jury-main { padding-block: clamp(30px, 5vw, 52px); display: grid; grid-template-columns: minmax(0, 1fr); gap: 44px; }
+.jury-section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 20px; margin-bottom: 16px; }
+.jury-section-head h2 { margin: 0; color: var(--nk-primary); font-size: clamp(1.45rem, 3vw, 2.1rem); letter-spacing: -.045em; }
+.jury-section-head a, .jury-footer a { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: var(--nk-secondary); text-underline-offset: .2em; font-size: .87rem; font-weight: 700; }
+.jury-channels { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.jury-channel { position: relative; display: grid; gap: 4px; padding: 18px; border: 1px solid var(--nk-line); border-radius: 16px; background: var(--nk-card); text-decoration: none; }
+.jury-channel:hover { border-color: var(--nk-secondary); box-shadow: 0 5px 20px #10273a10; }
+.jury-channel-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 6px; color: var(--nk-secondary); border-radius: 12px; background: color-mix(in srgb, var(--nk-secondary) 10%, var(--nk-card)); }
+.jury-channel svg { width: 24px; height: 24px; }
+.jury-channel strong { font-size: 1.05rem; }
+.jury-channel > span:not(.jury-channel-icon) { color: var(--nk-muted); font-size: .86rem; }
+.jury-channel .jury-arrow { position: absolute; top: 16px; right: 18px; font-weight: 750; }
+.jury-muted { margin-block: -4px 14px; color: var(--nk-muted); font-size: .92rem; }
+.jury-table { overflow-x: auto; border: 1px solid var(--nk-line); border-radius: 16px; }
+.jury-table table { width: 100%; min-width: 590px; border-collapse: collapse; text-align: left; background: var(--nk-card); font-size: .87rem; }
+.jury-table td, .jury-table th { padding: 10px 14px; border-bottom: 1px solid var(--nk-line); }
+.jury-table tr:last-child td { border-bottom: 0; }
+.jury-table thead th { background: var(--nk-soft); color: var(--nk-primary); }
+.jury-table tbody th { font-weight: 720; text-wrap: nowrap; }
+.jury-table td a { display: inline-flex; align-items: center; min-height: 44px; color: var(--nk-secondary); font-weight: 725; }
+.jury-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 3px 20px; padding-block: 14px; border-top: 1px solid var(--nk-line); color: var(--nk-muted); }
+.jury-footer strong { margin-right: auto; }
+@media (max-width: 740px) {
+  .jury-wrap { width: calc(100% - 32px); }
+  .jury-hero-grid, .jury-channels { grid-template-columns: 1fr; }
+  .jury-top { padding-block: 7px; }
+  .jury-channel { grid-template-columns: auto 1fr; column-gap: 13px; }
+  .jury-channel-icon { grid-row: span 2; align-self: center; margin: 0; }
+  .jury-channel strong { padding-right: 26px; }
+}

@@ -215,3 +215,12 @@ En cas d’indisponibilité, le client peut continuer en texte.
 Le statut `pending_reconciliation` indique un résultat financier à vérifier. Aucun nouveau débit
 n’est demandé pour ce brouillon pendant le rapprochement. Le connecteur SAFINUM consulte la transaction
 par référence. Le résultat est annoncé au prochain tour lorsque le service bancaire le confirme.
+
+Le catalogue expose `demoLanguages` (ordre pour la démonstration) et `languages[].experience`.
+Le champ `banking` vaut `reference`, `collected`, `guided`, `translation` ou `none`.
+`asr` représente la couverture du modèle, `microphone` la disponibilité locale. `clips` indique
+la présence de quelques enregistrements et `synthesis` une synthèse configurée. `translation`
+indique que les deux directions avec le français sont chargées.
+
+`POST /v1/voice?mode=transcribe` transcrit l’audio et renvoie `result: null`. Ce mode n’ouvre
+pas de tour bancaire. Le dialogue commence après la relecture et l’envoi du texte.

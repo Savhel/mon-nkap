@@ -43,7 +43,8 @@ Pour préparer la finale, commencer par [le parcours jury et la vérification](d
 | `/tableau` | Tableau de bord : évaluation par langue, journal des requêtes, audit |
 | `/portail` | Portail entreprises : obtention de clé API et test de traduction en direct |
 | `/admin` | Console d'administration : clés API et entraînement / évaluation des modèles |
-| `/` | Page de test vocal |
+| `/` | Accueil du jury, liens directs vers les canaux et capacités réelles par langue |
+| `/lab` | Laboratoire vocal et catalogue complet |
 
 ## Les langues : travail des natifs d'abord
 
@@ -106,6 +107,8 @@ tools/            collecte, import-collecte, evaluate, build-langid, measure-asr
 ## Limites connues
 
 - Le fulfulde et le pidgin disposent de premières contributions de locuteurs et de clips enregistrés avec accord. Les phrases sont des brouillons tant que la relecture est en cours.
-- Ewondo et duala restent expérimentaux. Basaa et bulu figurent au catalogue avec des capacités limitées.
+- Ewondo et duala disposent de parcours guidés et de lexiques brouillons. Pour les essayer, utiliser des montants en chiffres et vérifier la réponse affichée.
+- Le basaa est proposé en transcription seule quand Omnilingual ASR est chargé. Le bulu passe de la transcription seule au dialogue expérimental quand les deux paires de traduction Flagship sont chargées. Le modèle peut transcrire davantage de langues que le moteur bancaire ne sait en traiter.
+- Sur mobile et dans le widget web, le micro remplit un champ modifiable. L’utilisateur relit la transcription avant de l’envoyer.
 - Le middleware SAFINUM et le simulateur local sont disponibles. Le sandbox officiel nécessite une clé d’équipe et un endpoint public enregistré.
 - Les canaux télécom locaux utilisent un simulateur. Les sessions, les résultats d’idempotence et les rapprochements en attente sont en mémoire, sur une seule instance.

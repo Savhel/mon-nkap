@@ -115,3 +115,37 @@ test('Jeton borné à son institution et confirmation vocale soumise au récapit
   assert.equal(spoken.status, 'awaiting_confirmation');
   assert.equal(engine.log.filter((r) => r.status === 'executed').length, 0);
 });
+
+test('Le catalogue distingue la collecte du parcours guidé et de la transcription seule', async (t) => {
+  const { server } = createApp(new Engine(new MockBackend()), { auditFile: null, keysFile: null });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const response = await fetch(base + '/v1/languages');
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  const language = (code: string) => result.languages.find((entry: { code: string }) => entry.code === code).experience;
+  for (const code of ['fub', 'ewo', 'dua', 'bas', 'bum', 'wes']) assert.ok(result.demoLanguages.includes(code));
+  assert.equal(language('fub').banking, 'collected');
+  assert.equal(language('fub').clips, true);
+  assert.equal(language('wes').clips, true);
+  assert.equal(language('ewo').banking, 'guided');
+  assert.equal(language('dua').banking, 'guided');
+  assert.equal(language('bas').banking, 'none');
+  assert.equal(language('bas').asr, true);
+  assert.equal(language('bas').microphone, result.runtime.speechToText);
+  assert.equal(language('bum').banking, language('bum').translation ? 'translation' : 'none');
+});
+
+test('Ewondo et duala : le mot de transfert du lexique prépare un récapitulatif chiffré', async () => {
+  const engine = new Engine(new MockBackend());
+  for (const [lang, text] of [['ewo', 'lóm mɔ́nə 6325 à Marie'], ['dua', 'lóma mɔ́ni 6325 à Marie']]) {
+    const turn = await engine.handle({ sessionId: 'guided-' + lang, lang, channel: 'web', text });
+    assert.equal(turn.lang, lang);
+    assert.equal(turn.understanding.via, 'lexicon');
+    assert.equal(turn.status, 'awaiting_confirmation');
+    assert.equal(turn.canonical.entities.amount, 6325);
+    assert.equal(turn.canonical.entities.beneficiary?.phone, '655778899');
+    assert.ok(turn.reply.quality === 'draft' || turn.reply.quality === 'fallback');
+  }
+});

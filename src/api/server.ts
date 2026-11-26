@@ -41,24 +41,35 @@ import { assemble, coverage, missingClips } from '../voice/native.ts';
 import { AuditLog, verifyChain } from '../security/audit.ts';
 import { plotweaverLanguage, plotweaverSpeech } from '../voice/plotweaver.ts';
 import { ApiKeys, IdempotencyCache, RateLimiter, verifySecret } from '../security/guards.ts';
-import { interpret } from '../core/nlu.ts';
+import { interpret, loadLexicon } from '../core/nlu.ts';
 import { toCanonical } from '../core/canonical.ts';
 import { evaluateLanguage } from '../eval/evaluate.ts';
 import { uiLabels } from '../core/respond.ts';
 import { translateText } from '../core/translate.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
 import { UiCatalog } from '../linguistics/ui_catalog.ts';
-import { loadPack } from '../linguistics/pack.ts';
+import { allowDraft, loadPack } from '../linguistics/pack.ts';
 import { getLangIdSummary, listCollecteLanguages, readCollecteSheet, refreshLangIdFromPacks, trainLanguagePack, writeCollecteSheet, type TrainerPaths } from '../linguistics/trainer.ts';
+import { MT_ROUTES } from '../mt/flagship.ts';
 import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
 
 const CHANNELS = new Set<Channel>(['mobile', 'web', 'ussd', 'sms', 'ivr', 'atm', 'api']);
+const DEMO_LANGUAGES = ['fub', 'ewo', 'dua', 'bas', 'bum', 'wes', 'fr', 'en'];
+
+interface LanguageEntry {
+  code: string;
+  name: string;
+  native?: string;
+  capabilities: { speechToText?: { status: string; engineLang?: string } };
+}
+
 const MAX_AUDIO = 10 * 1024 * 1024;
 
 // Pages et fichiers publics, sur liste blanche (aucun chemin arbitraire n'est servi).
 const HTML = 'text/html; charset=utf-8', JS = 'text/javascript; charset=utf-8';
 const STATIC: Record<string, [string, string]> = {
+  '/lab': ['index.html', HTML], '/jury.css': ['jury.css', 'text/css; charset=utf-8'], '/jury.js': ['jury.js', JS],
   '/mobile': ['mobile.html', HTML], '/banque': ['banque.html', HTML], '/gab': ['gab.html', HTML], '/tableau': ['dashboard.html', HTML],
   '/portail': ['portail.html', HTML], '/admin': ['admin.html', HTML],
   '/assistant.js': ['assistant.js', JS], '/assistant.css': ['assistant.css', 'text/css; charset=utf-8'], '/tokens.css': ['tokens.css', 'text/css; charset=utf-8'], '/widget.js': ['widget.js', JS],
@@ -149,7 +160,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       const institution = isAdminPath ? 'admin' : keys.institution(req.headers['x-api-key'] as string | undefined);
       if (!publicPath && !institution) return json(res, 401, { error: 'cle_api_requise' });
       const idemKey = req.headers['idempotency-key'] ? `${institution}:${String(req.headers['idempotency-key']).slice(0, 128)}` : null;
-      if (req.method === 'GET' && url.pathname === '/') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(page()); }
+      if (req.method === 'GET' && url.pathname === '/') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(page('jury.html')); }
       if (req.method === 'GET' && url.pathname === '/canaux') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(page('canaux.html')); }
       if (req.method === 'GET' && url.pathname === '/sdk.js') { res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8' }); return res.end(page('sdk.js')); }
       const asset = STATIC[url.pathname];
@@ -159,12 +170,30 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         return json(res, 200, { ok: true, translation: mt, safinum: useSafinum ? 'configured' : 'local' });
       }
       if (req.method === 'GET' && url.pathname === '/v1/languages') {
-        return json(res, 200, { ...languages, runtime: {
-          speechToText: asrAvailable(),
-          piper: ['fr', 'en'].filter(ttsAvailable),
-          plotweaver: useSafinum || customEngine || connectors.list().length ? [] : languages.languages.map((entry: { code: string }) => entry.code).filter(plotweaverLanguage),
-        } });
+        const speechToText = asrAvailable();
+        const piper = ['fr', 'en'].filter(ttsAvailable);
+        const rows: LanguageEntry[] = languages.languages;
+        const plotweaver = useSafinum || customEngine || connectors.list().length ? [] : rows.map(({ code }) => code).filter(plotweaverLanguage);
+        const mt = await mtStatus(650);
+        const pairs = new Set(mt.pairs);
+        const list = rows.map((entry) => {
+          const { code } = entry;
+          const route = MT_ROUTES[code];
+          const translation = !!route && pairs.has(route.toFr) && pairs.has(route.fromFr);
+          const lexicon = loadLexicon(code);
+          const pack = loadPack(code);
+          const contributed = pack?.utterances.some((item) => item.validated || allowDraft()) ?? false;
+          const clips = coverage(code).recorded > 0;
+          const banking = code === 'fr' || code === 'en' || lexicon?.status === 'available' ? 'reference'
+            : contributed ? 'collected' : lexicon ? 'guided' : translation ? 'translation' : 'none';
+          const asr = !!entry.capabilities.speechToText?.engineLang;
+          return { ...entry, experience: { banking, translation, asr, microphone: speechToText && asr,
+            clips, synthesis: piper.includes(code) || plotweaver.includes(code) } };
+        });
+        return json(res, 200, { ...languages, languages: list, demoLanguages: DEMO_LANGUAGES,
+          runtime: { speechToText, piper, plotweaver } });
       }
+
       if (req.method === 'GET' && url.pathname === '/v1/events') {
         const events = officialEngine ? [...engine.log, ...officialEngine.log].sort((a, b) => a.at.localeCompare(b.at)) : engine.log;
         const visible = events.filter((r) => r.institution === institution || (r.institution === 'safinum' && institution === 'local'));
@@ -459,6 +488,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         if (audio.length < 1000) return json(res, 400, { error: 'audio vide ou trop court' });
         const tr = await transcribe(new Uint8Array(audio));
         if (!tr.text) return json(res, 200, { transcript: tr, result: null, note: 'Rien n’a été reconnu. Parlez plus près du micro ou tapez votre demande.' });
+        if (url.searchParams.get('mode') === 'transcribe') return json(res, 200, { transcript: tr, result: null });
         const r = await runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: url.searchParams.get('sessionId') ?? 'anon', channel: channelOf(url.searchParams.get('channel')), lang: url.searchParams.get('lang') ?? undefined, text: tr.text, input: 'voice', institution: institution ?? undefined }));
         return json(res, 200, { transcript: tr, result: r });
       }

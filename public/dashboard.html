@@ -10,18 +10,23 @@
   * { box-sizing:border-box; }
   body { margin:0; font:15px/1.5 var(--nk-font); background:var(--bg); color:var(--ink); }
   header, main { max-width:1280px; margin:0 auto; padding:16px; }
-  h1 { font-size:1.2rem; margin:0; } .sub { color:var(--muted); margin:4px 0 0; }
+  header { max-width:none; background:radial-gradient(ellipse at 95% 0,#285b68,transparent 50%),#10273a; color:#fcfaf3; }
+  header > div { max-width:1248px; margin-inline:auto; }
+  .return { display:inline-flex; align-items:center; min-height:44px; color:#eac88f; text-underline-offset:.22em; font-size:.87rem; }
+  h1 { font-size:clamp(1.65rem,4vw,2.65rem); margin:0; letter-spacing:-.045em; } .sub { color:#dae7e7; margin:4px 0 0; }
   .tabs { display:flex; gap:6px; margin-top:12px; flex-wrap:wrap; }
   .tabs button { font:inherit; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:8px 16px; min-height:44px; }
-  .tabs button[aria-selected="true"] { border-color:var(--accent); color:var(--accent); font-weight:600; }
+  .tabs button[aria-selected="true"] { border-color:#efc47e; color:#1d2730; background:#efc47e; font-weight:720; }
   .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); }
   .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; }
   .kpi b { display:block; font-size:28px; font-weight:600; font-variant-numeric:tabular-nums; } .kpi span { color:var(--muted); font-size:13px; }
   .langblock { margin-bottom:16px; } .langblock h2 { font-size:1rem; margin:0 0 8px; }
   .note { color:var(--muted); }
+  #compare h2 { font-size:clamp(1.2rem,3vw,1.65rem); letter-spacing:-.032em; }
+  #compare table { min-width:720px; }
   .tablewrap { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; }
   table { width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
-  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th, td { text-align:left; padding:10px 13px; border-bottom:1px solid var(--line); vertical-align:top; }
   th { color:var(--muted); font-weight:600; position:sticky; top:0; background:var(--card); }
   td.wrap { max-width:280px; overflow-wrap:anywhere; white-space:pre-wrap; }
   .st-executed, .ok { color:var(--ok); } .st-failed, .bad { color:var(--bad); } .st-awaiting_confirmation, .st-needs_clarification, .warn { color:var(--warn); }
@@ -29,7 +34,8 @@
 </style>
 </head>
 <body>
-<header>
+<header><div>
+  <a class="return" href="/">← Accueil de la démo</a>
   <h1>Tableau de bord · Mon Nkap</h1>
   <p class="sub">GIFA · Finale SAFINUM · Opérations sur comptes fictifs</p>
   <div class="tabs" role="tablist">
@@ -38,7 +44,7 @@
     <button role="tab" aria-selected="false" data-tab="log">Journal des requêtes</button>
     <button role="tab" aria-selected="false" data-tab="audit">Audit des opérations</button>
   </div>
-</header>
+</div></header>
 <main>
   <section id="compare" role="tabpanel">
     <h2>Dernier transfert exécuté par canal</h2>

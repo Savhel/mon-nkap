@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10273a">
+<meta name="description" content="Mon Nkap, assistant bancaire multicanal pour les langues du Cameroun.">
+<title>Mon Nkap · Démonstration SAFINUM</title>
+<link rel="icon" href="/icon.svg">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/jury.css">
+<script src="/sdk.js" defer></script>
+<script src="/jury.js" defer></script>
+</head>
+<body class="jury">
+<header class="jury-bar">
+  <div class="jury-wrap jury-top">
+    <a class="jury-brand" href="/"><img src="/icon.svg" width="38" height="38" alt=""><span>Mon Nkap</span></a>
+    <nav aria-label="Navigation principale">
+      <a href="#canaux">Canaux</a><a href="#langues">Langues</a><a href="/tableau">Tableau de bord</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <section class="jury-hero">
+    <div class="jury-wrap jury-hero-grid">
+      <div>
+        <p class="jury-event">GIFA · Finale SAFINUM Innovate Challenge</p>
+        <h1>La banque dans votre langue</h1>
+        <p class="jury-intro">Consultez un solde, vérifiez des frais ou préparez un transfert depuis un mobile, le web ou un téléphone à touches.</p>
+        <div class="jury-links">
+          <a class="jury-button jury-primary" href="#canaux">Essayer la démo <span aria-hidden="true">↓</span></a>
+          <a class="jury-button jury-secondary" href="/tableau">Comparer les opérations <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <aside class="jury-check" aria-label="Parcours proposé au jury">
+        <p class="jury-kicker">À essayer pendant la démonstration</p>
+        <h2>Un transfert, deux canaux</h2>
+        <ol>
+          <li><strong>Choisissez</strong> un montant et un bénéficiaire fictif.</li>
+          <li><strong>Corrigez</strong> le montant, puis confirmez le récapitulatif.</li>
+          <li><strong>Rejouez</strong> le transfert sur un second canal et comparez les reçus.</li>
+        </ol>
+        <p class="jury-local">Comptes fictifs · Aucun argent réel</p>
+      </aside>
+    </div>
+  </section>
+  <div class="jury-wrap jury-main">
+    <section id="canaux" aria-labelledby="titre-canaux">
+      <div class="jury-section-head"><h2 id="titre-canaux">Choisissez votre canal</h2><a href="/canaux">SMS et serveur vocal ↗</a></div>
+      <div class="jury-channels">
+        <a class="jury-channel" href="/mobile?lang=fub">
+          <span aria-hidden="true" class="jury-channel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10 18h4"/></svg></span>
+          <strong>Application mobile</strong><span>Texte, micro et récapitulatif</span><span aria-hidden="true" class="jury-arrow">↗</span>
+        </a>
+        <a class="jury-channel" href="/banque?lang=fub">
+          <span aria-hidden="true" class="jury-channel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65"><rect x="2.5" y="4" width="19" height="16" rx="2.5"/><path d="M2.5 9h19M6 6.5h1m2 0h1"/></svg></span>
+          <strong>Banque web</strong><span>Assistant intégré à l’espace client</span><span aria-hidden="true" class="jury-arrow">↗</span>
+        </a>
+        <a class="jury-channel" href="/canaux#ussd">
+          <span aria-hidden="true" class="jury-channel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65"><rect x="5" y="2.5" width="14" height="19" rx="3"/><path d="M8 9h8M8 12.5h1m2.5 0h1m2.5 0h1M8 16h1m2.5 0h1m2.5 0h1"/></svg></span>
+          <strong>Simulateur USSD</strong><span>Menus au clavier avec <kbd>*126#</kbd></span><span aria-hidden="true" class="jury-arrow">↗</span>
+        </a>
+      </div>
+    </section>
+    <section id="langues" aria-labelledby="titre-langues">
+      <div class="jury-section-head"><h2 id="titre-langues">Langues et modes disponibles</h2><a href="/lab">Laboratoire vocal ↗</a></div>
+      <p id="language-status" class="jury-muted" role="status">Vérification des capacités du serveur…</p>
+      <div id="language-matrix" class="jury-table" hidden></div>
+    </section>
+  </div>
+</main>
+<footer class="jury-wrap jury-footer"><strong>Mon Nkap</strong><a href="/gab">Guichet automatique</a><a href="/portail">Intégrer Mon Nkap</a></footer>
+</body>
+</html>

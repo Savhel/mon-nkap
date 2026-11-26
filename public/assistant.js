@@ -68,11 +68,12 @@
     var log = el('div', 'ca-log'); log.setAttribute('role', 'log'); log.setAttribute('aria-live', 'polite');
     var quick = el('div', 'ca-quick');
     var form = el('form', 'ca-form');
+    var mode = el('p', 'ca-mode'); mode.hidden = true; mode.setAttribute('role', 'status');
     var input = el('input', 'ca-input'); input.placeholder = 'Écrivez votre demande…'; input.setAttribute('aria-label', 'Votre demande'); input.autocomplete = 'off';
     var mic = el('button', 'ca-mic'); mic.type = 'button'; mic.setAttribute('aria-label', 'Parler'); mic.append(icon('mic', 20));
     var go = el('button', 'ca-send'); go.type = 'submit'; go.setAttribute('aria-label', 'Envoyer'); go.append(icon('arrowUp', 20));
     form.append(input, mic, go);
-    root.append(log, quick, form);
+    root.append(mode, log, quick, form);
     var empty = el('div', 'ca-empty');
     var badge = el('span', 'ca-empty-ico'); badge.append(icon('message', 26));
     var e = opts.empty || { title: 'Bonjour', text: 'Écrivez ou dites votre demande dans votre langue, ou choisissez une action ci-dessous.' };
@@ -90,24 +91,42 @@
     }
     setQuick(opts.quick);
     function setDetails(on) { root.classList.toggle('ca-details', !!on); if (info) info.setAttribute('aria-pressed', String(!!on)); }
-    function setLang(code) { lang = code; ct.setLang(code); if (langSel) langSel.value = code; }
+    function setLang(code) { lang = code; ct.setLang(code); if (langSel) langSel.value = code; updateMode(); }
 
-    var runtime = {};
+    var runtime = {}, registry = [];
+    function selectedLanguage() { return registry.find(function (l) { return l.code === lang; }); }
+    function canBank() { return selectedLanguage()?.experience?.banking !== 'none'; }
+    function canRecord() { return selectedLanguage()?.experience?.microphone ?? (runtime.speechToText !== false); }
+    function updateMode() {
+      var selected = selectedLanguage();
+      mode.hidden = !selected;
+      if (selected) {
+        var parts = [g.MonNkap.languageLabel(selected)];
+        if (selected.experience?.microphone && canBank()) parts.push('Micro avec transcription à relire');
+        if (!canRecord() && selected.experience?.asr) parts.push('Micro indisponible sur ce serveur');
+        mode.textContent = parts.join(' · ');
+      }
+      root.classList.toggle('ca-transcript-only', !canBank());
+      quick.hidden = !canBank();
+      go.hidden = !canBank();
+      mic.disabled = !canRecord();
+      mic.title = canRecord() ? 'Parler' : 'Micro indisponible pour cette langue';
+      mic.setAttribute('aria-label', mic.title);
+      input.placeholder = canBank() ? 'Écrivez votre demande…' : 'Votre transcription modifiable';
+    }
     ct.languages().then(function (reg) {
       runtime = reg.runtime || {};
-      if (runtime.speechToText === false) {
-        mic.title = 'Reconnaissance vocale indisponible sur ce serveur';
-        mic.setAttribute('aria-label', mic.title);
+      registry = g.MonNkap.demoLanguages(reg);
+      if (langSel) {
+        registry.forEach(function (language) {
+          var option = el('option', null, language.native || language.name);
+          option.value = language.code;
+          langSel.append(option);
+        });
+        if (!selectedLanguage() && registry.length) setLang(registry[0].code);
+        langSel.value = lang;
       }
-      if (!langSel) return;
-      (reg.languages || []).filter(function (l) {
-        return l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status !== 'unavailable';
-      }).forEach(function (l) {
-        var status = l.capabilities.understanding.status;
-        var o = el('option', null, (l.native || l.name) + (status === 'draft' ? ' · Brouillon' : ''));
-        o.value = l.code; langSel.append(o);
-      });
-      langSel.value = lang;
+      updateMode();
     }).catch(function () { if (langSel) { var o = el('option', null, 'Français'); o.value = 'fr'; langSel.append(o); } });
     if (langSel) {
       var showDetails = false;
@@ -121,7 +140,9 @@
     var typing = el('div', 'ca-typing'); typing.setAttribute('aria-label', 'Réponse en cours'); typing.append(el('i'), el('i'), el('i'));
     function busy(on) {
       root.setAttribute('aria-busy', String(on));
-      [go, mic, input].concat([].slice.call(quick.querySelectorAll('button'))).forEach(function (b) { b.disabled = on; });
+      [go, input].concat([].slice.call(quick.querySelectorAll('button'))).forEach(function (b) { b.disabled = on; });
+      mic.disabled = on || !canRecord();
+      if (langSel) langSel.disabled = on;
       if (on) { log.append(typing); scroll(); } else if (typing.parentNode) typing.remove();
     }
 
@@ -142,7 +163,7 @@
     }
 
     function render(r) {
-      if (r.lang && r.lang !== lang) { lang = r.lang; if (langSel) langSel.value = r.lang; if (opts.onLang) opts.onLang(r.lang); }
+      if (r.lang && r.lang !== lang) { setLang(r.lang); if (opts.onLang) opts.onLang(r.lang); }
       var c = r.canonical || {}, ent = c.entities || {};
       var done = r.status === 'executed';
       var b = bubble('bot', null);
@@ -159,7 +180,7 @@
           var fr = el('details', 'ca-fr'); fr.append(el('summary', null, 'Voir en français'), el('p', null, r.reply.fr)); b.append(fr);
         }
       }
-      var nativeAudio = r.reply.speech && r.reply.speech.length && !REF[r.lang];
+      var nativeAudio = r.reply.speech && r.reply.speech.length && !REF[r.lang] && selectedLanguage()?.experience?.clips;
       var cloudAudio = (runtime.plotweaver || []).includes(r.lang) && r.reply.quality !== 'fallback';
       var piperAudio = (runtime.piper || []).includes(r.lang);
       if (nativeAudio || cloudAudio || piperAudio) {
@@ -220,37 +241,47 @@
     }
 
     function send(text, shown) {
-      if (!text || root.getAttribute('aria-busy') === 'true') return;
+      if (!text || !canBank() || root.getAttribute('aria-busy') === 'true') return;
       bubble('me', shown || text);
       busy(true);
       ct.message(text).then(function (r) { busy(false); render(r); })
         .catch(function (err) { busy(false); bubble('err', 'Service indisponible : ' + err.message); });
     }
-    form.onsubmit = function (ev) { ev.preventDefault(); var t = input.value.trim(); input.value = ''; send(t); };
+    form.onsubmit = function (ev) { ev.preventDefault(); if (!canBank()) return; var t = input.value.trim(); input.value = ''; send(t); };
 
-    // Micro : l'audio part au moteur, qui le transcrit puis le comprend comme du texte.
+    // Le micro remplit le champ. La personne relit la transcription avant de l’envoyer.
     var rec = null, chunks = [];
     mic.onclick = function () {
       if (rec) { rec.stop(); return; }
-      if (runtime.speechToText === false) { bubble('err', 'Micro indisponible sur ce serveur. Vous pouvez écrire votre demande.'); return; }
+      if (!canRecord()) { bubble('err', 'Micro indisponible sur ce serveur. Vous pouvez écrire votre demande.'); return; }
       if (!navigator.mediaDevices) { bubble('err', 'Micro indisponible sur cet appareil.'); return; }
+      if (!window.MediaRecorder) { bubble('err', 'Ce navigateur ne peut pas enregistrer le son.'); return; }
+      mic.disabled = true;
+      var recordedLang = lang;
       navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
-        chunks = []; rec = new MediaRecorder(stream);
+        chunks = [];
+        try { rec = new MediaRecorder(stream); }
+        catch (err) { stream.getTracks().forEach(function (track) { track.stop(); }); throw err; }
         rec.ondataavailable = function (ev) { chunks.push(ev.data); };
         var limit = setTimeout(function () { if (rec && rec.state === 'recording') rec.stop(); }, 19000);
         rec.onstop = function () {
           clearTimeout(limit);
           stream.getTracks().forEach(function (t) { t.stop(); });
           mic.classList.remove('ca-rec'); mic.setAttribute('aria-label', 'Parler'); mic.replaceChildren(icon('mic', 20)); rec = null;
+          if (lang !== recordedLang) return;
           busy(true);
-          ct.voice(new Blob(chunks, { type: (chunks[0] && chunks[0].type) || 'audio/webm' })).then(function (v) {
+          ct.voice(new Blob(chunks, { type: (chunks[0] && chunks[0].type) || 'audio/webm' }), { transcribeOnly: true }).then(function (v) {
             busy(false);
-            if (v.transcript && v.transcript.text) bubble('me', 'Entendu : ' + v.transcript.text);
-            if (v.result) render(v.result); else bubble('err', v.note || 'Rien n’a été reconnu.');
+            if (lang !== recordedLang) return;
+            if (!v.transcript?.text) { bubble('err', v.note || 'Rien n’a été reconnu.'); return; }
+            input.value = v.transcript.text;
+            input.focus();
+            mode.hidden = false;
+            mode.textContent = canBank() ? 'Relisez la transcription et envoyez votre demande.' : 'Vous pouvez modifier ou copier cette transcription.';
           }).catch(function (err) { busy(false); bubble('err', 'Reconnaissance vocale indisponible : ' + err.message); });
         };
-        rec.start(); mic.classList.add('ca-rec'); mic.setAttribute('aria-label', 'Arrêter l’enregistrement'); mic.replaceChildren(icon('stop', 20));
-      }).catch(function () { bubble('err', 'Accès au micro refusé.'); });
+        rec.start(); mic.disabled = false; mic.classList.add('ca-rec'); mic.setAttribute('aria-label', 'Arrêter l’enregistrement'); mic.replaceChildren(icon('stop', 20));
+      }).catch(function () { mic.disabled = !canRecord(); bubble('err', 'Impossible d’accéder au micro.'); });
     };
     return { client: ct, send: send, setLang: setLang, setDetails: setDetails, setQuick: setQuick, focus: function () { input.focus(); } };
   }

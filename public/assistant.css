@@ -89,3 +89,10 @@
 @keyframes ca-pulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ca-bad) 45%, transparent); } 50% { box-shadow: 0 0 0 8px transparent; } }
 .ca-send { border: 0; background: var(--ca-brand); color: var(--ca-on-brand); }
 .ca[aria-busy="true"] .ca-send, .ca[aria-busy="true"] .ca-chip { opacity: .6; }
+
+.ca [hidden] { display: none !important; }
+.ca-mode { margin: 0; padding: 6px 14px; color: var(--ca-muted); background: var(--ca-bg); border-bottom: 1px solid var(--ca-line); font-size: .81rem; }
+.ca-bot audio { display: block; width: 100%; min-width: 0; margin-top: 5px; }
+.ca-log { background: linear-gradient(155deg, color-mix(in srgb, var(--ca-brand) 5%, var(--ca-page)), var(--ca-page) 55%); }
+.ca-quick { padding-right: 16px; -webkit-mask-image: none; mask-image: none; }
+.ca-transcript-only .ca-actions { display: none; }

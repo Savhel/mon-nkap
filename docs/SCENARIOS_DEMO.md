@@ -4,13 +4,13 @@ Le jury choisit une **opération**, une **langue nationale** et un **canal**, so
 même opération sur un autre canal** et compare. Tout se fait sur un même serveur (`npm start`), avec le backend
 simulé commun : un transfert fait sur mobile se voit dans le solde au guichet automatique.
 
-Ouvrir côte à côte : `/mobile`, `/banque` (bouton « Aide dans ma langue »), `/canaux` (USSD et SMS), `/gab`,
+Depuis l’accueil `/`, ouvrir côte à côte `/mobile`, `/banque` (bouton « Aide dans ma langue »), `/canaux` (USSD et SMS), `/gab`,
 et `/tableau` (onglet Journal) pour montrer l'interprétation de chaque requête en direct.
 
 ## Parcours jury en 90 secondes
 
 1. Ouvrir `/mobile`, `/banque`, `/canaux` et `/tableau` sur le même serveur. Choisir **Fulfulde**.
-2. Demander au jury un montant entre **2 000 et 10 000 FCFA** et le saisir dans « a yidi yerbinego [montant] FCFA ha Marie na » (formulation de collecte, brouillon). Si le jury parle, lui laisser lire la transcription et le récapitulatif avant d’appuyer sur **Confirmer**.
+2. Demander au jury un montant entre **2 000 et 10 000 FCFA** et le saisir dans « a yidi yerbinego [montant] FCFA ha Marie na » (formulation de collecte, brouillon). Si le jury parle, lui laisser corriger la transcription, appuyer sur **Envoyer**, puis vérifier le récapitulatif avant **Confirmer**.
 3. Corriger avec « non plutôt [nouveau montant] FCFA ». Vérifier le numéro **655778899**, les frais et le total, puis confirmer. Sur USSD, choisir la langue avec **5**, entrer une demande libre ou choisir **2** pour un transfert guidé. Suivre **98** si l’écran propose une suite et **1** pour confirmer. **0** revient au menu depuis le dialogue. Une session expire après deux minutes d’inactivité.
 4. Rejouer l’opération corrigée sur un deuxième canal. Dans **Comparer les canaux**, montrer le montant, les frais, le total et le bénéficiaire identiques, avec une référence distincte par transfert et la durée de chaque confirmation. L’onglet **Journal** montre aussi les tours de clarification et de correction.
 5. Pour une explication financière à l’oral, demander la définition des frais. Le bouton de lecture utilise un clip complet lorsqu’il existe. Le récapitulatif reste visible pour tous les montants, y compris si aucun enregistrement ne couvre une réponse.
@@ -51,3 +51,15 @@ dans les langues nationales selon les mesures de `data/eval/asr-*.json`.
 - Les phrases en langue nationale affichent leur statut : « Validé par des natifs », « Brouillon » ou « français ».
 - Le tableau de bord (`/tableau`) montre les métriques mesurées sur les phrases de test des natifs, langue par langue.
 - Le mode local débite le simulateur. Le middleware officiel se configure avec les accès de l’équipe.
+
+## Montrer la couverture sans la surestimer
+
+Le tableau **Langues et modes disponibles** présente les modes actifs sur le serveur. Pour passer
+à une autre langue bancaire pendant la démonstration, choisir l’ewondo ou le duala et utiliser les
+menus ou les libellés du lexique avec un montant écrit en chiffres. Pour montrer une capacité vocale
+supplémentaire, ouvrir le basaa depuis l’accueil et relire la transcription. Avec les deux paires
+Flagship chargées, essayer le parcours bulu en le présentant comme expérimental.
+
+La [liste officielle des codes d’Omnilingual ASR](https://github.com/facebookresearch/omnilingual-asr/blob/main/src/omnilingual_asr/models/wav2vec2_llama/lang_ids.py)
+documente la couverture de transcription. Les clips du dépôt et la validation des parcours
+bancaires nécessitent des ressources distinctes.

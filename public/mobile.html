@@ -30,7 +30,7 @@
   /* Accueil */
   .home { overflow-y: auto; overscroll-behavior: contain; }
   .home > * { flex-shrink: 0; }
-  .hero { position: relative; padding: calc(10px + var(--top)) 16px 20px; border-radius: 0 0 28px 28px; overflow: hidden; }
+  .hero { background: radial-gradient(ellipse at 100% 0, #28536c, transparent 58%), #0f172a; position: relative; padding: calc(10px + var(--top)) 16px 20px; border-radius: 0 0 28px 28px; overflow: hidden; }
   .hero-top { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; min-height: 48px; }
   .brand { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; letter-spacing: .01em; }
   .pill { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: rgba(255, 255, 255, .06); color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; }
@@ -39,7 +39,7 @@
   .greet small { display: block; color: #cbd5e1; font-size: 14px; }
   .greet b { display: block; font-size: 22px; font-weight: 600; line-height: 1.3; }
   .card { position: relative; z-index: 1; padding: 18px 18px 16px; border-radius: 20px; color: #fff;
-    background: linear-gradient(135deg, #b45309 0%, #a16207 55%, #854d0e 100%); box-shadow: 0 12px 28px rgba(133, 77, 14, .35); overflow: hidden; }
+    background: radial-gradient(circle at 92% 0, #d29332, transparent 55%), linear-gradient(135deg, #a35811, #763a12); box-shadow: 0 12px 28px rgba(133, 77, 14, .35); overflow: hidden; }
   .card::before { content: ""; position: absolute; right: -40px; bottom: -70px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255, 255, 255, .08); }
   .card-row { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; color: #fef3c7; }
   .card-amount { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; min-height: 48px; }
@@ -137,7 +137,7 @@
       </div>
     </header>
     <div class="body">
-      <h2 class="sec">Que voulez-vous faire ?</h2>
+      <h2 class="sec" id="services-heading">Que voulez-vous faire ?</h2>
       <div class="grid" id="grid"></div>
       <button class="assist" id="open-chat" type="button">
         <span class="assist-ico"><span data-ico="mic" data-size="22"></span></span>
@@ -203,7 +203,7 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
   };
   var lang = new URLSearchParams(location.search).get('lang') || store.get('nk-lang') || 'fr';
-  var assistant = null, home = null, languages = [], runtime = {};
+  var assistant = null, home = null, languages = [];
 
   // Services de l'accueil : libellé traduit par le serveur (/v1/labels), demande envoyée au moteur.
   var SERVICES = [
@@ -219,16 +219,21 @@
   function label(s) { return translated(s[0], s[1]) || s[1]; }
   function langName(code) { var l = languages.find(function (x) { return x.code === code; }); return l ? (l.native || l.name) : (code === 'fr' ? 'Français' : code); }
   function langStatus(l) {
-    var st = l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status;
-    var modes = ['Texte'];
-    if (runtime.speechToText && l.capabilities.speechToText && l.capabilities.speechToText.status !== 'unavailable') modes.push('Micro');
-    if (['fub', 'wes'].includes(l.code)) modes.push('Clips pour certaines réponses');
-    if ((runtime.piper || []).includes(l.code) || (runtime.plotweaver || []).includes(l.code)) modes.push('Synthèse configurée');
-    return [st === 'available' ? 'Disponible' : 'Brouillon', st === 'available' ? 'ok' : 'warn', modes.join(' · ')];
+    var exp = l.experience || {};
+    var modes = [];
+    if (exp.banking !== 'none') modes.push('Texte et menus');
+    if (exp.microphone) modes.push('Micro');
+    else if (exp.asr) modes.push('Modèle vocal à charger');
+    if (exp.clips) modes.push('Clips enregistrés');
+    if (exp.synthesis) modes.push('Synthèse configurée');
+    return [MonNkap.languageLabel(l), exp.banking === 'reference' ? 'ok' : 'warn', modes.join(' · ') || 'En préparation'];
   }
 
   function renderGrid() {
     var grid = $('grid'); grid.textContent = '';
+    var selected = languages.find(function (l) { return l.code === lang; });
+    var banking = selected?.experience?.banking !== 'none';
+    grid.hidden = $('services-heading').hidden = !banking;
     SERVICES.forEach(function (s) {
       var b = make('button', 'tile'); b.type = 'button';
       var ico = make('span', 'tile-ico'); ico.append(A.icon(s[3], 22));
@@ -243,10 +248,14 @@
   function applyLang(code, fromEngine) {
     lang = code; store.set('nk-lang', code);
     $('lang-name').textContent = langName(code);
-    $('chat-lang').textContent = 'Répond en ' + langName(code);
-    $('assist-sub').textContent = 'Écrivez ou dites votre demande : Mon Nkap vous répond en ' + langName(code) + '.';
+    var selected = languages.find(function (language) { return language.code === code; });
+    $('chat-lang').textContent = langName(code) + (selected ? ' · ' + MonNkap.languageLabel(selected) : '');
+    $('assist-sub').textContent = selected?.experience?.banking === 'none'
+      ? (selected.experience.microphone ? 'Enregistrez puis relisez votre transcription.' : 'La transcription sera accessible avec le modèle vocal.')
+      : 'Consultez le solde, faites un transfert ou demandez les frais.';
     if (assistant && !fromEngine) assistant.setLang(code);
-    home.labels(code).then(function (l) { labels = l; renderGrid(); }).catch(function () { labels = {}; renderGrid(); });
+    labels = {}; renderGrid();
+    home.labels(code).then(function (l) { if (lang === code) { labels = l; renderGrid(); } }).catch(function () {});
   }
 
   // Solde masqué par défaut (comme dans les applications bancaires) ; demandé au moteur à l'affichage.
@@ -315,8 +324,7 @@
     });
     renderGrid();
     home.languages().then(function (reg) {
-      runtime = reg.runtime || {};
-      languages = (reg.languages || []).filter(function (l) { return l.capabilities && l.capabilities.understanding && l.capabilities.understanding.status !== 'unavailable'; });
+      languages = MonNkap.demoLanguages(reg);
       if (!languages.some(function (l) { return l.code === lang; })) lang = 'fr';
       applyLang(lang);
     }).catch(function () { applyLang('fr'); });

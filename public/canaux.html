@@ -76,16 +76,16 @@
     <input id="same" type="text" value="envoie 5000 a Marie" aria-label="Demande à envoyer sur tous les canaux">
     <button id="all">Envoyer sur les 3 canaux</button>
     <button class="ghost" id="reset">Recommencer</button>
-    <a href="/" style="color:var(--accent)">Page micro</a>
+    <a href="/" style="color:var(--accent)">Accueil de la démo</a> · <a href="/tableau" style="color:var(--accent)">Comparer les canaux</a>
   </div>
   <p class="verdict" id="verdict"></p>
 </header>
 <main>
-  <section class="card">
+  <section class="card" id="ussd">
     <h2>USSD <span class="tag">*126# · écran 182 caractères</span></h2>
     <div class="phone">
-      <div class="screen" id="screen">Composez *126# pour commencer.</div>
-      <div class="ussdin"><input id="ukey" inputmode="numeric" placeholder="Votre choix"><button id="usend">OK</button></div>
+      <div class="screen" id="screen" role="status">Composez *126# pour commencer.</div>
+      <div class="ussdin"><input id="ukey" aria-label="Choix ou demande USSD" placeholder="Chiffre ou demande"><button id="usend">OK</button></div>
       <div class="keys" id="keys"></div>
     </div>
   </section>

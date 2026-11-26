@@ -14,7 +14,7 @@ import { userSession, type Engine, type EngineResult } from '../core/engine.ts';
 export const USSD_IDLE_MS = 2 * 60_000;
 export const USSD_MAX = 182; // longueur maximale d'un écran USSD
 
-const LANGS: [string, string][] = [['fr', 'Français'], ['en', 'English'], ['ewo', 'Ewondo'], ['dua', 'Duala'], ['fub', 'Fulfulde'], ['wes', 'Pidgin'], ['bum', 'Bulu'], ['bas', "Bassa'a"]];
+const LANGS: [string, string][] = [['fr', 'Français'], ['en', 'English'], ['ewo', 'Ewondo'], ['dua', 'Duala'], ['fub', 'Fulfulde'], ['wes', 'Pidgin'], ['bum', 'Bulu (menu FR)'], ['bas', 'Basaa (menu FR)']];
 
 // Choix du menu principal → phrase canonique envoyée au moteur (en français : le moteur écoute
 // toujours le français en plus de la langue choisie).

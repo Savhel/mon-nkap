@@ -3,57 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Banque Démo · espace client</title>
+<title>Banque Démo · Espace client</title>
 <style>
-  /* Ceci représente le site EXISTANT d'une banque (fictive). Son code n'est pas modifié par Mon Nkap. */
-  :root { --bg:#f3f5f8; --card:#fff; --ink:#18202a; --muted:#5b6675; --line:#dde3ea; --brand:#1e3a8a; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0e1116; --card:#171b22; --ink:#e6e9ee; --muted:#9aa4b2; --line:#2a313b; --brand:#93c5fd; } }
+  :root { --bg:#f4f6f7; --card:#fff; --ink:#152b37; --muted:#4d626b; --line:#dde5e6; --brand:#24605f; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111d25; --card:#1a2931; --ink:#ecf4f3; --muted:#b0c4c9; --line:#354951; --brand:#a4d9ca; } }
   * { box-sizing:border-box; }
-  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  body { margin:0; padding-bottom:95px; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+  .wrap { width:min(1100px,100% - 40px); margin-inline:auto; }
   header { background:var(--card); border-bottom:1px solid var(--line); }
-  .wrap { max-width:1040px; margin:0 auto; padding:0 16px; }
-  .top { display:flex; justify-content:space-between; align-items:center; height:64px; }
-  .logo { font-weight:800; color:var(--brand); font-size:1.15rem; }
-  nav a { color:var(--muted); text-decoration:none; margin-left:16px; }
-  @media (max-width:640px) { .top { height:auto; padding:12px 16px; flex-wrap:wrap; gap:6px; } nav { display:flex; flex-wrap:wrap; gap:4px 14px; } nav a { margin-left:0; font-size:14px; } main { padding:16px; } }
-  main { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); padding:20px 16px; max-width:1040px; margin:0 auto; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; }
-  h2 { font-size:1rem; margin:0 0 10px; }
-  .amount { font-size:1.8rem; font-weight:700; }
+  .top { min-height:68px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px 20px; }
+  .logo { color:var(--brand); font-size:1.22rem; letter-spacing:-.035em; font-weight:770; }
+  nav { display:flex; flex-wrap:wrap; column-gap:18px; }
+  nav a { min-height:44px; display:inline-flex; align-items:center; color:var(--muted); font-size:.88rem; font-weight:650; text-underline-offset:.24em; }
+  main { padding-block:clamp(24px,6vw,53px); }
+  h1,h2,p { margin-top:0; }
+  h1 { margin-bottom:6px; font-size:clamp(1.8rem,5vw,3rem); letter-spacing:-.055em; line-height:1.08; }
+  h2 { margin-bottom:14px; font-size:1.13rem; letter-spacing:-.014em; }
+  .intro { color:var(--muted); margin-bottom:24px; }
+  .grid { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:15px; }
+  .account, .history { padding:clamp(19px,4vw,28px); border-radius:18px; }
+  .account { background:radial-gradient(ellipse at 100% 0,#387471,transparent 70%),#173b41; color:#f2fbf6; min-height:185px; }
+  .account h2 { color:#cce5e0; }
+  .account small { color:#daebe8; }
+  .amount { font-size:clamp(1.82rem,4vw,2.7rem); font-weight:730; font-variant-numeric:tabular-nums; letter-spacing:-.045em; }
+  .history { background:var(--card); border:1px solid var(--line); }
   table { width:100%; border-collapse:collapse; font-size:.9rem; }
   td { padding:8px 0; border-bottom:1px solid var(--line); }
-  td:last-child { text-align:right; font-variant-numeric:tabular-nums; }
-  label { display:block; font-size:.85rem; color:var(--muted); margin-top:10px; }
-  input, select { width:100%; font:inherit; padding:10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); min-height:44px; }
-  .btn { margin-top:14px; width:100%; min-height:44px; border:0; border-radius:8px; background:var(--brand); color:#fff; font:inherit; font-weight:600; }
-  .note { font-size:.8rem; color:var(--muted); }
+  td + td { padding-left:12px; text-align:right; font-variant-numeric:tabular-nums; }
+  tr:last-child td { border-bottom:0; }
+  .assistant-action { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:20px; padding:18px 0; border-bottom:1px solid var(--line); }
+  .assistant-action h2 { margin:0 0 2px; }
+  .assistant-action p { margin:0; color:var(--muted); font-size:.92rem; }
+  [data-nk-open] { color:var(--brand); border:1px solid var(--line); background:var(--card); min-height:44px; padding:6px 14px; border-radius:10px; font:inherit; font-weight:650; cursor:pointer; }
+  [hidden] { display:none !important; }
+  @media (max-width:660px) { .grid { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
-<header><div class="wrap top"><span class="logo">Banque Démo</span><nav><a href="#">Comptes</a><a href="#">Virements</a><a href="#">Factures</a><a href="#">Déconnexion</a></nav></div></header>
-<main>
-  <section class="card">
-    <h2>Compte courant ••• 4521</h2>
-    <div class="amount">150 000 FCFA</div>
-    <p class="note">Solde disponible (données fictives)</p>
-  </section>
-  <section class="card">
-    <h2>Dernières opérations</h2>
-    <table>
-      <tr><td>22/11 · Virement à Marie Ngo Bassa</td><td>−10 000 FCFA</td></tr>
-      <tr><td>21/11 · Facture ENEO</td><td>−12 500 FCFA</td></tr>
-      <tr><td>20/11 · Reçu d'Aminatou Bello</td><td>+50 000 FCFA</td></tr>
-    </table>
-  </section>
-  <section class="card">
-    <h2>Nouveau virement</h2>
-    <label for="b">Bénéficiaire</label><select id="b"><option>Marie Ngo Bassa</option><option>Paul Mbarga</option><option>Aminatou Bello</option></select>
-    <label for="m">Montant</label><input id="m" inputmode="numeric" placeholder="Montant en FCFA">
-    <button class="btn" type="button">Continuer</button>
-    <p class="note">Formulaire d'origine de la banque, en français uniquement.</p>
+<header><div class="wrap top"><span class="logo">Banque Démo</span><nav aria-label="Navigation"><a href="/#canaux">Changer de canal</a><a href="/tableau">Tableau de bord</a></nav></div></header>
+<main class="wrap">
+  <h1>Espace client</h1>
+  <p class="intro">Compte et opérations fictifs. Le solde à jour est disponible dans l’assistant.</p>
+  <div class="grid">
+    <section class="account">
+      <h2>Compte courant ••• 4521</h2>
+      <div class="amount">150 000 FCFA</div>
+      <small>Solde initial du simulateur</small>
+    </section>
+    <section class="history">
+      <h2>Historique de départ</h2>
+      <table aria-label="Opérations du compte fictif">
+        <tbody>
+          <tr><td>22/11 · Virement à Marie Ngo Bassa</td><td>−10 000 FCFA</td></tr>
+          <tr><td>21/11 · Facture ENEO</td><td>−12 500 FCFA</td></tr>
+          <tr><td>20/11 · Reçu d’Aminatou Bello</td><td>+50 000 FCFA</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <section class="assistant-action">
+    <div><h2>Un virement ou une question ?</h2><p>Choisissez votre langue dans Mon Nkap.</p></div>
+    <button type="button" data-nk-open hidden>Ouvrir l’assistant</button>
   </section>
 </main>
-<!-- Seule ligne ajoutée au site de la banque : l'assistant dans la langue de l'utilisateur. -->
-<script src="/widget.js" data-lang="fr" async></script>
+<script src="/widget.js" data-lang="fr" data-demo-launch="true" async></script>
 </body>
 </html>
