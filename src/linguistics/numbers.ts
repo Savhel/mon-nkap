@@ -27,7 +27,7 @@ export interface NumberGrammar {
 const MULTIPLIERS = new Set([100, 1000, 1_000_000]);
 const isAtomic = (v: number) => v <= 19 || (v < 100 && v % 10 === 0) || MULTIPLIERS.has(v);
 
-type Seg = { v: number; digits?: true } | { c: string } | { other: string };
+type Seg = { v: number; digits?: true; word?: string } | { c: string } | { other: string };
 
 /** Découpe une suite de jetons en expressions numériques connues (la plus longue d'abord). */
 function segment(toks: string[], words: Record<string, number>, connectors: Set<string>): Seg[] {
@@ -36,7 +36,7 @@ function segment(toks: string[], words: Record<string, number>, connectors: Set<
   for (let i = 0; i < toks.length;) {
     if (/^\d+$/.test(toks[i])) { out.push({ v: Number(toks[i]), digits: true }); i++; continue; }
     const hit = phrases.find((p) => p.every((w, k) => toks[i + k] === w));
-    if (hit) { out.push({ v: words[hit.join(' ')] }); i += hit.length; continue; }
+    if (hit) { out.push({ v: words[hit.join(' ')], word: hit.join(' ') }); i += hit.length; continue; }
     if (connectors.has(toks[i])) { out.push({ c: toks[i] }); i++; continue; }
     out.push({ other: toks[i] }); i++;
   }
@@ -138,14 +138,18 @@ export function numeralize(text: string, g: NumberGrammar): string {
   const segs = segment(toks, g.words, new Set(g.connectors));
   const out: string[] = [];
   let run: Item[] = [];
+  let runWord = '';
   let pending: string[] = [];
   const flush = () => {
     // Des chiffres dits un par un (« six five five seven seven… ») sont une dictée, pas un montant :
     // ils sont recollés (« 65577… ») pour que la détection des numéros de téléphone s'applique.
     if (run.length >= 2 && run.every((x) => x !== '+' && x < 10)) out.push(run.join(''));
+    // « un » / « one » seul n'est pas un montant : en pidgin, la reconnaissance vocale écrit « one » pour
+    // « wan » (vouloir) : « i one sen five thousand » donnait les montants 1 et 5 000.
+    else if (run.length === 1 && run[0] === 1 && runWord) out.push(runWord);
     else if (run.length) { const v = compose(run, g.order); out.push(v === null ? '' : String(v)); }
     out.push(...pending);
-    run = []; pending = [];
+    run = []; runWord = ''; pending = [];
   };
   for (let i = 0; i < segs.length; i++) {
     const s = segs[i];
@@ -159,7 +163,7 @@ export function numeralize(text: string, g: NumberGrammar): string {
       else out.push(String(s.v));
       continue;
     }
-    if ('v' in s) { if (pending.length) run.push('+'); pending = []; run.push(s.v); } // liaison entre deux nombres
+    if ('v' in s) { if (pending.length) run.push('+'); pending = []; run.push(s.v); runWord = run.length === 1 ? s.word ?? '' : ''; } // liaison entre deux nombres
     else if ('c' in s && run.length) pending.push(s.c);
     else { flush(); out.push('c' in s ? s.c : s.other); }
   }

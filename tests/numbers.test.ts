@@ -51,6 +51,12 @@ test('les montants écrits en chiffres restent exacts dans une langue qui a sa g
   assert.equal(numeralize('lom 25 kilo', g), 'lom 25000');                    // chiffres suivis d'un multiplicateur dit
 });
 
+test('« un » seul n’est pas un montant (en pidgin, « one » transcrit pour « wan », vouloir)', () => {
+  const g = learnGrammar(ZZ);
+  assert.equal(numeralize('a pa lom kilo tano', g), 'a pa lom 5000');        // « pa » = 1, seul : laissé en mot
+  assert.equal(numeralize('kilo pa', g), '1000');                              // avec un autre nombre : composé (1000 × 1)
+});
+
 test('des chiffres dictés un par un forment un numéro, pas un montant', () => {
   const g = learnGrammar([...ZZ, e(6, 'sita'), e(9, 'nain')]);
   assert.equal(numeralize('a sita tano tano', g), 'a 655');
