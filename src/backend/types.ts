@@ -20,7 +20,7 @@ export interface FeeQuote { amount: number; fee: number; total: number; rule: st
 
 export type OpResult<T> =
   | { ok: true; value: T }
-  | { ok: false; code: 'insufficient_funds' | 'unknown_beneficiary' | 'limit_exceeded' | 'invalid_amount' | 'backend_error' | 'outcome_unknown'; message: string; details?: Record<string, number | string> };
+  | { ok: false; code: 'insufficient_funds' | 'unknown_beneficiary' | 'limit_exceeded' | 'invalid_amount' | 'backend_error' | 'outcome_unknown' | 'unknown_account'; message: string; details?: Record<string, number | string> };
 
 export interface PendingTransactionInput {
   op: 'transfer' | 'airtime' | 'bill' | 'withdraw';

@@ -67,6 +67,9 @@ function mapSafinumError(code: string | undefined, status: number, message: stri
       details: { limit: Number(data.limit ?? data.max_amount ?? 500_000) },
     };
   }
+  if (code === 'UNKNOWN_ACCOUNT') {
+    return { ok: false, code: 'unknown_account', message };
+  }
   if (code === 'UNKNOWN_BENEFICIARY' || code === 'UNKNOWN_BILLER') {
     return { ok: false, code: 'unknown_beneficiary', message };
   }
@@ -122,7 +125,9 @@ export class SafinumBackend implements FinancialBackend {
 
     if (!res.ok) {
       const errObj = (parsed.error && typeof parsed.error === 'object' ? parsed.error : parsed) as Record<string, unknown>;
-      const code = typeof errObj.code === 'string' ? errObj.code : typeof parsed.code === 'string' ? parsed.code : undefined;
+      // Le bac à sable répond { "error": "UNKNOWN_ACCOUNT", "message": … } : le code peut être le texte de « error ».
+      const code = typeof errObj.code === 'string' ? errObj.code : typeof parsed.code === 'string' ? parsed.code
+        : typeof parsed.error === 'string' && /^[A-Z_]{3,40}$/.test(parsed.error) ? parsed.error : undefined;
       const message = typeof errObj.message === 'string' ? errObj.message : typeof parsed.message === 'string' ? parsed.message : `HTTP ${res.status}`;
       return { ok: false, status: res.status, code, message, raw: { ...parsed, ...errObj } };
     }

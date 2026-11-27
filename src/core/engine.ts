@@ -313,7 +313,7 @@ export class Engine {
     switch (it.intent) {
       case 'balance': {
         const b = await this.backend.getBalance(s.accountId);
-        if (!b.ok) return { kind: { kind: 'backend_error' }, status: 'failed', intent: 'balance' };
+        if (!b.ok) return { kind: { kind: b.code === 'unknown_account' ? 'unknown_account' : 'backend_error' }, status: 'failed', intent: 'balance' };
         return { kind: { kind: 'balance', balance: b.value.balance }, status: 'answered', intent: 'balance' };
       }
       case 'fees': {
@@ -324,7 +324,7 @@ export class Engine {
       }
       case 'history': {
         const h = await this.backend.history(s.accountId, 5);
-        if (!h.ok) return { kind: { kind: 'backend_error' }, status: 'failed', intent: 'history' };
+        if (!h.ok) return { kind: { kind: h.code === 'unknown_account' ? 'unknown_account' : 'backend_error' }, status: 'failed', intent: 'history' };
         return { kind: { kind: 'history', items: h.value }, status: 'answered', intent: 'history' };
       }
       case 'explain_term': return { kind: it.term ? { kind: 'explain', term: it.term } : { kind: 'help' }, status: 'answered', intent: 'explain_term' };
@@ -436,6 +436,7 @@ export class Engine {
     if (err.code === 'insufficient_funds') {
       return { kind: { kind: 'insufficient', balance: Number(err.details?.balance ?? 0), required: Number(err.details?.required ?? 0), missing: Number(err.details?.missing ?? 0) }, status: 'failed', intent };
     }
+    if (err.code === 'unknown_account') return { kind: { kind: 'unknown_account' }, status: 'failed', intent };
     if (err.code === 'limit_exceeded') {
       return { kind: { kind: 'limit_exceeded', limit: Number(err.details?.limit ?? 500_000) }, status: 'failed', intent };
     }
@@ -474,7 +475,7 @@ export class Engine {
     if (!r.ok) {
       if (r.code === 'insufficient_funds') return { kind: { kind: 'insufficient', balance: Number(r.details?.balance), required: Number(r.details?.required), missing: Number(r.details?.missing) } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
       if (r.code === 'limit_exceeded') return { kind: { kind: 'limit_exceeded', limit: Number(r.details?.limit) } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
-      return { kind: { kind: 'backend_error' } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
+      return { kind: { kind: r.code === 'unknown_account' ? 'unknown_account' : 'backend_error' } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
     }
     const bal = await this.backend.getBalance(s.accountId);
     const balance = bal.ok ? bal.value.balance : 0;

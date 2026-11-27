@@ -66,7 +66,8 @@ export type ReplyKind =
   | { kind: 'greeting' }
   | { kind: 'not_understood' }
   | { kind: 'backend_error' }
-  | { kind: 'outcome_unknown'; reference: string };
+  | { kind: 'outcome_unknown'; reference: string }
+  | { kind: 'unknown_account' };
 
 const GLOSSARY: Record<string, { fr: string; en: string }> = {
   fees: { fr: "Les frais sont la somme que le service prélève en plus du montant envoyé. Exemple : pour envoyer 10 000 FCFA avec 100 FCFA de frais, 10 100 FCFA sont retirés de votre compte.", en: 'Fees are the amount the service charges on top of the money you send. Example: sending 10,000 FCFA with a 100 FCFA fee takes 10,100 FCFA from your account.' },
@@ -115,6 +116,7 @@ function frenchAndEnglish(r: ReplyKind, lang: 'fr' | 'en'): string {
     case 'outcome_unknown': return fr
       ? `Statut en cours de vérification. Ne refaites pas le transfert. Référence : ${r.reference}.`
       : `Checking the transaction status. Do not resend. Reference: ${r.reference}.`;
+    case 'unknown_account': return fr ? 'Ce numéro n’a pas de compte dans cette banque. Aucune opération n’a été effectuée.' : 'This number has no account with this bank. Nothing was executed.';
     case 'backend_error': return fr ? 'Le service est momentanément indisponible. Aucune opération n’a été effectuée. Réessayez.' : 'The service is temporarily unavailable. Nothing was executed. Please retry.';
   }
 }

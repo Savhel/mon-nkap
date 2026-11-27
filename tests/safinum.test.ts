@@ -242,3 +242,20 @@ test('SAFINUM : confirmation sans réponse, statut récupéré par lecture et d�
     ['POST', '/transactions'], ['POST', '/transactions/TRX-1001/confirm'], ['GET', '/transactions/TRX-1001'],
   ]);
 });
+
+test('SAFINUM : un numéro absent du jeu de données donne « compte inconnu », pas « service indisponible »', async () => {
+  const fetchImpl = (async () => Response.json({ error: 'UNKNOWN_ACCOUNT', message: 'Compte introuvable dans le jeu de données.' }, { status: 404 })) as typeof fetch;
+  const { Engine } = await import('../src/core/engine.ts');
+  const engine = new Engine(new SafinumBackend({ baseUrl: 'https://bac-a-sable.invalid/api/v1', teamKey: 'sbx_test_team_key', fetchImpl }));
+  const r = await engine.handle({ sessionId: 'inconnu', channel: 'mobile', lang: 'fr', accountId: '237600000000', text: 'quel est mon solde' });
+  assert.equal(r.status, 'failed');
+  assert.match(r.reply.text, /pas de compte/);
+});
+
+test('SAFINUM : un code d’erreur donné en texte (« error »: « INSUFFICIENT_FUNDS ») est bien lu', async () => {
+  const fetchImpl = (async () => Response.json({ error: 'INSUFFICIENT_FUNDS', message: 'Solde insuffisant.', balance: 1000, required: 5100, missing: 4100 }, { status: 422 })) as typeof fetch;
+  const backend = new SafinumBackend({ baseUrl: 'https://bac-a-sable.invalid/api/v1', teamKey: 'sbx_test_team_key', fetchImpl });
+  const r = await backend.getBalance('237600000000');
+  assert.equal(r.ok, false);
+  assert.equal(!r.ok && r.code, 'insufficient_funds');
+});
