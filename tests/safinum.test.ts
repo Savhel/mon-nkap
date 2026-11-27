@@ -259,3 +259,73 @@ test('SAFINUM : un code d’erreur donné en texte (« error »: « INSUFFICIENT
   assert.equal(r.ok, false);
   assert.equal(!r.ok && r.code, 'insufficient_funds');
 });
+
+test('SAFINUM : dédoublonnage des bénéficiaires renvoyés par institution', async () => {
+  const fetchImpl = (async () => Response.json({
+    count: 4,
+    beneficiaries: [
+      { name: 'Achille Ebongué', phone: '237670357792', institution: 'SAFINUM' },
+      { name: 'Achille Ebongué', phone: '237670357792', institution: 'ORANGE' },
+      { name: 'Achille Ebongué', phone: '237670357792', institution: 'MTN' },
+      { name: 'Achille Nji', phone: '237621938979', institution: 'SAFINUM' },
+    ],
+  })) as typeof fetch;
+  const backend = new SafinumBackend({ baseUrl: 'https://bac-a-sable.invalid/api/v1', teamKey: 'sbx_test_team_key', fetchImpl });
+  const contacts = await backend.listContacts('demo');
+  assert.equal(contacts.length, 2);
+  assert.deepEqual(contacts.map((c) => [c.name, c.phone]), [
+    ['Achille Ebongué', '670357792'],
+    ['Achille Nji', '621938979'],
+  ]);
+});
+
+test('SAFINUM USSD : menu d’accueil numéroté puis choix « 1 » pour le solde', async (t) => {
+  const fake = startFakeSafinumApi();
+  await new Promise<void>((resolve) => fake.server.listen(0, '127.0.0.1', resolve));
+  t.after(() => fake.server.close());
+  const bankUrl = `http://127.0.0.1:${(fake.server.address() as AddressInfo).port}`;
+
+  const { Engine } = await import('../src/core/engine.ts');
+  const engine = new Engine(new SafinumBackend({ baseUrl: bankUrl, teamKey: 'sbx_test_team_key' }), 'fr');
+  const { server } = createApp(engine, { auditFile: null, keysFile: null, connectorsFile: null, uiResourcesFile: null });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const mwUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}/safinum/middleware`;
+
+  const menu = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'ussd-menu-1',
+      channel: 'ussd',
+      session_id: 's-menu',
+      phone: '237677000001',
+      language: null,
+      input: { type: 'text', text: '' },
+      constraints: { max_chars: 182, charset: 'gsm7' },
+    }),
+  }).then((r) => r.json()) as { response: { text: string; options: string[] }; interpretation: { intent: string } };
+
+  assert.equal(menu.interpretation.intent, 'UNKNOWN');
+  assert.ok(menu.response.options.length >= 4);
+  assert.match(menu.response.text, /1\.\s*Solde/);
+  assert.ok(gsm7Septets(menu.response.text) <= 182);
+
+  const solde = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'ussd-menu-2',
+      channel: 'ussd',
+      session_id: 's-menu',
+      phone: '237677000001',
+      language: null,
+      input: { type: 'text', text: '1' },
+      constraints: { max_chars: 182, charset: 'gsm7' },
+    }),
+  }).then((r) => r.json()) as { response: { text: string }; interpretation: { intent: string; parameters: { balance?: number } } };
+
+  assert.equal(solde.interpretation.intent, 'BALANCE_INQUIRY');
+  assert.equal(solde.interpretation.parameters.balance, 100000);
+  assert.match(solde.response.text, /100 000 FCFA/);
+});

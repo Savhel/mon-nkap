@@ -96,6 +96,10 @@ export class Engine {
     return this.sessions.get(this.sessionKey(sessionId, institution))?.pending?.pendingTxId;
   }
 
+  hasPending(sessionId: string, institution?: string): boolean {
+    return !!this.sessions.get(this.sessionKey(sessionId, institution))?.pending;
+  }
+
   /**
    * Confirmation par jeton (bouton « Confirmer » d'une application bancaire) : n'exécute que si le jeton est
    * celui de l'opération actuellement présentée et n'a pas expiré. Un jeton déjà utilisé ne vaut plus rien.
@@ -388,14 +392,16 @@ export class Engine {
     const intent = p.op === 'bill' ? 'bill_payment' as const : p.op;
     // Invalider l'ancien récapitulatif avant tout appel réseau.
     p.token = undefined;
-    const q = await this.backend.quoteFee(s.accountId, kind, p.amount!);
+    const [q, bal] = await Promise.all([
+      this.backend.quoteFee(s.accountId, kind, p.amount!),
+      this.backend.getBalance(s.accountId),
+    ]);
     if (!q.ok) {
       if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
       s.pending = undefined;
       if (q.code === 'limit_exceeded') return { kind: { kind: 'limit_exceeded', limit: Number(q.details?.limit ?? 500_000) }, status: 'failed', intent };
       return { kind: { kind: 'backend_error' }, status: 'failed', intent: null };
     }
-    const bal = await this.backend.getBalance(s.accountId);
     if (bal.ok && bal.value.balance < q.value.total) {
       if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
       s.pending = undefined;
