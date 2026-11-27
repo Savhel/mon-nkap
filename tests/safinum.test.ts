@@ -361,3 +361,203 @@ test('SAFINUM USSD : menu d’accueil numéroté puis choix « 1 » pour le sold
   assert.equal(solde.interpretation.parameters.balance, 100000);
   assert.match(solde.response.text, /100 000 FCFA/);
 });
+
+test('SAFINUM SMS : session_id null, continuité par téléphone et conformité GSM-7 ≤ 3 segments', async (t) => {
+  const fake = startFakeSafinumApi();
+  await new Promise<void>((resolve) => fake.server.listen(0, '127.0.0.1', resolve));
+  t.after(() => fake.server.close());
+  const bankUrl = `http://127.0.0.1:${(fake.server.address() as AddressInfo).port}`;
+
+  const engine = new Engine(new SafinumBackend({ baseUrl: bankUrl, teamKey: 'sbx_test_team_key' }), 'fr');
+  const { server } = createApp(engine, { auditFile: null, keysFile: null, connectorsFile: null, uiResourcesFile: null });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const mwUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}/safinum/middleware`;
+
+  const sms1 = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'sms-1',
+      channel: 'sms',
+      session_id: null,
+      phone: '237677000002',
+      language: null,
+      input: { type: 'text', text: 'envoie 5000 à Marie' },
+      constraints: { max_chars: 160, charset: 'gsm7_ucs2', max_segments: 3, mode: 'async', timeout_ms: 10000 },
+    }),
+  }).then((r) => r.json()) as {
+    response: { text: string };
+    interpretation: { intent: string };
+    transaction: { id: string | null; status: string };
+  };
+
+  assert.equal(sms1.interpretation.intent, 'TRANSFER');
+  assert.equal(sms1.transaction.status, 'pending');
+  assert.equal(sms1.response.text, toGsm7(sms1.response.text));
+  assert.ok(gsm7Septets(sms1.response.text) <= 459);
+
+  const sms2 = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'sms-2',
+      channel: 'sms',
+      session_id: null,
+      phone: '237677000002',
+      language: null,
+      input: { type: 'text', text: 'oui' },
+      constraints: { max_chars: 160, charset: 'gsm7_ucs2', max_segments: 3, mode: 'async', timeout_ms: 10000 },
+    }),
+  }).then((r) => r.json()) as {
+    response: { text: string };
+    interpretation: { intent: string };
+    transaction: { id: string | null; status: string };
+  };
+
+  assert.equal(sms2.interpretation.intent, 'CONFIRM');
+  assert.equal(sms2.transaction.status, 'confirmed');
+  assert.equal(sms2.response.text, toGsm7(sms2.response.text));
+  assert.ok(gsm7Septets(sms2.response.text) <= 459);
+});
+
+test('SAFINUM GAB (atm) : traduction ui_translation avec contrainte 18 caractères', async (t) => {
+  const { server } = createApp(undefined, { auditFile: null, keysFile: null, connectorsFile: null, uiResourcesFile: null });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const mwUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}/safinum/middleware`;
+
+  const res = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'atm-1',
+      channel: 'atm',
+      type: 'ui_translation',
+      session_id: 'atm-sess',
+      phone: '237677000003',
+      language: 'en',
+      source_language: 'fr',
+      screen: 'atm_menu',
+      strings: {
+        'atm.balance': { text: 'Consulter le solde', context: 'Touche GAB', max_chars: 18 },
+        'atm.withdraw': { text: 'Retrait espèces', context: 'Touche GAB', max_chars: 18 },
+      },
+      constraints: { max_chars: null, charset: 'utf8', columns: 40, key_label_chars: 18 },
+    }),
+  });
+  const body = await res.json() as { language: string; strings: Record<string, string> };
+  assert.equal(res.status, 200);
+  assert.equal(body.language, 'en');
+  assert.ok(body.strings['atm.balance'].length <= 18);
+  assert.ok(body.strings['atm.withdraw'].length <= 18);
+});
+
+test('SAFINUM Vocal (ivr) : accueil DTMF vide, touche 1, audio WAV > 256 Ko et fallback sans ASR', async (t) => {
+  const fake = startFakeSafinumApi();
+  await new Promise<void>((resolve) => fake.server.listen(0, '127.0.0.1', resolve));
+  t.after(() => fake.server.close());
+  const bankUrl = `http://127.0.0.1:${(fake.server.address() as AddressInfo).port}`;
+
+  const engine = new Engine(new SafinumBackend({ baseUrl: bankUrl, teamKey: 'sbx_test_team_key' }), 'fr');
+  const { server } = createApp(engine, { auditFile: null, keysFile: null, connectorsFile: null, uiResourcesFile: null });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const mwUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}/safinum/middleware`;
+
+  // 1. Accueil vocal sur dtmf vide
+  const welcome = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'ivr-1',
+      channel: 'ivr',
+      session_id: 'ivr-s1',
+      phone: '237677000004',
+      language: null,
+      input: { type: 'dtmf', text: '' },
+      constraints: { max_chars: 400, charset: 'utf8', mode: 'voice', timeout_ms: 8000 },
+    }),
+  }).then((r) => r.json()) as { response: { text: string; options: string[] }; interpretation: { intent: string } };
+  assert.equal(welcome.interpretation.intent, 'UNKNOWN');
+  assert.ok(welcome.response.text.length <= 400);
+  assert.ok(welcome.response.options.length >= 4);
+
+  // 2. Touche DTMF "1" -> Solde
+  const dtmf1 = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'ivr-2',
+      channel: 'ivr',
+      session_id: 'ivr-s1',
+      phone: '237677000004',
+      language: null,
+      input: { type: 'dtmf', text: '1' },
+      constraints: { max_chars: 400, charset: 'utf8', mode: 'voice', timeout_ms: 8000 },
+    }),
+  }).then((r) => r.json()) as { response: { text: string }; interpretation: { intent: string; parameters: { balance?: number } } };
+  assert.equal(dtmf1.interpretation.intent, 'BALANCE_INQUIRY');
+  assert.equal(dtmf1.interpretation.parameters.balance, 100000);
+  assert.ok(dtmf1.response.text.length <= 400);
+
+  // 3. Corps WAV base64 > 256 Ko : pas d'erreur 413, et repli propre CLARIFICATION_NEEDED si ASR absent
+  const bigWavB64 = Buffer.alloc(300_000, 1).toString('base64');
+  const bigRes = await fetch(mwUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      trace_id: 'ivr-3',
+      channel: 'ivr',
+      session_id: 'ivr-s1',
+      phone: '237677000004',
+      language: 'fr',
+      input: {
+        type: 'audio',
+        text: null,
+        audio: { format: 'wav', encoding: 'base64', sample_rate: 16000, channels: 1, bits_per_sample: 16, duration_ms: 10000, data: bigWavB64 },
+      },
+      constraints: { max_chars: 400, charset: 'utf8', mode: 'voice', timeout_ms: 8000 },
+    }),
+  });
+  assert.equal(bigRes.status, 200);
+  const bigBody = await bigRes.json() as { response: { text: string }; interpretation: { intent: string } };
+  assert.equal(bigBody.interpretation.intent, 'CLARIFICATION_NEEDED');
+  assert.ok(bigBody.response.text.length <= 400);
+});
+
+test('SAFINUM Vocal (ivr) : transcription audio WAV base64 vers intention moteur', async (t) => {
+  const fake = startFakeSafinumApi();
+  await new Promise<void>((resolve) => fake.server.listen(0, '127.0.0.1', resolve));
+  t.after(() => fake.server.close());
+  const bankUrl = `http://127.0.0.1:${(fake.server.address() as AddressInfo).port}`;
+
+  const { SafinumChannel } = await import('../src/channels/safinum.ts');
+  const seenBytes: number[] = [];
+  const ch = new SafinumChannel(new Engine(new SafinumBackend({ baseUrl: bankUrl, teamKey: 'sbx_test_team_key' }), 'fr'), {
+    transcribeFn: async (audio) => {
+      seenBytes.push(audio.length);
+      return { text: 'quel est mon solde' };
+    },
+  });
+
+  const wavPayload = Buffer.from('RIFF....WAVEfmt ', 'utf8').toString('base64');
+  const out = await ch.handle({
+    trace_id: 'ivr-voice-1',
+    channel: 'ivr',
+    session_id: 'ivr-v1',
+    phone: '237677000005',
+    language: null,
+    input: {
+      type: 'audio',
+      text: null,
+      audio: { format: 'wav', encoding: 'base64', sample_rate: 16000, channels: 1, bits_per_sample: 16, duration_ms: 1500, data: wavPayload },
+    },
+    constraints: { max_chars: 400, charset: 'utf8', mode: 'voice', timeout_ms: 8000 },
+  });
+
+  assert.deepEqual(seenBytes, [16]);
+  assert.equal(out.interpretation.intent, 'BALANCE_INQUIRY');
+  assert.equal(out.interpretation.parameters.balance, 100000);
+  assert.ok(out.response.text.length <= 400);
+});

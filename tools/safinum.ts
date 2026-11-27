@@ -16,7 +16,7 @@ if (cmd === 'endpoint') {
     console.error('Usage : CT_SAFINUM_KEY="sbx_..." npm run safinum -- endpoint <https://.../safinum/middleware> [ussd mobile web]');
     process.exit(1);
   }
-  const channels = rest.slice(1).length ? rest.slice(1) : ['ussd', 'mobile', 'web'];
+  const channels = rest.slice(1).length ? rest.slice(1) : ['ussd', 'mobile', 'web', 'sms', 'atm', 'ivr'];
   for (const ch of channels) {
     const res = await registerSafinumEndpoint(ch, url);
     console.log(`${ch} → HTTP ${res.status}`, JSON.stringify(res.body));

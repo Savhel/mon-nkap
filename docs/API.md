@@ -172,7 +172,7 @@ Canal, langue, requête, interprétation, paramètres, réponse, statut, temps d
 | `POST /ussd` | Africa's Talking : `sessionId, phoneNumber, serviceCode, text` → `CON …` / `END …` (écrans ≤ 182 caractères) |
 | `POST /sms` | `{ from, text, lang? }` → `{ reply, segments, result }` |
 | `POST /v1/ivr`, `POST /ivr/at` | Serveur vocal (JSON ou XML Africa's Talking) |
-| `POST /safinum/middleware` | Passerelle du bac à sable SAFINUM (`trace_id`, `channel`, `phone`, `language`, `input`, `constraints`) → `{ response, interpretation, transaction }` (propage `X-Trace-Id`, gère le cycle `pending`/`update`/`confirm`/`cancel` et le GSM-7 ≤ 182 septets sur USSD) |
+| `POST /safinum/middleware` | Passerelle du bac à sable SAFINUM (`trace_id`, `channel`, `phone`, `language`, `input`, `constraints`) → `{ response, interpretation, transaction }` (propage `X-Trace-Id`, gère `ussd` ≤ 182 septets GSM-7, `sms` ≤ 3 segments GSM-7, `ivr` DTMF + audio WAV base64 ≤ 400 car., et `ui_translation` pour `mobile`, `web`, `atm`) |
 
 ## Pages fournies
 

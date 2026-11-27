@@ -598,7 +598,8 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       if (req.method === 'POST' && url.pathname === '/safinum/middleware') {
         const callbackKey = process.env.CT_SAFINUM_WEBHOOK_KEY;
         if (callbackKey && !verifySecret(callbackKey, req.headers['x-team-key'] as string | undefined)) return json(res, 401, { error: 'cle_middleware_requise' });
-        const b = JSON.parse((await body(req, 256 * 1024)).toString('utf8') || '{}');
+        // 2 Mo : suffisant pour l'audio vocal SAFINUM (WAV base64 ≤ 30s) et les écrans UI.
+        const b = JSON.parse((await body(req, 2 * 1024 * 1024)).toString('utf8') || '{}');
         // Mobile et web du bac à sable : traduction des écrans de l'application, pas de conversation.
         if (b.type === 'ui_translation' || (b.strings && typeof b.strings === 'object' && !b.input)) {
           const { stats, ...screen } = await translateUiScreen({ language: b.language, source_language: b.source_language, screen: b.screen, strings: b.strings });

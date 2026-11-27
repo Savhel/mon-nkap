@@ -762,5 +762,21 @@
   "screens": [
    "home"
   ]
+ },
+ "atm.balance": {
+  "text": "Consulter le solde",
+  "context": "Touche GAB",
+  "max_chars": 18,
+  "screens": [
+   "atm_menu"
+  ]
+ },
+ "atm.withdraw": {
+  "text": "Retrait espèces",
+  "context": "Touche GAB",
+  "max_chars": 18,
+  "screens": [
+   "atm_menu"
+  ]
  }
 }

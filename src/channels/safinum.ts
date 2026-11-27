@@ -1,23 +1,44 @@
 // Adaptateur passerelle SAFINUM (`POST /safinum/middleware`).
 // Traduit le format exact du bac à sable SAFINUM (trace_id, channel, phone, language, input, constraints)
-// vers notre moteur commun `Engine` et renvoie la réponse normalisée + conformité GSM-7 USSD (≤ 182 septets).
+// vers notre moteur commun `Engine` et gère les contraintes par canal (USSD GSM-7, SMS ≤ 3 segments, IVR audio/DTMF ≤ 400 car.).
 
 import { userSession, type Channel, type Engine, type EngineResult } from '../core/engine.ts';
 import { runWithSafinumTrace } from '../backend/safinum.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
 import { uiLabels } from '../core/respond.ts';
+import { transcribe } from '../voice/speech.ts';
+
+export interface SafinumGatewayAudio {
+  format?: string;
+  encoding?: string;
+  sample_rate?: number;
+  channels?: number;
+  bits_per_sample?: number;
+  duration_ms?: number;
+  data?: string;
+}
 
 export interface SafinumGatewayRequest {
   trace_id: string;
   team_id?: string;
   channel: string;
-  session_id: string;
+  session_id?: string | null;
   phone: string;
   language?: string | null;
-  input?: { type?: string; text?: string; ussd_text?: string };
-  constraints?: { max_chars?: number | null; charset?: string; mode?: string; timeout_ms?: number };
+  input?: { type?: string; text?: string | null; ussd_text?: string | null; audio?: SafinumGatewayAudio | null };
+  constraints?: {
+    max_chars?: number | null;
+    charset?: string;
+    mode?: string;
+    timeout_ms?: number;
+    max_segments?: number;
+    columns?: number;
+    key_label_chars?: number;
+  };
   bank_api?: { base_url?: string };
 }
+
+export type SafinumTranscriber = (audio: Uint8Array, lang?: string) => Promise<{ text: string }>;
 
 export type SafinumIntent =
   | 'BALANCE_INQUIRY'
@@ -147,29 +168,103 @@ const USSD_MAIN_MENU: { key: string; labelId: string; utterance: string }[] = [
   { key: '6', labelId: 'menu_bill', utterance: 'payer une facture' },
 ];
 
+function formatChannelText(text: string, maxChars: number | null, useGsm7: boolean): string {
+  if (useGsm7) return fitGsm7(text, maxChars ?? 182);
+  if (!maxChars || text.length <= maxChars) return text;
+  const slice = text.slice(0, maxChars);
+  const cut = Math.max(slice.lastIndexOf('\n'), slice.lastIndexOf('. ') + 1, slice.lastIndexOf(' '));
+  return (cut > slice.length * 0.5 ? slice.slice(0, cut) : slice).trimEnd();
+}
+
+function resolveLimits(
+  channel: Channel,
+  constraints: SafinumGatewayRequest['constraints'],
+  gsm7Translit: boolean,
+): { maxChars: number | null; useGsm7: boolean } {
+  if (channel === 'sms') {
+    const maxSegments = Math.max(1, constraints?.max_segments ?? 3);
+    const useGsm7 = gsm7Translit && (!constraints?.charset || constraints.charset === 'gsm7' || constraints.charset === 'gsm7_ucs2');
+    const maxChars = useGsm7
+      ? (maxSegments === 1 ? (constraints?.max_chars ?? 160) : maxSegments * 153)
+      : (maxSegments === 1 ? 70 : maxSegments * 67);
+    return { maxChars, useGsm7 };
+  }
+  if (channel === 'ussd') {
+    return { maxChars: constraints?.max_chars ?? 182, useGsm7: gsm7Translit };
+  }
+  if (channel === 'ivr') {
+    return { maxChars: constraints?.max_chars ?? 400, useGsm7: false };
+  }
+  return {
+    maxChars: constraints?.max_chars ?? null,
+    useGsm7: gsm7Translit && constraints?.charset === 'gsm7',
+  };
+}
+
 export class SafinumChannel {
   private engine: Engine;
   private continuity: boolean;
   private gsm7Translit: boolean;
+  private transcribeFn: SafinumTranscriber;
 
-  constructor(engine: Engine, opts: { continuity?: boolean; gsm7Translit?: boolean } = {}) {
+  constructor(engine: Engine, opts: { continuity?: boolean; gsm7Translit?: boolean; transcribeFn?: SafinumTranscriber } = {}) {
     this.engine = engine;
     this.continuity = opts.continuity ?? true;
     this.gsm7Translit = opts.gsm7Translit ?? (process.env.CT_SAFINUM_GSM7_TRANSLIT !== '0');
+    this.transcribeFn = opts.transcribeFn ?? transcribe;
   }
 
-  private ussdWelcome(lang: string, maxChars: number | null, isGsm7: boolean): SafinumGatewayResponse {
+  private welcomeResponse(channel: 'ussd' | 'ivr', lang: string, maxChars: number | null, useGsm7: boolean): SafinumGatewayResponse {
     const labels = uiLabels(lang);
-    const items = USSD_MAIN_MENU.map((m) => `${m.key}. ${labels[m.labelId]?.text ?? m.utterance}`);
+    const items = USSD_MAIN_MENU.map((m) =>
+      channel === 'ivr' ? `${m.key}, ${labels[m.labelId]?.text ?? m.utterance}` : `${m.key}. ${labels[m.labelId]?.text ?? m.utterance}`,
+    );
     const hint = labels.menu_free_text?.text ?? 'Ou ecrivez votre demande';
-    let text = `Mon Nkap\n${items.join('\n')}\n${hint}`;
-    if (isGsm7 && this.gsm7Translit) text = fitGsm7(text, maxChars ?? 182);
-    else if (maxChars && text.length > maxChars) text = text.slice(0, maxChars).trimEnd();
+    const raw = channel === 'ivr'
+      ? `Bienvenue sur Mon Nkap. Parlez ou tapez : ${items.join(' ; ')}.`
+      : `Mon Nkap\n${items.join('\n')}\n${hint}`;
     return {
-      response: { text, end_session: false, options: USSD_MAIN_MENU.map((m) => labels[m.labelId]?.text ?? m.utterance) },
+      response: {
+        text: formatChannelText(raw, maxChars, useGsm7),
+        end_session: false,
+        options: USSD_MAIN_MENU.map((m) => labels[m.labelId]?.text ?? m.utterance),
+      },
       interpretation: { intent: 'UNKNOWN', parameters: {}, language: lang },
       transaction: { id: null, status: 'none' },
     };
+  }
+
+  private voiceClarification(lang: string, maxChars: number | null): SafinumGatewayResponse {
+    const labels = uiLabels(lang);
+    const msg = lang === 'en'
+      ? 'Sorry, I could not hear your request clearly. Please repeat, or press 1 for balance, 2 for transfer, 3 for fees, 4 for history.'
+      : "Je n'ai pas compris votre message vocal. Veuillez répéter ou taper 1 pour le solde, 2 pour un transfert, 3 pour les frais, 4 pour l'historique.";
+    return {
+      response: {
+        text: formatChannelText(msg, maxChars ?? 400, false),
+        end_session: false,
+        options: USSD_MAIN_MENU.map((m) => labels[m.labelId]?.text ?? m.utterance),
+      },
+      interpretation: { intent: 'CLARIFICATION_NEEDED', parameters: {}, language: lang },
+      transaction: { id: null, status: 'none' },
+    };
+  }
+
+  private async resolveAudioText(audio: SafinumGatewayAudio | null | undefined, lang: string | undefined): Promise<string | null> {
+    const rawB64 = typeof audio?.data === 'string' ? audio.data.trim() : '';
+    if (!rawB64) return null;
+    const cleanB64 = rawB64.replace(/^data:audio\/[^;]+;base64,/, '');
+    const bytes = new Uint8Array(Buffer.from(cleanB64, 'base64'));
+    if (bytes.length === 0) return null;
+    try {
+      const tr = await this.transcribeFn(bytes, lang);
+      const txt = tr?.text?.trim().slice(0, 1000) ?? '';
+      return txt || null;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.warn(`SAFINUM IVR transcription indisponible : ${msg}`);
+      return null;
+    }
   }
 
   async handle(req: SafinumGatewayRequest): Promise<SafinumGatewayResponse> {
@@ -177,13 +272,23 @@ export class SafinumChannel {
     const userSid = this.continuity && req.phone ? userSession(req.phone) : null;
     const sessionId = userSid ?? `safinum:${req.session_id || req.phone || 'anon'}`;
     const accountId = req.phone?.trim() || 'demo';
-    const rawInput = req.input?.text ?? req.input?.ussd_text;
-    const rawText = typeof rawInput === 'string' ? rawInput.trim().slice(0, 1000) : '';
     const institution = 'safinum'; // Une instance utilise une seule clé d’équipe configurée sur le serveur.
 
     let lang: string | undefined = typeof req.language === 'string' && req.language.trim() ? req.language.trim().toLowerCase() : undefined;
     // Le pidgin camerounais a le code « wes » ; « pcm » (pidgin nigérian, code souvent employé) et « pidgin » y mènent aussi.
     if (lang && LANG_ALIASES[lang]) lang = LANG_ALIASES[lang];
+
+    const { maxChars, useGsm7 } = resolveLimits(channel, req.constraints, this.gsm7Translit);
+    const isAudioRequest = req.input?.type === 'audio';
+    const rawInput = req.input?.text ?? req.input?.ussd_text;
+    let rawText = typeof rawInput === 'string' ? rawInput.trim().slice(0, 1000) : '';
+
+    if (isAudioRequest && !rawText) {
+      const spoken = await this.resolveAudioText(req.input?.audio, lang);
+      if (!spoken) return this.voiceClarification(lang ?? 'fr', maxChars);
+      rawText = spoken;
+    }
+
     if (!lang && rawText) {
       const model = loadLangId();
       if (model) {
@@ -192,13 +297,11 @@ export class SafinumChannel {
       }
     }
 
-    const maxChars = req.constraints?.max_chars ?? (channel === 'ussd' ? 182 : null);
-    const isGsm7 = req.constraints?.charset === 'gsm7' || channel === 'ussd';
-    if (channel === 'ussd' && !rawText && !this.engine.hasPending(sessionId, institution)) {
-      return this.ussdWelcome(lang ?? 'fr', maxChars, isGsm7);
+    if ((channel === 'ussd' || channel === 'ivr') && !rawText && !isAudioRequest && !this.engine.hasPending(sessionId, institution)) {
+      return this.welcomeResponse(channel, lang ?? 'fr', maxChars, useGsm7);
     }
 
-    const menuChoice = channel === 'ussd' && !this.engine.hasPending(sessionId, institution)
+    const menuChoice = (channel === 'ussd' || channel === 'ivr') && !this.engine.hasPending(sessionId, institution)
       ? USSD_MAIN_MENU.find((m) => m.key === rawText)
       : undefined;
     const effectiveText = menuChoice ? menuChoice.utterance : rawText;
@@ -210,26 +313,22 @@ export class SafinumChannel {
         lang,
         accountId,
         text: effectiveText || 'bonjour',
-        input: menuChoice || req.input?.type === 'menu' ? 'dtmf' : req.input?.type === 'audio' ? 'voice' : 'text',
+        input: menuChoice || req.input?.type === 'menu' || req.input?.type === 'dtmf' ? 'dtmf' : isAudioRequest ? 'voice' : 'text',
         institution,
       });
 
       const intent = effectiveText ? mapSafinumIntent(result) : 'UNKNOWN';
       // Le simulateur numérote lui-même les options : on lui donne les libellés seuls (sinon « 1. 1. Confirmer »).
-      // L'écran USSD, lui, garde les choix numérotés dans son texte.
+      // Les écrans texte (USSD et SMS), eux, gardent les choix numérotés dans le message.
       const menu = result.reply.menu ?? [];
       const options = menu.map((m) => m.label);
       const menuLines = menu.map((m) => `${m.key}. ${m.label}`);
       let text = result.reply.text;
-      if (channel === 'ussd' && menuLines.length && !menuLines.every((o) => text.includes(o))) {
+      if ((channel === 'ussd' || channel === 'sms') && menuLines.length && !menuLines.every((o) => text.includes(o))) {
         text = `${text}\n${menuLines.join('\n')}`;
       }
 
-      if (isGsm7 && this.gsm7Translit) {
-        text = fitGsm7(text, maxChars ?? 182);
-      } else if (maxChars && text.length > maxChars) {
-        text = text.slice(0, maxChars).trimEnd();
-      }
+      text = formatChannelText(text, maxChars, useGsm7);
 
       const parameters: Record<string, string | number> = {};
       if (typeof result.params.amount === 'number') parameters.amount = result.params.amount;

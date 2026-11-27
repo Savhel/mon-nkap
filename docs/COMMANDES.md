@@ -34,13 +34,13 @@ Pages locales : `http://localhost:8080/` (jury), `/mobile` (application, mode Co
 | Quoi | Commande |
 |---|---|
 | Voir l'adresse enregistrée pour chaque canal | `node --env-file=.env tools/safinum.ts status` |
-| Enregistrer notre tunnel pour les trois canaux | `node --env-file=.env tools/safinum.ts endpoint https://audrina-nonintroverted-timorously.ngrok-free.dev/safinum/middleware` |
+| Enregistrer notre tunnel pour tous les canaux (`ussd`, `mobile`, `web`, `sms`, `atm`, `ivr`) | `node --env-file=.env tools/safinum.ts endpoint https://audrina-nonintroverted-timorously.ngrok-free.dev/safinum/middleware` |
 | Régénérer les données fictives du bac à sable | `node --env-file=.env tools/safinum.ts reset` |
 
 - Une seule adresse par canal pour toute l'équipe : se mettre d'accord avant de l'enregistrer.
 - safinum.cm répond parfois par intermittence : en cas de `ETIMEDOUT`, relancer la commande.
 - Pendant l'évaluation, la configuration est gelée (`CONFIG_LOCKED`) : enregistrer l'adresse définitive avant.
-- Simulateurs : `https://safinum.cm/sandbox/ussd`, `/sandbox/channel/mobile`, `/sandbox/channel/web`
+- Simulateurs : `https://safinum.cm/sandbox/ussd`, `/sandbox/channel/mobile`, `/sandbox/channel/web`, `/sandbox/channel/sms`, `/sandbox/channel/atm`, `/sandbox/channel/ivr`
   (choisir l'équipe GIFA et un compte de test). Documentation : `https://safinum.cm/sandbox/docs`.
 - Les textes des écrans mobile et web reçus sont enregistrés dans `data/ui/safinum-source.json`.
 

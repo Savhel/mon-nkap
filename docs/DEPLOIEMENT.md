@@ -56,7 +56,7 @@ npm run apk          # → mobile-android/android/app/build/outputs/apk/debug/ap
 | `CT_SAFINUM_URL` | URL de l'API bancaire SAFINUM | `https://safinum.cm/api/v1` |
 | `CT_SAFINUM_WEBHOOK_KEY` | secret entrant facultatif, si le connecteur SAFINUM fournit `X-Team-Key` | vide |
 | `CT_PLOTWEAVER_KEY`, `CT_PLOTWEAVER_LANG_FUB` | accès facultatif PlotWeaver et code fourni par le service (simulateur local) | désactivé |
-| `CT_SAFINUM_GSM7_TRANSLIT` | `0` pour désactiver la translittération GSM-7 sur USSD SAFINUM | activée |
+| `CT_SAFINUM_GSM7_TRANSLIT` | `0` pour désactiver la translittération GSM-7 sur USSD et SMS SAFINUM | activée |
 | `CT_CONNECTORS_FILE` | fichier du registre de connecteurs par institution | `data/connectors.json` (si présent) |
 | `CT_UI_RESOURCES_FILE` | fichier du catalogue UI par institution | `data/ui-resources.json` (si présent) |
 | `CT_ALLOW_PRIVATE_URLS` | `1` pour autoriser des URL privées/localhost dans les connecteurs (dev uniquement) | désactivé (anti-SSRF) |
@@ -92,7 +92,7 @@ définir `CT_PUBLIC_URL` et `CT_IVR_RECORDING_HOSTS` pour le serveur vocal.
    ```bash
    node --env-file=.env src/api/server.ts
    ```
-3. Déclarer votre URL middleware auprès de SAFINUM pour chaque canal (`ussd`, `mobile`, `web`) :
+3. Déclarer votre URL middleware auprès de SAFINUM pour tous les canaux (`ussd`, `mobile`, `web`, `sms`, `atm`, `ivr`) :
    ```bash
    CT_SAFINUM_KEY="sbx_votre_cle" npm run safinum -- endpoint https://votre-url-publique/safinum/middleware
    CT_SAFINUM_KEY="sbx_votre_cle" npm run safinum -- status
