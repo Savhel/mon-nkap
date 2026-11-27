@@ -55,6 +55,7 @@ import { allowDraft, loadPack } from '../linguistics/pack.ts';
 import { getLangIdSummary, listCollecteLanguages, readCollecteSheet, refreshLangIdFromPacks, trainLanguagePack, writeCollecteSheet, type TrainerPaths } from '../linguistics/trainer.ts';
 import { MT_ROUTES } from '../mt/flagship.ts';
 import { Contributions, tasks as collecteTasks } from '../linguistics/contributions.ts';
+import { translateUiScreen } from '../channels/safinum-ui.ts';
 import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
 
@@ -597,7 +598,13 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       if (req.method === 'POST' && url.pathname === '/safinum/middleware') {
         const callbackKey = process.env.CT_SAFINUM_WEBHOOK_KEY;
         if (callbackKey && !verifySecret(callbackKey, req.headers['x-team-key'] as string | undefined)) return json(res, 401, { error: 'cle_middleware_requise' });
-        const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
+        const b = JSON.parse((await body(req, 256 * 1024)).toString('utf8') || '{}');
+        // Mobile et web du bac à sable : traduction des écrans de l'application, pas de conversation.
+        if (b.type === 'ui_translation' || (b.strings && typeof b.strings === 'object' && !b.input)) {
+          const { stats, ...screen } = await translateUiScreen({ language: b.language, source_language: b.source_language, screen: b.screen, strings: b.strings });
+          console.log(`SAFINUM écran ${b.screen ?? '?'} (${b.channel ?? '?'}) → ${screen.language} : ${stats.curated} relus, ${stats.native} natifs, ${stats.machine} automatiques, ${stats.french} en français`);
+          return json(res, 200, screen);
+        }
         const traceId = String(b.trace_id ?? req.headers['x-trace-id'] ?? '').trim();
         const phone = String(b.phone ?? '').trim();
         if (!traceId || !phone) return json(res, 400, { error: 'trace_id et phone requis' });

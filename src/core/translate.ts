@@ -47,7 +47,7 @@ const REF_FR_BY_ID = new Map<string, string>([
   ...DEFINITIONS.map((d) => [d.id, d.fr] as const),
 ]);
 
-function matchPackFromFrench(lang: string, normText: string, draftsAllowed: boolean): { text: string; quality: Quality; source: string } | null {
+export function matchPackFromFrench(lang: string, normText: string, draftsAllowed: boolean): { text: string; quality: Quality; source: string } | null {
   const pack = loadPack(lang);
   if (pack) {
     for (const [id, fr] of REF_FR_BY_ID) {
