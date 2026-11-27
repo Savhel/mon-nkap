@@ -5,6 +5,7 @@
 import { userSession, type Channel, type Engine, type EngineResult } from '../core/engine.ts';
 import { runWithSafinumTrace } from '../backend/safinum.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
+import { uiLabels } from '../core/respond.ts';
 
 export interface SafinumGatewayRequest {
   trace_id: string;
@@ -137,6 +138,14 @@ function mapSafinumIntent(r: EngineResult): SafinumIntent {
 
 const VALID_CHANNELS = new Set<Channel>(['mobile', 'web', 'ussd', 'sms', 'ivr', 'atm', 'api']);
 const LANG_ALIASES: Record<string, string> = { pcm: 'wes', pidgin: 'wes', kamtok: 'wes' };
+const USSD_MAIN_MENU: { key: string; labelId: string; utterance: string }[] = [
+  { key: '1', labelId: 'menu_balance', utterance: 'solde' },
+  { key: '2', labelId: 'menu_transfer', utterance: 'envoyer de l’argent' },
+  { key: '3', labelId: 'menu_fees', utterance: 'frais' },
+  { key: '4', labelId: 'menu_history', utterance: 'historique' },
+  { key: '5', labelId: 'menu_airtime', utterance: 'acheter du crédit' },
+  { key: '6', labelId: 'menu_bill', utterance: 'payer une facture' },
+];
 
 export class SafinumChannel {
   private engine: Engine;
@@ -147,6 +156,20 @@ export class SafinumChannel {
     this.engine = engine;
     this.continuity = opts.continuity ?? true;
     this.gsm7Translit = opts.gsm7Translit ?? (process.env.CT_SAFINUM_GSM7_TRANSLIT !== '0');
+  }
+
+  private ussdWelcome(lang: string, maxChars: number | null, isGsm7: boolean): SafinumGatewayResponse {
+    const labels = uiLabels(lang);
+    const items = USSD_MAIN_MENU.map((m) => `${m.key}. ${labels[m.labelId]?.text ?? m.utterance}`);
+    const hint = labels.menu_free_text?.text ?? 'Ou ecrivez votre demande';
+    let text = `Mon Nkap\n${items.join('\n')}\n${hint}`;
+    if (isGsm7 && this.gsm7Translit) text = fitGsm7(text, maxChars ?? 182);
+    else if (maxChars && text.length > maxChars) text = text.slice(0, maxChars).trimEnd();
+    return {
+      response: { text, end_session: false, options: USSD_MAIN_MENU.map((m) => labels[m.labelId]?.text ?? m.utterance) },
+      interpretation: { intent: 'UNKNOWN', parameters: {}, language: lang },
+      transaction: { id: null, status: 'none' },
+    };
   }
 
   async handle(req: SafinumGatewayRequest): Promise<SafinumGatewayResponse> {
@@ -169,18 +192,29 @@ export class SafinumChannel {
       }
     }
 
+    const maxChars = req.constraints?.max_chars ?? (channel === 'ussd' ? 182 : null);
+    const isGsm7 = req.constraints?.charset === 'gsm7' || channel === 'ussd';
+    if (channel === 'ussd' && !rawText && !this.engine.hasPending(sessionId, institution)) {
+      return this.ussdWelcome(lang ?? 'fr', maxChars, isGsm7);
+    }
+
+    const menuChoice = channel === 'ussd' && !this.engine.hasPending(sessionId, institution)
+      ? USSD_MAIN_MENU.find((m) => m.key === rawText)
+      : undefined;
+    const effectiveText = menuChoice ? menuChoice.utterance : rawText;
+
     return runWithSafinumTrace({ traceId: req.trace_id }, async () => {
       const result = await this.engine.handle({
         sessionId,
         channel,
         lang,
         accountId,
-        text: rawText || 'bonjour',
-        input: req.input?.type === 'menu' ? 'dtmf' : req.input?.type === 'audio' ? 'voice' : 'text',
+        text: effectiveText || 'bonjour',
+        input: menuChoice || req.input?.type === 'menu' ? 'dtmf' : req.input?.type === 'audio' ? 'voice' : 'text',
         institution,
       });
 
-      const intent = rawText ? mapSafinumIntent(result) : 'UNKNOWN';
+      const intent = effectiveText ? mapSafinumIntent(result) : 'UNKNOWN';
       // Le simulateur numérote lui-même les options : on lui donne les libellés seuls (sinon « 1. 1. Confirmer »).
       // L'écran USSD, lui, garde les choix numérotés dans son texte.
       const menu = result.reply.menu ?? [];
@@ -191,8 +225,6 @@ export class SafinumChannel {
         text = `${text}\n${menuLines.join('\n')}`;
       }
 
-      const maxChars = req.constraints?.max_chars ?? (channel === 'ussd' ? 182 : null);
-      const isGsm7 = req.constraints?.charset === 'gsm7' || channel === 'ussd';
       if (isGsm7 && this.gsm7Translit) {
         text = fitGsm7(text, maxChars ?? 182);
       } else if (maxChars && text.length > maxChars) {

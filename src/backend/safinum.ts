@@ -3,6 +3,8 @@
 // chaque appel bancaire soit relié à l'intention déclarée dans le journal du jury.
 
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { setDefaultAutoSelectFamily } from 'node:net';
+import { normalize } from '../core/text.ts';
 import type {
   Contact,
   FeeKind,
@@ -29,6 +31,11 @@ export interface SafinumConfig {
   teamKey?: string;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
+}
+
+/** Node 24 coupe l'IPv4 au bout de 250 ms avec Happy Eyeballs quand l'IPv6 est injoignable. */
+function disableAutoSelectFamily(): void {
+  try { setDefaultAutoSelectFamily(false); } catch {}
 }
 
 function toSafinumType(kind: FeeKind | PendingTransactionInput['op']): string {
@@ -102,9 +109,10 @@ export class SafinumBackend implements FinancialBackend {
   private fetchImpl: typeof fetch;
 
   constructor(cfg: SafinumConfig = {}) {
+    if (!cfg.fetchImpl) disableAutoSelectFamily();
     this.defaultBaseUrl = (cfg.baseUrl ?? process.env.CT_SAFINUM_URL ?? 'https://safinum.cm/api/v1').replace(/\/$/, '');
     this.teamKey = cfg.teamKey ?? process.env.CT_SAFINUM_KEY ?? '';
-    this.timeoutMs = cfg.timeoutMs ?? 2500;
+    this.timeoutMs = cfg.timeoutMs ?? 2800;
     this.fetchImpl = cfg.fetchImpl ?? fetch;
   }
 
@@ -191,14 +199,20 @@ export class SafinumBackend implements FinancialBackend {
         : Array.isArray((r.data as Record<string, unknown>).items)
           ? (r.data as Record<string, unknown>).items as unknown[]
           : [];
-    return list.map((raw, i) => {
-      const c = raw as Record<string, unknown>;
-      return {
-        id: String(c.id ?? `b${i + 1}`),
-        name: String(c.name ?? c.holder ?? c.full_name ?? ''),
-        phone: shortPhone(String(c.phone ?? c.account ?? '')),
-      };
-    }).filter((c) => c.name && c.phone);
+    const seen = new Set<string>();
+    const contacts: Contact[] = [];
+    for (let i = 0; i < list.length; i++) {
+      const c = list[i] as Record<string, unknown>;
+      const name = String(c.name ?? c.holder ?? c.full_name ?? '').trim();
+      const phone = shortPhone(String(c.phone ?? c.account ?? ''));
+      if (!name || !phone) continue;
+      // L'API SAFINUM renvoie une ligne par institution pour le même bénéficiaire : on dédoublonne par (nom, numéro).
+      const key = `${normalize(name)}|${phone}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      contacts.push({ id: String(c.id ?? `b${i + 1}`), name, phone });
+    }
+    return contacts;
   }
 
   async quoteFee(_accountId: string, kind: FeeKind, amount: number): Promise<OpResult<FeeQuote>> {
@@ -359,6 +373,7 @@ export async function registerSafinumEndpoint(
   url: string,
   opts: { baseUrl?: string; teamKey?: string } = {},
 ) {
+  disableAutoSelectFamily();
   const baseUrl = (opts.baseUrl ?? process.env.CT_SAFINUM_URL ?? 'https://safinum.cm/api/v1').replace(/\/$/, '');
   const teamKey = opts.teamKey ?? process.env.CT_SAFINUM_KEY ?? '';
   const res = await fetch(`${baseUrl}/sandbox/endpoint`, {
@@ -370,6 +385,7 @@ export async function registerSafinumEndpoint(
 }
 
 export async function getSafinumEndpoints(opts: { baseUrl?: string; teamKey?: string } = {}) {
+  disableAutoSelectFamily();
   const baseUrl = (opts.baseUrl ?? process.env.CT_SAFINUM_URL ?? 'https://safinum.cm/api/v1').replace(/\/$/, '');
   const teamKey = opts.teamKey ?? process.env.CT_SAFINUM_KEY ?? '';
   const res = await fetch(`${baseUrl}/sandbox/endpoint`, {
@@ -379,6 +395,7 @@ export async function getSafinumEndpoints(opts: { baseUrl?: string; teamKey?: st
 }
 
 export async function resetSafinumSandbox(opts: { baseUrl?: string; teamKey?: string } = {}) {
+  disableAutoSelectFamily();
   const baseUrl = (opts.baseUrl ?? process.env.CT_SAFINUM_URL ?? 'https://safinum.cm/api/v1').replace(/\/$/, '');
   const teamKey = opts.teamKey ?? process.env.CT_SAFINUM_KEY ?? '';
   const res = await fetch(`${baseUrl}/sandbox/reset`, {
