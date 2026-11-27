@@ -128,7 +128,7 @@
     get() { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } },
     set(v) { try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch {} },
   };
-  const SECTION_NAMES = { demandes: 'Demandes', reponses: 'Réponses', definitions: 'Explications', nombres: 'Nombres', lexique: 'Mots' };
+  const SECTION_NAMES = { demandes: 'Demandes', reponses: 'Réponses', definitions: 'Explications', nombres: 'Nombres', lexique: 'Mots', interface: 'Écrans de l’app' };
   const REC_HINT = 'Appuyez une fois pour commencer, une fois pour arrêter (30 secondes au plus).';
   let code = store.get(), state = null, section = 'demandes', index = 0;
   let recorder = null, chunks = [], blob = null, timer = null, started = 0;

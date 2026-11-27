@@ -94,7 +94,7 @@ export interface AppOptions {
   uiResourcesFile?: string | null;
   allowPrivateUrls?: boolean;
   trainerPaths?: TrainerPaths;
-  collecte?: { root?: string; sheetsDir?: string; audioDir?: string };
+  collecte?: { root?: string; sheetsDir?: string; audioDir?: string; uiDir?: string };
 }
 
 export function createApp(engine?: Engine, opts: AppOptions = {}) {

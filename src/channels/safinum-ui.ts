@@ -22,7 +22,7 @@ export interface UiTranslationResponse { language: string; strings: Record<strin
 
 const ALIASES: Record<string, string> = { pcm: 'wes', pidgin: 'wes', kamtok: 'wes' };
 const dir = () => process.env.CT_UI_DIR ?? fileURLToPath(new URL('../../data/ui/', import.meta.url));
-const budget = () => Number(process.env.CT_UI_BUDGET_MS ?? 7000); // le simulateur attend 10 s par écran
+const budget = () => Number(process.env.CT_UI_BUDGET_MS ?? 3000); // le simulateur attend 10 s ; la traduction automatique échoue presque toujours sur ces textes courts
 
 type Source = Record<string, { text: string; context?: string; max_chars?: number | null; screens: string[] }>;
 type Machine = Record<string, Record<string, string>>; // langue → texte français → traduction acceptée
@@ -30,9 +30,20 @@ type Machine = Record<string, Record<string, string>>; // langue → texte fran�
 const read = <T>(file: string, empty: T): T => { try { return JSON.parse(readFileSync(dir() + file, 'utf8')) as T; } catch { return empty; } };
 const save = (file: string, data: unknown) => { mkdirSync(dir(), { recursive: true }); writeFileSync(dir() + file, JSON.stringify(data, null, 1) + '\n'); };
 
-function curated(lang: string): Record<string, string> {
-  const raw = read<Record<string, string | { text: string }>>(`safinum-${lang}.json`, {});
-  return Object.fromEntries(Object.entries(raw).filter(([k]) => !k.startsWith('_')).map(([k, v]) => [k, typeof v === 'string' ? v : v.text]));
+type Curated = string | { text: string; fr?: string; valide?: boolean };
+/** Catalogue relu d'une langue. Une entrée venue de la collecte (objet) n'est servie que si son français source n'a
+ *  pas changé, et, tant qu'un second natif ne l'a pas validée, seulement avec les brouillons autorisés. */
+function curated(lang: string, sources: Record<string, UiString>): Record<string, string> {
+  const raw = read<Record<string, Curated>>(`safinum-${lang}.json`, {});
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (k.startsWith('_')) continue;
+    if (typeof v === 'string') { out[k] = v; continue; }
+    if (!v || typeof v.text !== 'string') continue;
+    if (v.fr && sources[k] && v.fr !== sources[k].text) continue;
+    if (v.valide || allowDraft()) out[k] = v.text;
+  }
+  return out;
 }
 
 const placeholders = (s: string) => (s.match(/\{[A-Za-z0-9_]+\}/g) ?? []).sort().join('|');
@@ -106,7 +117,7 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
     return { language: asked ?? 'fr', strings: out, stats: { ...stats, french: Object.keys(strings).length } };
   }
 
-  const cur = curated(lang);
+  const cur = curated(lang, strings);
   const cache = read<Machine>('safinum-machine.json', {})[lang] ?? {};
   const misses: [string, UiString][] = [];
   for (const [k, s] of Object.entries(strings)) {

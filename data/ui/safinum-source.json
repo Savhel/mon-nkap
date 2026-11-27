@@ -1,0 +1,750 @@
+{
+ "nav.home": {
+  "text": "Accueil",
+  "context": "Onglet / menu de navigation",
+  "max_chars": 12,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "nav.transfer": {
+  "text": "Envoyer",
+  "context": "Onglet / menu de navigation",
+  "max_chars": 12,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "nav.pay": {
+  "text": "Payer",
+  "context": "Onglet / menu de navigation",
+  "max_chars": 12,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "nav.history": {
+  "text": "Historique",
+  "context": "Onglet / menu de navigation",
+  "max_chars": 12,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "shell.greeting": {
+  "text": "Bonjour {name}",
+  "context": "En-tête, salutation du titulaire",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "common.back": {
+  "text": "Retour",
+  "context": "Bouton",
+  "max_chars": 20,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "common.continue": {
+  "text": "Continuer",
+  "context": "Bouton principal",
+  "max_chars": 24,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "common.cancel": {
+  "text": "Annuler",
+  "context": "Bouton",
+  "max_chars": 20,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "common.loading": {
+  "text": "Chargement",
+  "context": "Indicateur d'attente",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "common.listen": {
+  "text": "Écouter",
+  "context": "Bouton qui lit l'écran à voix haute",
+  "max_chars": 20,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "common.stop_listening": {
+  "text": "Arrêter la lecture",
+  "context": "Bouton qui coupe la lecture à voix haute",
+  "max_chars": 24,
+  "screens": [
+   "history",
+   "home",
+   "pay",
+   "receipt",
+   "review",
+   "transfer"
+  ]
+ },
+ "home.balance_label": {
+  "text": "Solde disponible",
+  "context": "Libellé au-dessus du solde",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.account": {
+  "text": "Compte {phone}",
+  "context": "Numéro du compte sous le solde",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.quick_actions": {
+  "text": "Que voulez-vous faire ?",
+  "context": "Titre de section",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.action_transfer": {
+  "text": "Envoyer de l'argent",
+  "context": "Tuile d'action",
+  "max_chars": 28,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.action_bill": {
+  "text": "Payer une facture",
+  "context": "Tuile d'action",
+  "max_chars": 28,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.action_airtime": {
+  "text": "Acheter du crédit",
+  "context": "Tuile d'action",
+  "max_chars": 28,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.action_history": {
+  "text": "Mes opérations",
+  "context": "Tuile d'action",
+  "max_chars": 28,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.recent": {
+  "text": "Dernières opérations",
+  "context": "Titre de section",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.see_all": {
+  "text": "Tout voir",
+  "context": "Lien",
+  "max_chars": 20,
+  "screens": [
+   "home"
+  ]
+ },
+ "home.empty": {
+  "text": "Aucune opération pour le moment.",
+  "context": "Liste vide",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
+ },
+ "tx.transfer_out": {
+  "text": "Envoi à {name}",
+  "context": "Ligne d'opération",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.transfer_in": {
+  "text": "Reçu de {name}",
+  "context": "Ligne d'opération",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.airtime": {
+  "text": "Crédit {operator}",
+  "context": "Ligne d'opération",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.bill": {
+  "text": "Facture {biller}",
+  "context": "Ligne d'opération",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.withdrawal": {
+  "text": "Retrait",
+  "context": "Ligne d'opération",
+  "max_chars": null,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.status.confirmed": {
+  "text": "Effectuée",
+  "context": "Pastille de statut",
+  "max_chars": 16,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.status.pending": {
+  "text": "En attente",
+  "context": "Pastille de statut",
+  "max_chars": 16,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.status.failed": {
+  "text": "Échouée",
+  "context": "Pastille de statut",
+  "max_chars": 16,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "tx.status.cancelled": {
+  "text": "Annulée",
+  "context": "Pastille de statut",
+  "max_chars": 16,
+  "screens": [
+   "history",
+   "home"
+  ]
+ },
+ "transfer.title": {
+  "text": "Envoyer de l'argent",
+  "context": "Titre d'écran",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "transfer.saved": {
+  "text": "Mes bénéficiaires",
+  "context": "Titre de liste",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "transfer.to_label": {
+  "text": "Bénéficiaire",
+  "context": "Libellé de champ",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "transfer.to_hint": {
+  "text": "Numéro de téléphone ou nom",
+  "context": "Texte indicatif dans le champ",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "transfer.amount_label": {
+  "text": "Montant",
+  "context": "Libellé de champ",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "transfer.amount_hint": {
+  "text": "Jusqu'à {max} par opération",
+  "context": "Aide sous le champ montant",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "transfer.fee_preview": {
+  "text": "Frais : {fee}",
+  "context": "Aperçu sous le champ montant",
+  "max_chars": null,
+  "screens": [
+   "transfer"
+  ]
+ },
+ "help.fee": {
+  "text": "Les frais sont la somme que la banque garde pour faire l'opération.",
+  "context": "Bulle d'aide sur le mot frais",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "help.limit": {
+  "text": "Le plafond est le montant maximum que vous pouvez envoyer en une fois.",
+  "context": "Bulle d'aide sur le mot plafond",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "help.beneficiary": {
+  "text": "Le bénéficiaire est la personne qui reçoit l'argent.",
+  "context": "Bulle d'aide sur le mot bénéficiaire",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.INSUFFICIENT_FUNDS": {
+  "text": "Solde insuffisant : il vous manque {missing}.",
+  "context": "Message d'erreur",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.UNKNOWN_BENEFICIARY": {
+  "text": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom.",
+  "context": "Message d'erreur",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.AMBIGUOUS_BENEFICIARY": {
+  "text": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon.",
+  "context": "Message d'erreur, suivi d'une liste",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.INVALID_AMOUNT": {
+  "text": "Montant invalide. Saisissez un nombre entier.",
+  "context": "Message d'erreur",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.LIMIT_EXCEEDED": {
+  "text": "Montant trop élevé : le plafond est de {max} par opération.",
+  "context": "Message d'erreur",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.UNKNOWN_BILLER": {
+  "text": "Service inconnu. Choisissez dans la liste.",
+  "context": "Message d'erreur",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "error.GENERIC": {
+  "text": "L'opération n'a pas abouti. Réessayez.",
+  "context": "Message d'erreur",
+  "max_chars": null,
+  "screens": [
+   "pay",
+   "review",
+   "transfer"
+  ]
+ },
+ "review.title": {
+  "text": "Vérifiez avant de confirmer",
+  "context": "Titre d'écran",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.to": {
+  "text": "Destinataire",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.service": {
+  "text": "Service",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.amount": {
+  "text": "Montant",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.fee": {
+  "text": "Frais",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.total": {
+  "text": "Total débité",
+  "context": "Libellé de ligne, mis en avant",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.balance_after": {
+  "text": "Solde après l'opération",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.warning": {
+  "text": "L'argent part dès que vous confirmez.",
+  "context": "Avertissement avant confirmation",
+  "max_chars": null,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.confirm": {
+  "text": "Confirmer",
+  "context": "Bouton qui exécute l'opération",
+  "max_chars": 24,
+  "screens": [
+   "review"
+  ]
+ },
+ "review.edit": {
+  "text": "Modifier",
+  "context": "Bouton",
+  "max_chars": 20,
+  "screens": [
+   "review"
+  ]
+ },
+ "receipt.success": {
+  "text": "Opération réussie",
+  "context": "Titre d'écran",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.transfer": {
+  "text": "{amount} envoyés à {name}.",
+  "context": "Phrase de confirmation",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.bill": {
+  "text": "Facture {biller} de {amount} payée.",
+  "context": "Phrase de confirmation",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.airtime": {
+  "text": "Crédit {operator} de {amount} envoyé au {phone}.",
+  "context": "Phrase de confirmation",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.reference": {
+  "text": "Référence",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.new_balance": {
+  "text": "Nouveau solde",
+  "context": "Libellé de ligne",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.cancelled": {
+  "text": "Opération annulée. Rien n'a été débité.",
+  "context": "Message après annulation",
+  "max_chars": null,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "receipt.done": {
+  "text": "Terminer",
+  "context": "Bouton",
+  "max_chars": 20,
+  "screens": [
+   "receipt"
+  ]
+ },
+ "pay.title": {
+  "text": "Payer",
+  "context": "Titre d'écran",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.tab_bill": {
+  "text": "Factures",
+  "context": "Onglet interne",
+  "max_chars": 18,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.tab_airtime": {
+  "text": "Crédit téléphone",
+  "context": "Onglet interne",
+  "max_chars": 18,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.biller_label": {
+  "text": "Choisissez le service",
+  "context": "Libellé de liste",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.phone_label": {
+  "text": "Numéro à recharger",
+  "context": "Libellé de champ (transfert de crédit)",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.phone_hint": {
+  "text": "Le vôtre ou celui d'un proche",
+  "context": "Aide sous le champ numéro",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.operator_label": {
+  "text": "Opérateur",
+  "context": "Libellé de champ",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.operator_detected": {
+  "text": "Opérateur reconnu : {operator}",
+  "context": "Message sous le champ numéro",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "pay.amount_label": {
+  "text": "Montant",
+  "context": "Libellé de champ",
+  "max_chars": null,
+  "screens": [
+   "pay"
+  ]
+ },
+ "biller.ENEO": {
+  "text": "Électricité",
+  "context": "Type de facture (ENEO)",
+  "max_chars": 24,
+  "screens": [
+   "pay"
+  ]
+ },
+ "biller.CAMWATER": {
+  "text": "Eau",
+  "context": "Type de facture (CAMWATER)",
+  "max_chars": 24,
+  "screens": [
+   "pay"
+  ]
+ },
+ "biller.CANAL": {
+  "text": "Télévision",
+  "context": "Type de facture (Canal+)",
+  "max_chars": 24,
+  "screens": [
+   "pay"
+  ]
+ },
+ "biller.CAMTEL": {
+  "text": "Internet et téléphone",
+  "context": "Type de facture (CAMTEL)",
+  "max_chars": 24,
+  "screens": [
+   "pay"
+  ]
+ },
+ "history.title": {
+  "text": "Historique",
+  "context": "Titre d'écran",
+  "max_chars": null,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.filter_all": {
+  "text": "Tout",
+  "context": "Filtre",
+  "max_chars": 12,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.filter_out": {
+  "text": "Sorties",
+  "context": "Filtre",
+  "max_chars": 12,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.filter_in": {
+  "text": "Entrées",
+  "context": "Filtre",
+  "max_chars": 12,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.empty": {
+  "text": "Aucune opération pour le moment.",
+  "context": "Liste vide",
+  "max_chars": null,
+  "screens": [
+   "history"
+  ]
+ }
+}
