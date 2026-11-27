@@ -61,6 +61,7 @@ export type ReplyKind =
   | { kind: 'explain'; term: string }
   | { kind: 'cancelled' }
   | { kind: 'language_switched' }
+  | { kind: 'which_language' }
   | { kind: 'help' }
   | { kind: 'greeting' }
   | { kind: 'not_understood' }

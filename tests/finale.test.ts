@@ -207,7 +207,7 @@ test('En bulu, l’annonce traduite reste séparée des valeurs bancaires exacte
   const requests: { pair: string; texts: string[] }[] = [];
   const reference = 'Vérifiez les informations du transfert avant de confirmer.';
   const scriptedTranslation = 'Texte de test du fournisseur simulé';
-  t.mock.method(globalThis, 'fetch', async (_url, options) => {
+  t.mock.method(globalThis, 'fetch', async (_url: unknown, options?: RequestInit) => {
     const input = JSON.parse(String(options?.body)) as { pair: string; texts: string[] };
     requests.push(input);
     return Response.json({ translations: [input.pair === 'francais-bulu' ? scriptedTranslation : reference], ms: 1 });

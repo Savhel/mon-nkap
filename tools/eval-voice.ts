@@ -53,7 +53,11 @@ async function evaluate(text: string, situation: string, expectedIntent: string,
 }
 
 const normalized = (text: string) => normalize(text).replace(/ /g, '');
-const items = [];
+const items: {
+  fichier: string; situation: string; attendu: string; champsAttendus: (typeof annotations)[string][string] | undefined;
+  reference: string | null; texte: Awaited<ReturnType<typeof evaluate>> | null; voix: Awaited<ReturnType<typeof evaluate>> | null;
+  transcript: Awaited<ReturnType<typeof transcribe>> | null;
+}[] = [];
 for (const row of rows) {
   if (!row.fichier || row.fichier !== basename(row.fichier)) throw new Error('Nom de fichier invalide dans labels.csv');
   const expected = annotations[lang]?.[row.fichier];
