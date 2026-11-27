@@ -79,6 +79,7 @@ l'apprentissage.
 
 ## Documentation
 
+- [docs/COMMANDES.md](docs/COMMANDES.md) — **aide-mémoire** : démarrer, tunnel, bac à sable SAFINUM, invitations des natifs, mesures
 - [docs/AUDIT_FINALE.md](docs/AUDIT_FINALE.md) — audit de l'existant, étude comparative des langues, plan par étapes
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — architecture, ressources linguistiques, intégration d'une institution
 - [docs/API.md](docs/API.md) — spécification de l'API v1
