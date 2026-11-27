@@ -46,8 +46,24 @@ export function identify(text: string, model: LangIdModel, opts: { minGrams?: nu
   const z = exps.reduce((a, x) => a + x.e, 0);
   const ranking = exps.map((x) => ({ lang: x.lang, p: Number((x.e / z).toFixed(3)) })).sort((a, b) => b.p - a.p);
   const confidence = ranking[0]?.p ?? 0;
+  // Le pidgin camerounais emprunte presque tout son vocabulaire à l'anglais : les n-grammes le confondent.
+  // Ses mots-outils, eux, ne sont pas de l'anglais écrit (« a wan », « na », « weti », « dey »…).
+  if (langs.includes('wes') && (ranking[0]?.lang === 'en' || confidence < (opts.minConfidence ?? 0.7)) && pidginMarked(text)) {
+    return { lang: 'wes', confidence, ranking, reason: 'mots-outils du pidgin' };
+  }
   if (confidence < (opts.minConfidence ?? 0.7)) return { lang: null, confidence, ranking, reason: 'deux langues trop proches' };
   return { lang: ranking[0].lang, confidence, ranking };
+}
+
+const PIDGIN_STRONG = new Set(['wan', 'weti', 'wetin', 'dey', 'mony', 'tasen', 'tausen', 'abeg', 'sabi', 'komot', 'comot', 'wey', 'pikin', 'sotai']);
+const PIDGIN_WEAK = new Set(['na', 'ma', 'ya', 'di', 'don', 'fit', 'no', 'for']);
+/** Un mot-outil propre au pidgin, ou deux mots-outils plus courants (« na », « ma », « ya », « di »…). */
+export function pidginMarked(text: string): boolean {
+  const toks = text.toLowerCase().normalize('NFD').replace(/\p{M}+/gu, '').split(/[^a-z]+/).filter(Boolean);
+  if (toks.some((t) => PIDGIN_STRONG.has(t))) return true;
+  // « for + verbe » (« for send », « for pay ») : là où l'anglais dirait « to send ».
+  if (toks.some((t, i) => t === 'for' && ['send', 'pay', 'buy', 'remove', 'see', 'know', 'take', 'give', 'do', 'get', 'withdraw'].includes(toks[i + 1]))) return true;
+  return toks.filter((t) => PIDGIN_WEAK.has(t) && t !== 'no' && t !== 'for').length >= 2;
 }
 
 let cached: LangIdModel | null | undefined;

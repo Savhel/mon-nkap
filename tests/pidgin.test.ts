@@ -34,3 +34,12 @@ test('pidgin : « k » (écrit par la native) et « ké », « ke », « kay » 
   for (const k of ['k', 'ké', 'ke', 'kay']) assert.deepEqual(interpret(`a wan send five ${k} for Marie`, 'wes').amounts, [5000], k);
   assert.deepEqual(interpret('a wan send twenty five ké', 'en').amounts, [25000]);
 });
+
+test('détection : le pidgin n’est pas pris pour de l’anglais (mots-outils), et l’anglais reste l’anglais', async () => {
+  const { identify, loadLangId } = await import('../src/linguistics/langid.ts');
+  const m = loadLangId()!;
+  for (const t of ['a wan know ma balance', 'a wan see ma last transactions', 'no, a wan cancel', 'fees for send 20 000 FCFA na how much', 'fees na weti'])
+    assert.equal(identify(t, m).lang, 'wes', t);
+  for (const t of ['what is my balance', 'I want to send money to my mother', 'how much are the fees'])
+    assert.notEqual(identify(t, m).lang, 'wes', t);
+});
