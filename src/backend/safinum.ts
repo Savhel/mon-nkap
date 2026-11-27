@@ -155,10 +155,11 @@ export class SafinumBackend implements FinancialBackend {
    * en parallèle, et l'on fusionne : une même personne revient une fois par établissement, avec le même numéro.
    */
   async listContacts(_accountId: string, hint = ''): Promise<Contact[]> {
-    const words = [...new Set((hint.normalize('NFC').match(/[\p{L}][\p{L}'’-]{2,}/gu) ?? [])
-      .filter((w) => !CONTACT_STOPWORDS.has(w.toLowerCase())))]
-      .sort((a, b) => Number(/^\p{Lu}/u.test(b)) - Number(/^\p{Lu}/u.test(a)))
-      .slice(0, 4);
+    const all = [...new Set((hint.normalize('NFC').match(/[\p{L}][\p{L}\p{M}'’-]{2,}/gu) ?? [])
+      .filter((w) => !CONTACT_STOPWORDS.has(w.toLowerCase())))];
+    // Des mots à majuscule sont des noms : on ne cherche qu'eux (moins d'appels sur les 3 s de l'USSD).
+    const capitalized = all.filter((w) => /^\p{Lu}/u.test(w));
+    const words = (capitalized.length ? capitalized : all).slice(0, 3);
     if (!words.length) return [];   // une touche (« 2 ») ou un montant seul : aucun nom à chercher
     const queries = words.map((w) => `beneficiaries?q=${encodeURIComponent(w)}`);
     const lists = await Promise.all(queries.map((q) => this.searchBeneficiaries(q)));
@@ -167,11 +168,20 @@ export class SafinumBackend implements FinancialBackend {
     return [...byPhone.values()];
   }
 
+  private searchCache = new Map<string, { at: number; contacts: Contact[] }>();
   private async searchBeneficiaries(path: string): Promise<Contact[]> {
+    const hit = this.searchCache.get(path);
+    if (hit && Date.now() - hit.at < 5 * 60_000) return hit.contacts;
+    const contacts = await this.searchBeneficiariesNow(path);
+    if (contacts.length) this.searchCache.set(path, { at: Date.now(), contacts });
+    return contacts;
+  }
+
+  private async searchBeneficiariesNow(path: string): Promise<Contact[]> {
     // Recherche bornée : si le répertoire tarde, on répond sans lui plutôt que de dépasser les 3 s de l'USSD.
     const r = await Promise.race([
       this.request<Record<string, unknown> | unknown[]>('GET', path).catch(() => null),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200).unref?.()),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 1600).unref?.()),
     ]);
     if (!r || !r.ok) return [];
     const list = Array.isArray(r.data)

@@ -264,3 +264,13 @@ test('« Lequel ? » ne bloque pas : un terme s’explique sans perdre le transf
   assert.equal(balance.intent, 'balance');
   assert.equal(engine.log.filter((t) => t.status === 'executed').length, 0);
 });
+
+test('une touche seule pendant qu’on attend un bénéficiaire n’est pas un montant (« 2 » ≠ 2 FCFA)', async () => {
+  const engine = new Engine(new MockBackend());
+  const ask = (text: string) => engine.handle({ sessionId: 'touche', channel: 'ussd', lang: 'fr', text });
+  const first = await ask('envoie 5000');
+  assert.equal(first.status, 'needs_clarification');
+  const key = await ask('2');
+  assert.equal(key.status, 'needs_clarification');
+  assert.equal(key.params.amount, 5000);                        // le montant demandé n'a pas changé
+});

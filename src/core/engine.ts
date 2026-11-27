@@ -285,6 +285,10 @@ export class Engine {
         return { kind: { kind: 'ask_which_beneficiary', options: p.options.map((o) => ({ name: o.name, phone: o.phone })) }, status: 'needs_clarification', intent: 'choose' };
       }
 
+      // Une touche seule pendant qu'on attend un montant ou un bénéficiaire n'est ni l'un ni l'autre (« 2 » devenait
+      // « 2 FCFA ») : on repose la question.
+      if (p.stage === 'collect' && /^\s*\d\s*$/.test(raw)) return { ...(await this.prompt(s)), intent: 'choose' };
+
       // Touche de menu (USSD, IVR, clavier) : 1 = confirmer, 2 = annuler. Jamais lue comme un montant.
       if (p.stage === 'confirm' && input !== 'voice' && /^\s*[12]\s*$/.test(raw)) return raw.trim() === '1' ? this.execute(s) : this.cancel(s);
 
