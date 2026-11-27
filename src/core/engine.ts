@@ -268,6 +268,14 @@ export class Engine {
         const chosen = digit ? p.options[Number(digit) - 1] : matchingOptions.length === 1 ? matchingOptions[0] : undefined;
         if (chosen) { p.beneficiary = { name: chosen.name, phone: chosen.phone }; p.options = undefined; p.stage = 'collect'; return { ...(await this.advance(s)), intent: 'choose' }; }
         if (it.isDeny) return this.cancel(s);
+        // Une autre demande pendant « Lequel ? » : une question de vocabulaire y répond sans perdre le transfert ;
+        // une autre opération abandonne le choix (rien n'a été exécuté) et est traitée. Sinon on restait bloqué.
+        if (it.intent === 'explain_term' && it.term) return { kind: { kind: 'explain', term: it.term }, status: 'answered', intent: 'explain_term' };
+        if (it.intent && !['transfer', 'airtime', 'greeting', 'help'].includes(it.intent)) {
+          if (p.pendingTxId && this.backend.cancelPending) await this.backend.cancelPending(p.pendingTxId).catch(() => {});
+          s.pending = undefined;
+          return this.step(s, it, raw, contacts, input);
+        }
         return { kind: { kind: 'ask_which_beneficiary', options: p.options.map((o) => ({ name: o.name, phone: o.phone })) }, status: 'needs_clarification', intent: 'choose' };
       }
 
@@ -472,6 +480,10 @@ export class Engine {
       return { kind: { kind: 'outcome_unknown', reference: p.pendingTxId } as ReplyKind, status: 'pending_reconciliation' as const, intent: 'confirm' as const };
     }
     s.pending = undefined;
+    // Le reçu de la banque peut ne donner que le numéro du bénéficiaire : on affiche le nom qui a été confirmé.
+    if (r.ok && p.beneficiary?.name && /^\+?\d{9,12}$/.test(r.value.counterparty ?? '') && r.value.counterparty!.endsWith(p.beneficiary.phone.replace(/\D/g, '').slice(-9))) {
+      r.value.counterparty = p.beneficiary.name;
+    }
     if (!r.ok) {
       if (r.code === 'insufficient_funds') return { kind: { kind: 'insufficient', balance: Number(r.details?.balance), required: Number(r.details?.required), missing: Number(r.details?.missing) } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };
       if (r.code === 'limit_exceeded') return { kind: { kind: 'limit_exceeded', limit: Number(r.details?.limit) } as ReplyKind, status: 'failed' as Status, intent: 'confirm' as const };

@@ -110,7 +110,9 @@ export function fitGsm7(text: string, maxSeptets: number): string {
     out += ch;
     count += cost;
   }
-  return out.trimEnd();
+  // Couper après le dernier élément complet (« … ; 2 » laissait une opération tronquée dans l'historique).
+  const cut = Math.max(out.lastIndexOf('\n'), out.lastIndexOf(' ; '), out.lastIndexOf('. ') + 1);
+  return (cut > out.length * 0.5 ? out.slice(0, cut) : out).trimEnd();
 }
 
 const INTENT_MAP: Record<string, SafinumIntent> = {
@@ -179,10 +181,14 @@ export class SafinumChannel {
       });
 
       const intent = rawText ? mapSafinumIntent(result) : 'UNKNOWN';
-      const options = (result.reply.menu ?? []).map((m) => `${m.key}. ${m.label}`);
+      // Le simulateur numérote lui-même les options : on lui donne les libellés seuls (sinon « 1. 1. Confirmer »).
+      // L'écran USSD, lui, garde les choix numérotés dans son texte.
+      const menu = result.reply.menu ?? [];
+      const options = menu.map((m) => m.label);
+      const menuLines = menu.map((m) => `${m.key}. ${m.label}`);
       let text = result.reply.text;
-      if (channel === 'ussd' && options.length && !options.every((o) => text.includes(o))) {
-        text = `${text}\n${options.join('\n')}`;
+      if (channel === 'ussd' && menuLines.length && !menuLines.every((o) => text.includes(o))) {
+        text = `${text}\n${menuLines.join('\n')}`;
       }
 
       const maxChars = req.constraints?.max_chars ?? (channel === 'ussd' ? 182 : null);

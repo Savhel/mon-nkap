@@ -275,3 +275,19 @@ test('SAFINUM : les bénéficiaires se cherchent par les noms de la phrase, et u
   const { interpret } = await import('../src/core/nlu.ts');
   assert.deepEqual(interpret('envoie 2000 à Paul Ngono', 'fr', contacts).beneficiaryCandidates.map((c) => c.name), ['Paul Ngono']);
 });
+
+test('USSD : un texte trop long est coupé après le dernier élément complet, jamais au milieu d’une opération', () => {
+  const history = 'Vos dernières opérations : ' + Array.from({ length: 8 }, (_, i) => `2026-11-2${i} envoi ${i + 1} 000 FCFA (2376770000${i}${i})`).join(' ; ');
+  const out = fitGsm7(history, 182);
+  assert.ok(gsm7Septets(out) <= 182);
+  assert.match(out, /\)$/);                                    // se termine sur une opération entière
+});
+
+test('SAFINUM : les options sont des libellés (le simulateur les numérote), l’écran USSD garde « 1. Confirmer »', async () => {
+  const { MockBackend } = await import('../src/backend/mock.ts');
+  const { SafinumChannel } = await import('../src/channels/safinum.ts');
+  const ch = new SafinumChannel(new Engine(new MockBackend()));
+  const r = await ch.handle({ trace_id: 'opt', channel: 'ussd', session_id: 'opt', phone: 'demo', language: 'fr', input: { type: 'text', text: 'envoie 5000 à Marie' } } as never) as { response: { text: string; options: string[] } };
+  assert.deepEqual(r.response.options, ['Confirmer', 'Annuler']);
+  assert.match(r.response.text, /1\. Confirmer/);
+});

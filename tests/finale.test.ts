@@ -251,3 +251,16 @@ test('Les formulations de la collecte indiquent une consultation, une explicatio
   assert.equal(language.intent, 'language_switch');
   assert.equal(language.status, 'needs_clarification');
 });
+
+test('« Lequel ? » ne bloque pas : un terme s’explique sans perdre le transfert, une autre demande prend la main', async () => {
+  const engine = new Engine(new MockBackend());
+  const ask = (text: string) => engine.handle({ sessionId: 'choix', channel: 'ussd', lang: 'fr', text });
+  assert.equal((await ask('envoie 5000 à Paul')).status, 'needs_clarification');
+  const term = await ask('c’est quoi les frais ?');
+  assert.equal(term.intent, 'explain_term');
+  assert.equal((await ask('1')).status, 'awaiting_confirmation');        // le choix en cours est toujours là
+  assert.equal((await ask('envoie 5000 à Paul')).status, 'needs_clarification');
+  const balance = await ask('quel est mon solde');
+  assert.equal(balance.intent, 'balance');
+  assert.equal(engine.log.filter((t) => t.status === 'executed').length, 0);
+});
