@@ -46,7 +46,7 @@ function repairNumberWord(t: string): string[] | null {
 
 /** Jetons pour les nombres : garde les chiffres, sépare "5k", "5000f", recolle "quatre vingt". */
 function numberTokens(text: string): string[] {
-  const n = normalize(text.replace(/(\d)[ .\u00a0\u202f](?=\d{3}(?!\d))/g, '$1'))
+  const n = normalize(text.replace(/(\d)[ .,\u00a0\u202f](?=\d{3}(?!\d))/g, '$1'))
     .replace(/(\d)(f|fcfa|frs?|francs?)\b/g, '$1 $2')
     .replace(/(\d)k\b/g, '$1 k')
     .replace(/-/g, ' ');

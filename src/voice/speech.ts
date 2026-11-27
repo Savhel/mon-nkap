@@ -5,6 +5,7 @@
 // TTS : Piper pour fr/en uniquement. Aucune voix de synthèse n'existe pour les langues nationales
 // du catalogue : on ne lit JAMAIS une langue nationale avec une voix française.
 
+import { plotweaverAsrLanguage, plotweaverTranscribe } from './plotweaver.ts';
 import { execFile } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -100,7 +101,8 @@ export interface Transcript { text: string; engine: string; audioSeconds: number
 export async function transcribe(audio: Uint8Array, lang?: string): Promise<Transcript> {
   const base = llmBase();
   const languageHint = lang ? asrCodes.get(lang) : undefined;
-  if (!asrAvailable() && !(base && languageHint)) {
+  const cloud = lang ? plotweaverAsrLanguage(lang) : undefined;
+  if (!asrAvailable() && !(base && languageHint) && !cloud) {
     throw Object.assign(new Error('Modèle vocal absent. Écrivez votre demande ou chargez un modèle vocal.'), { status: 503 });
   }
   const wav = await toSamples16k(audio, MAX_RECORDING_SECONDS);
@@ -122,6 +124,11 @@ export async function transcribe(audio: Uint8Array, lang?: string): Promise<Tran
         }
       }
     } catch {}
+  }
+  if (cloud) {
+    const t0 = performance.now();
+    const text = await plotweaverTranscribe(lang!, new Uint8Array(encodeWav(wav.samples, wav.sampleRate)));
+    if (text) return { text, engine: `plotweaver-asr:${cloud}`, audioSeconds, decodeMs: Math.round(performance.now() - t0), languageHint: cloud };
   }
   if (!asrAvailable()) throw Object.assign(new Error('Reconnaissance vocale indisponible. Écrivez votre demande.'), { status: 503 });
   const r = asr();

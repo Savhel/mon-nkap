@@ -133,7 +133,7 @@ export function numeralize(text: string, g: NumberGrammar): string {
   if (!Object.keys(g.words).length) return text;
   // Un montant écrit en chiffres avec séparateur de milliers (« 12 500 », « 150.000 ») est un seul nombre :
   // sans cela, « 12 500 » devenait 12 + 500 = 512.
-  const toks = tokens(text.replace(/\b\d{1,3}(?:[ .  ]\d{3})+\b/g, (m) => m.replace(/\D/g, '')));
+  const toks = tokens(text.replace(/\b\d{1,3}(?:[ .,  ]\d{3})+\b/g, (m) => m.replace(/\D/g, '')));
   if (!toks.length) return text;
   const segs = segment(toks, g.words, new Set(g.connectors));
   const out: string[] = [];

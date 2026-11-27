@@ -131,3 +131,16 @@ PlotWeaver est facultatif. Définir `CT_PLOTWEAVER_KEY` et `CT_PLOTWEAVER_LANG_F
 `CT_PLOTWEAVER_LANG_EWO`) d’après le catalogue disponible avec votre accès. Lorsqu’un clip natif
 complet est disponible, il est joué en priorité. Sinon, le bouton de lecture peut demander une
 synthèse de la réponse affichée. Le texte et le récapitulatif restent disponibles si l’appel échoue.
+
+Codes essayés : `CT_PLOTWEAVER_LANG_EWO=ewo`, `CT_PLOTWEAVER_LANG_BAS=bas`, `CT_PLOTWEAVER_LANG_FUB=fuv`
+(fulfulde du Nigeria), `CT_PLOTWEAVER_LANG_WES=pcm` (pidgin du Nigeria). La voix de synthèse ne reçoit
+**jamais de chiffre** : montants, numéros et références sont retirés de la phrase dite et restent à l’écran
+(à l’essai, « 125 000 FCFA » était sauté en ewondo et inintelligible en fulfulde).
+
+Pour le pidgin, PlotWeaver sert aussi de **reconnaissance vocale** (`pcm`), avant le modèle local : sur les
+enregistrements de la native, il a compris 6 demandes sur 7 dans une conversation d’essai, contre 4 sur 7
+en local. L’audio part alors chez PlotWeaver : à réserver à la démonstration. `CT_PLOTWEAVER_ASR=0` la coupe.
+
+En mode Conversation (application mobile et widget), la réponse est dite automatiquement et le micro se
+rouvre. Une phrase dictée est envoyée comme « voix » : elle ne confirme jamais une opération, seul le
+bouton Confirmer le fait.

@@ -62,3 +62,9 @@ test('un numéro dicté incomplet ou une longue suite ne donnent jamais un numé
   assert.deepEqual(v(text), [5000]);
   assert.deepEqual(extractPhones('1655778899'), []);
 });
+
+test('virgule des milliers (« 5,000 », écrit par une reconnaissance vocale anglophone) : le FCFA n’a pas de décimales', () => {
+  assert.deepEqual(extractAmounts('I wan send 5,000 for Marie').map((a) => a.value), [5000]);
+  assert.deepEqual(extractAmounts('send 150,000 FCFA').map((a) => a.value), [150000]);
+  assert.deepEqual(extractAmounts('1,500,000 francs').map((a) => a.value), [1500000]);
+});

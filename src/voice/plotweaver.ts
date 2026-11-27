@@ -22,7 +22,7 @@ export function speakable(text: string): { text: string; omitted: boolean } | nu
     .replace(/^[\s.,;:]+/, '')
     .trim();
   if (/\d/.test(cleaned) || !/\p{L}{2,}/u.test(cleaned)) return null;
-  return { text: cleaned, omitted: cleaned !== text.trim() };
+  return { text: cleaned, omitted: /\d/.test(text) };
 }
 
 export async function plotweaverSpeech(lang: string, text: string): Promise<{ audio: Buffer; mime: string; omitted: boolean } | null> {
@@ -47,5 +47,31 @@ export async function plotweaverSpeech(lang: string, text: string): Promise<{ au
       chunks.push(chunk);
     }
     return size ? { audio: Buffer.concat(chunks), mime, omitted: said.omitted } : null;
+  } catch { return null; }
+}
+
+// Reconnaissance vocale PlotWeaver : seulement là où leur catalogue l'annonce et où elle s'est montrée
+// meilleure que notre modèle local sur les voix des natifs (pidgin : « a wan know ma balance » compris, contre
+// « awanumabalans » en local). CT_PLOTWEAVER_ASR=0 la coupe. L'audio part chez PlotWeaver : démonstration seulement.
+const ASR_CODES = new Set(['pcm']);
+export function plotweaverAsrLanguage(lang: string): string | undefined {
+  const code = plotweaverLanguage(lang);
+  return code && ASR_CODES.has(code) && process.env.CT_PLOTWEAVER_ASR !== '0' ? code : undefined;
+}
+
+export async function plotweaverTranscribe(lang: string, wav: Uint8Array): Promise<string | null> {
+  const language = plotweaverAsrLanguage(lang);
+  if (!language) return null;
+  try {
+    const form = new FormData();
+    form.set('file', new Blob([Uint8Array.from(wav)], { type: 'audio/wav' }), 'demande.wav');
+    form.set('language', language);
+    const response = await fetch('https://api.plotweaver.app/v1/transcriptions', {
+      method: 'POST', headers: { 'x-api-key': process.env.CT_PLOTWEAVER_KEY! }, body: form,
+      redirect: 'error', signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok) return null;
+    const payload = await response.json() as { text?: unknown };
+    return typeof payload.text === 'string' && payload.text.trim() && payload.text.length <= 1500 ? payload.text.trim() : null;
   } catch { return null; }
 }
