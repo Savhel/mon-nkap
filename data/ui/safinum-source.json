@@ -746,5 +746,21 @@
   "screens": [
    "history"
   ]
+ },
+ "shell.logout": {
+  "text": "Se déconnecter",
+  "context": "Lien de la barre latérale",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
+ },
+ "shell.secure": {
+  "text": "Connexion sécurisée",
+  "context": "Mention en pied de barre latérale",
+  "max_chars": null,
+  "screens": [
+   "home"
+  ]
  }
 }

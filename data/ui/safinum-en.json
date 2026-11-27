@@ -67,6 +67,8 @@
  "review.total": "Total debited",
  "review.warning": "The money leaves as soon as you confirm.",
  "shell.greeting": "Hello {name}",
+ "shell.logout": "Log out",
+ "shell.secure": "Secure connection",
  "transfer.amount_hint": "Up to {max} per operation",
  "transfer.amount_label": "Amount",
  "transfer.fee_preview": "Fee: {fee}",
