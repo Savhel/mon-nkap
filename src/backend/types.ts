@@ -39,7 +39,8 @@ export interface PendingTransactionHandle {
 export interface FinancialBackend {
   readonly name: string;
   getBalance(accountId: string): Promise<OpResult<{ balance: number; currency: 'XAF' }>>;
-  listContacts(accountId: string): Promise<Contact[]>;
+  /** `hint` : la phrase de l'utilisateur, pour les répertoires qui se consultent par recherche (bac à sable SAFINUM). */
+  listContacts(accountId: string, hint?: string): Promise<Contact[]>;
   quoteFee(accountId: string, kind: FeeKind, amount: number): Promise<OpResult<FeeQuote>>;
   transfer(accountId: string, to: { name?: string; phone?: string }, amount: number): Promise<OpResult<Transaction>>;
   buyAirtime(accountId: string, phone: string, amount: number): Promise<OpResult<Transaction>>;

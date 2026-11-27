@@ -46,6 +46,12 @@ function shortPhone(phone: string): string {
   return digits.length >= 9 ? digits.slice(-9) : phone;
 }
 
+// Mots qui ne sont jamais un nom de bénéficiaire (verbes et mots courants des demandes, fr / en / pidgin).
+const CONTACT_STOPWORDS = new Set(['envoie', 'envoyer', 'envoyez', 'transfère', 'transférer', 'transfert', 'veux', 'voudrais', 'argent', 'francs', 'franc', 'fcfa', 'xaf',
+  'mille', 'cent', 'pour', 'avec', 'mon', 'mes', 'les', 'des', 'une', 'non', 'oui', 'plutôt', 'solde', 'frais', 'historique', 'compte',
+  'send', 'money', 'want', 'transfer', 'please', 'balance', 'fees', 'history', 'thousand', 'wan', 'mony', 'tasen', 'make', 'give',
+  'numéro', 'number', 'crédit', 'credit', 'facture', 'bill', 'payer', 'pay', 'retirer', 'withdraw', 'combien', 'how', 'much']);
+
 function mapSafinumError(code: string | undefined, status: number, message: string, data: Record<string, unknown>): OpResult<never> {
   if (code === 'INSUFFICIENT_FUNDS') {
     return {
@@ -143,9 +149,26 @@ export class SafinumBackend implements FinancialBackend {
     return { ok: true, value: { balance: Number(acc.balance ?? 0), currency: 'XAF' } };
   }
 
-  async listContacts(_accountId: string): Promise<Contact[]> {
-    const r = await this.request<Record<string, unknown> | unknown[]>('GET', 'beneficiaries');
-    if (!r.ok) return [];
+  /**
+   * Le répertoire du bac à sable se consulte par recherche (« beneficiaries?q= », 20 résultats au plus) : sans
+   * recherche, « Paul Ngono » n'apparaissait jamais. On cherche donc les mots de la phrase qui peuvent être un nom,
+   * en parallèle, et l'on fusionne : une même personne revient une fois par établissement, avec le même numéro.
+   */
+  async listContacts(_accountId: string, hint = ''): Promise<Contact[]> {
+    const words = [...new Set((hint.normalize('NFC').match(/[\p{L}][\p{L}'’-]{2,}/gu) ?? [])
+      .filter((w) => !CONTACT_STOPWORDS.has(w.toLowerCase())))]
+      .sort((a, b) => Number(/^\p{Lu}/u.test(b)) - Number(/^\p{Lu}/u.test(a)))
+      .slice(0, 4);
+    const queries = words.length ? words.map((w) => `beneficiaries?q=${encodeURIComponent(w)}`) : ['beneficiaries'];
+    const lists = await Promise.all(queries.map((q) => this.searchBeneficiaries(q)));
+    const byPhone = new Map<string, Contact>();
+    for (const c of lists.flat()) if (!byPhone.has(c.phone)) byPhone.set(c.phone, { ...c, id: c.phone });
+    return [...byPhone.values()];
+  }
+
+  private async searchBeneficiaries(path: string): Promise<Contact[]> {
+    const r = await this.request<Record<string, unknown> | unknown[]>('GET', path).catch(() => null);
+    if (!r || !r.ok) return [];
     const list = Array.isArray(r.data)
       ? r.data
       : Array.isArray((r.data as Record<string, unknown>).beneficiaries)

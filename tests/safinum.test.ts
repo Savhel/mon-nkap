@@ -259,3 +259,19 @@ test('SAFINUM : un code d’erreur donné en texte (« error »: « INSUFFICIENT
   assert.equal(r.ok, false);
   assert.equal(!r.ok && r.code, 'insufficient_funds');
 });
+
+test('SAFINUM : les bénéficiaires se cherchent par les noms de la phrase, et une personne n’apparaît qu’une fois', async () => {
+  const asked: string[] = [];
+  const people = [{ name: 'Paul Ngono', phone: '237677210927', institution: 'SAFINUM' }, { name: 'Paul Ngono', phone: '237677210927', institution: 'ORANGE' }, { name: 'Paul Sali', phone: '237694027050', institution: 'MTN' }];
+  const fetchImpl = (async (url: string) => {
+    const q = new URL(url).searchParams.get('q') ?? '';
+    asked.push(q);
+    return Response.json({ beneficiaries: q ? people.filter((p) => p.name.toLowerCase().includes(q.toLowerCase())) : [] });
+  }) as typeof fetch;
+  const backend = new SafinumBackend({ baseUrl: 'https://bac-a-sable.invalid/api/v1', teamKey: 'sbx_test_team_key', fetchImpl });
+  const contacts = await backend.listContacts('237676931311', 'envoie 2000 à Paul Ngono');
+  assert.deepEqual(asked.sort(), ['Ngono', 'Paul']);                 // « envoie » n'est pas cherché
+  assert.deepEqual(contacts.map((c) => c.phone).sort(), ['677210927', '694027050']);
+  const { interpret } = await import('../src/core/nlu.ts');
+  assert.deepEqual(interpret('envoie 2000 à Paul Ngono', 'fr', contacts).beneficiaryCandidates.map((c) => c.name), ['Paul Ngono']);
+});

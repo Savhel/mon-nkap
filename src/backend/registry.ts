@@ -275,7 +275,7 @@ export class RouterBackend implements FinancialBackend {
   private current(): FinancialBackend { return this.registry.resolve(institutionStorage.getStore(), this.fallback); }
 
   getBalance(accountId: string) { return this.current().getBalance(accountId); }
-  listContacts(accountId: string) { return this.current().listContacts(accountId); }
+  listContacts(accountId: string, hint?: string) { return this.current().listContacts(accountId, hint); }
   quoteFee(accountId: string, kind: FeeKind, amount: number) { return this.current().quoteFee(accountId, kind, amount); }
   transfer(accountId: string, to: { name?: string; phone?: string }, amount: number) { return this.current().transfer(accountId, to, amount); }
   buyAirtime(accountId: string, phone: string, amount: number) { return this.current().buyAirtime(accountId, phone, amount); }

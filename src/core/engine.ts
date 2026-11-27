@@ -145,7 +145,7 @@ export class Engine {
     let via: { via: 'lexicon' | 'mt'; translation?: string; mtEngine?: string } = { via: 'lexicon' };
     let detected: { code: string; confidence: number; switched: boolean } | undefined;
     try {
-      const contacts = await this.backend.listContacts(s.accountId);
+      const contacts = await this.backend.listContacts(s.accountId, req.text);
       it = interpret(req.text, s.lang, contacts);
       // Langue détectée dans le texte : on ne change de langue que si l'identification est sûre ET que la langue
       // détectée comprend la demande alors que la langue courante ne la comprend pas.
