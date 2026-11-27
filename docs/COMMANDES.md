@@ -15,6 +15,7 @@ machine, puis remplir les valeurs. Les commandes qui en ont besoin le lisent ave
 |---|---|
 | Serveur (app, API, middleware SAFINUM, collecte) | `node --env-file=.env src/api/server.ts` |
 | Tunnel public (middleware SAFINUM + page de collecte, rien d'autre) | `ngrok http 8080 --traffic-policy-file services/ngrok-safinum.yml` |
+| Tunnel de démonstration (en plus : `/mobile` et les autres pages, avec mot de passe) | `node --env-file=.env tools/tunnel-demo.ts` puis `ngrok http 8080 --traffic-policy-file services/ngrok-demo.local.yml` |
 | Arrêter l'un ou l'autre | `Ctrl+C` dans son terminal |
 
 Laisser les deux terminaux ouverts pendant les essais et pendant que les natifs travaillent. Après une mise à jour du
