@@ -38,6 +38,24 @@ function disableAutoSelectFamily(): void {
   try { setDefaultAutoSelectFamily(false); } catch {}
 }
 
+/**
+ * safinum.cm répond en ≈ 0,3 s sur une connexion déjà ouverte, mais en 1,3 à 7,5 s quand il faut la rouvrir
+ * (mesuré le 27 novembre). Node ferme une connexion inactive après 4 s, et un client met toujours plus que cela
+ * entre deux touches : chaque tour USSD rouvrait donc la connexion et dépassait les 3 s. On garde deux connexions
+ * ouvertes par une requête légère toutes les 3 s (deux, car frais et solde partent en même temps).
+ * CT_SAFINUM_KEEPALIVE_MS=0 désactive.
+ */
+const warmed = new Set<string>();
+function keepWarm(baseUrl: string): void {
+  const every = Number(process.env.CT_SAFINUM_KEEPALIVE_MS ?? 3000);
+  if (!every || warmed.has(baseUrl) || process.env.NODE_TEST_CONTEXT) return;
+  warmed.add(baseUrl);
+  const ping = () => fetch(`${baseUrl}/health`, { signal: AbortSignal.timeout(8000) }).then((r) => r.arrayBuffer()).catch(() => {});
+  const tick = () => { void ping(); void ping(); };
+  tick();
+  setInterval(tick, every).unref();
+}
+
 function toSafinumType(kind: FeeKind | PendingTransactionInput['op']): string {
   return kind === 'withdraw' ? 'withdrawal' : kind;
 }
@@ -112,8 +130,10 @@ export class SafinumBackend implements FinancialBackend {
     if (!cfg.fetchImpl) disableAutoSelectFamily();
     this.defaultBaseUrl = (cfg.baseUrl ?? process.env.CT_SAFINUM_URL ?? 'https://safinum.cm/api/v1').replace(/\/$/, '');
     this.teamKey = cfg.teamKey ?? process.env.CT_SAFINUM_KEY ?? '';
-    this.timeoutMs = cfg.timeoutMs ?? 2800;
+    // 2,3 s au plus par appel : avec le tunnel (≈ 0,3 s), la réponse, même d'échec, arrive avant les 3 s de l'USSD.
+    this.timeoutMs = cfg.timeoutMs ?? Number(process.env.CT_SAFINUM_TIMEOUT_MS ?? 2300);
     this.fetchImpl = cfg.fetchImpl ?? fetch;
+    if (!cfg.fetchImpl) keepWarm(this.defaultBaseUrl);
   }
 
   private async request<T>(method: string, path: string, body?: unknown): Promise<{ ok: true; data: T } | { ok: false; status: number; code?: string; message: string; raw: Record<string, unknown> }> {
