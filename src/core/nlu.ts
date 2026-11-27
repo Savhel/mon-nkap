@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import type { Contact } from '../backend/types.ts';
 import { extractAmounts, extractPhones, normalizeSpokenPhones } from './amounts.ts';
-import { findPhrase, levenshtein, normalize, phraseDistance, skeleton, tokens, tolerance, wordMatches } from './text.ts';
+import { findPhrase, foldFulfulde, levenshtein, normalize, phraseDistance, skeleton, tokens, tolerance, wordMatches } from './text.ts';
 import { allowDraft } from '../linguistics/pack.ts';
 import { numeralizeFor, runtimeFor } from '../linguistics/runtime.ts';
 
@@ -109,6 +109,12 @@ function matchContacts(toks: string[], contacts: Contact[]): { candidates: Conta
 
 export function interpret(text: string, lang: string, contacts: Contact[] = []): Interpretation {
   const toks = tokens(text);
+  // Fulfulde : la phrase et les expressions de sa propre langue sont comparées sous une orthographe commune
+  // (voir foldFulfulde). Le français et l'anglais restent comparés tels quels.
+  const fold = lang === 'fub' ? foldFulfulde : null;
+  const ftoks = fold ? tokens(fold(text)) : toks;
+  const T = (l: string) => (fold && l === lang ? ftoks : toks);
+  const P = (l: string, p: string) => (fold && l === lang ? fold(p) : p);
   // Code-switching : on écoute toujours le lexique de la langue choisie, plus le français et l'anglais.
   const lexes = [...new Set([lang, 'fr', 'en'])].map((l) => [l, loadLexicon(l)] as const).filter((x): x is readonly [string, Lexicon] => x[1] !== null);
 
@@ -131,7 +137,7 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
     for (const intent of INTENTS) {
       for (const phrase of lex.intents[intent] ?? []) {
         let s = 0;
-        if (findPhrase(toks, phrase) >= 0) {
+        if (findPhrase(T(l), P(l, phrase)) >= 0) {
           // Dans une phrase en langue nationale, un mot français ou anglais seulement RESSEMBLANT pèse moins :
           // « aidi » (« a yidi », je veux, en fulfulde) passait pour le français « aide ».
           // (Le mot peut venir du lexique de la langue elle-même : le brouillon fulfulde contient « aide ».)
@@ -174,8 +180,8 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   // "frais" l'emporte sur "transfert" dans "combien coûtent les frais d'un transfert".
   if (scores.fees && scores.transfer) scores.fees += 0.5;
   let term: string | undefined;
-  for (const [, lex] of lexes) {
-    for (const [word, key] of Object.entries(lex.terms)) if (findPhrase(toks, word) >= 0) { term = key; break; }
+  for (const [l, lex] of lexes) {
+    for (const [word, key] of Object.entries(lex.terms)) if (findPhrase(T(l), P(l, word)) >= 0) { term = key; break; }
     if (term) break;
   }
 
@@ -191,17 +197,17 @@ export function interpret(text: string, lang: string, contacts: Contact[] = []):
   // retenu que s'il est NETTEMENT plus proche (2 lettres d'écart au moins). Dans le doute, rien n'est confirmé.
   // Seules comptent les expressions réellement proches (tolérance + 1) : « no », très court, est à deux
   // lettres de presque tout mot court et ne doit pas bloquer un « mi jabbi ».
-  const nearest = (pick: (l: Lexicon) => string[]) => Math.min(Infinity, ...lexes.flatMap(([, lex]) => pick(lex).map((p) => {
-    const d = phraseDistance(toks, p);
-    return d <= tolerance(p.replace(/\s+/g, '')) + 1 ? d : Infinity;
+  const nearest = (pick: (l: Lexicon) => string[]) => Math.min(Infinity, ...lexes.flatMap(([l, lex]) => pick(lex).map((p) => {
+    const q = P(l, p), d = phraseDistance(T(l), q);
+    return d <= tolerance(q.replace(/\s+/g, '')) + 1 ? d : Infinity;
   })));
-  const confirmHeard = lexes.some(([, lex]) => anyPhrase(toks, lex.confirm) !== undefined);
-  const denyHeard = lexes.some(([, lex]) => anyPhrase(toks, lex.deny) !== undefined);
+  const confirmHeard = lexes.some(([l, lex]) => anyPhrase(T(l), lex.confirm.map((p) => P(l, p))) !== undefined);
+  const denyHeard = lexes.some(([l, lex]) => anyPhrase(T(l), lex.deny.map((p) => P(l, p))) !== undefined);
   const clearlyYes = confirmHeard && nearest((l) => l.deny) - nearest((l) => l.confirm) >= 2;
   const explicitDenial = observed?.deny?.some((phrase) => normalize(text) === normalize(phrase)) ?? false;
   const isConfirm = !explicitDenial && (clearlyYes || /^(1|oui|yes)$/.test(normalize(text)));
   const isDeny = explicitDenial || (denyHeard && !clearlyYes) || /^(2|non|no)$/.test(normalize(text));
-  const isCorrection = lexes.some(([, lex]) => anyPhrase(toks, lex.correction) !== undefined);
+  const isCorrection = lexes.some(([l, lex]) => anyPhrase(T(l), lex.correction.map((p) => P(l, p))) !== undefined);
 
   let switchTo: string | undefined;
   if (toks.some((t) => SWITCH_MARKERS.includes(t))) {

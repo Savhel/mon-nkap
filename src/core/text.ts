@@ -21,6 +21,18 @@ export function normalize(input: string): string {
     .trim();
 }
 
+/**
+ * Fulfulde : deux orthographes se croisent. Les natifs écrivent à la française (« yerbougo », « tchede »,
+ * « djoy »), la reconnaissance vocale écrit l'orthographe officielle (« yerɓugo », « ceede », « joy »).
+ * On ramène les deux à une forme commune : tch/ch → c, dj → j, ou → u, lettres doublées simplifiées, h final retiré.
+ */
+export function foldFulfulde(input: string): string {
+  return normalize(input)
+    .replace(/tch|ch/g, 'c').replace(/dj/g, 'j').replace(/ou/g, 'u')
+    .replace(/([a-z])\1+/g, '$1')
+    .replace(/h\b/g, '');
+}
+
 export function tokens(input: string): string[] {
   const n = normalize(input).replace(/'/g, ' ');
   return n ? n.split(' ') : [];
