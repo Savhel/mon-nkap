@@ -17,7 +17,8 @@
     "mt:compare": "node tools/compare-mt.ts",
     "keys": "node tools/api-keys.ts",
     "safinum": "node tools/safinum.ts",
-    "apk": "cd mobile-android && npm ci && npm run apk"
+    "apk": "cd mobile-android && npm ci && npm run apk",
+    "invitations": "node tools/invitations.ts"
   },
   "license": "UNLICENSED",
   "devDependencies": {

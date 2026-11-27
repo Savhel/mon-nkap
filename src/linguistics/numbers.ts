@@ -135,7 +135,19 @@ export function numeralize(text: string, g: NumberGrammar): string {
   // sans cela, « 12 500 » devenait 12 + 500 = 512.
   const toks = tokens(text.replace(/\b\d{1,3}(?:[ .,  ]\d{3})+\b/g, (m) => m.replace(/\D/g, '')));
   if (!toks.length) return text;
-  const segs = segment(toks, g.words, new Set(g.connectors));
+  // Un mot inconnu au milieu d'un nombre connu (« boro mone sappo » : « boro sappo » = 10 000, mais « boro » seul
+  // = 1 000) rend la lecture incertaine. On ne lit alors aucun montant (le moteur le redemande) plutôt que 1 000.
+  const connectors = new Set(g.connectors);
+  const forms = Object.keys(g.words).map((k) => tokens(k)).filter((w) => w.length >= 2);
+  for (let i = 0; i < toks.length; i++) {
+    const gap = toks[i + 1];
+    if (!gap || gap in g.words || connectors.has(gap) || /^\d+$/.test(gap)) continue;
+    if (forms.some((f) => toks[i] === f[0] && f.slice(1).every((w, j) => toks[i + 2 + j] === w))) {
+      const f = forms.filter((x) => toks[i] === x[0] && x.slice(1).every((w, j) => toks[i + 2 + j] === w)).sort((a, b) => b.length - a.length)[0];
+      toks.splice(i, f.length + 1, '?');
+    }
+  }
+  const segs = segment(toks, g.words, connectors);
   const out: string[] = [];
   let run: Item[] = [];
   let runWord = '';

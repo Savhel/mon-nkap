@@ -117,3 +117,26 @@ test('audio : un fichier qui n’est pas de l’audio est refusé, un vrai enreg
     assert.ok(existsSync(join(dirs.audio, 'fub', 'demandes', labels[0].fichier)));
   });
 });
+
+test('écrans de l’application : une traduction acceptée rejoint le catalogue SAFINUM, en brouillon, emplacements gardés', async () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'collecte-ui-'));
+  const ui = join(tmp, 'ui');
+  const { server } = createApp(undefined, { auditFile: null, keysFile: null, connectorsFile: null, uiResourcesFile: null, collecte: { root: join(tmp, 'inbox'), sheetsDir: join(tmp, 'sheets'), audioDir: join(tmp, 'audio'), uiDir: ui } });
+  await new Promise<void>((ok) => server.listen(0, '127.0.0.1', ok));
+  const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  try {
+    const { code } = await (await post(base, '/v1/admin/collecte/invitations', { lang: 'fub' }, ADMIN)).json() as { code: string };
+    const H = { 'x-collecte-code': code };
+    const tasks = await (await fetch(`${base}/v1/collecte/tasks`, { headers: H })).json() as { tasks: { section: string; item: string; reperes?: string[] }[] };
+    const insufficient = tasks.tasks.find((t) => t.section === 'interface' && t.item === 'error.INSUFFICIENT_FUNDS');
+    assert.ok(insufficient, 'les textes de l’application sont proposés aux natifs');
+    assert.deepEqual(insufficient!.reperes, ['{missing}']);
+    assert.equal((await post(base, '/v1/collecte/contribution', { section: 'interface', item: 'error.INSUFFICIENT_FUNDS', texte: 'Ceede maa heewaani', consent: true }, H)).status, 400); // repère oublié
+    const { id } = await (await post(base, '/v1/collecte/contribution', { section: 'interface', item: 'nav.home', texte: 'Wuro', consent: true }, H)).json() as { id: string };
+    await post(base, '/v1/admin/collecte/review', { lang: 'fub', id, decision: 'accepte' }, ADMIN);
+    const cat = JSON.parse(readFileSync(join(ui, 'safinum-fub.json'), 'utf8'));
+    assert.equal(cat['nav.home'].text, 'Wuro');
+    assert.equal(cat['nav.home'].fr, 'Accueil');
+    assert.equal(cat['nav.home'].valide, false);
+  } finally { server.close(); rmSync(tmp, { recursive: true, force: true }); }
+});

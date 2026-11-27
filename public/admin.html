@@ -647,7 +647,7 @@
 
   // ---------------------------------------------------------------- collecte des natifs
   const cell = (text) => { const td = document.createElement('td'); td.textContent = text ?? '—'; return td; };
-  const SECTION_FR = { demandes: 'Demande', reponses: 'Réponse', definitions: 'Explication', nombres: 'Nombre', lexique: 'Mot' };
+  const SECTION_FR = { demandes: 'Demande', reponses: 'Réponse', definitions: 'Explication', nombres: 'Nombre', lexique: 'Mot', interface: 'Écran' };
   let collecte = null;
   async function loadCollecte() {
     collecte = await api('/v1/admin/collecte');

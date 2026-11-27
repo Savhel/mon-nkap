@@ -20,8 +20,9 @@ export const COLLECTE_INBOX = fileURLToPath(new URL('../../data/collecte/', impo
 const COLLECTE_SHEETS = fileURLToPath(new URL('../../collecte/', import.meta.url));
 const AUDIO_DIR = fileURLToPath(new URL('../../data/audio/', import.meta.url));
 
-export type Section = 'demandes' | 'reponses' | 'definitions' | 'nombres' | 'lexique';
-export const SECTIONS: Section[] = ['demandes', 'reponses', 'definitions', 'nombres', 'lexique'];
+export type Section = 'demandes' | 'reponses' | 'definitions' | 'nombres' | 'lexique' | 'interface';
+export const SECTIONS: Section[] = ['demandes', 'reponses', 'definitions', 'nombres', 'lexique', 'interface'];
+const UI_DIR = () => process.env.CT_UI_DIR ?? fileURLToPath(new URL('../../data/ui/', import.meta.url));
 
 export interface Task { section: Section; item: string; consigne: string; exemple?: string; reperes?: string[] }
 
@@ -35,10 +36,20 @@ export function tasks(): Task[] {
     ...DEFINITIONS.map((d) => ({ section: 'definitions' as const, item: d.id, consigne: 'Expliquez ce mot simplement, dans votre langue.', exemple: d.fr })),
     ...NUMBER_TARGETS.map((n) => ({ section: 'nombres' as const, item: String(n), consigne: `Comment dit-on ${fmt(n)} (en francs) ?`, exemple: fmt(n) })),
     ...CONCEPTS.map((c) => ({ section: 'lexique' as const, item: c.id, consigne: `Le mot ou l’expression pour « ${c.fr} »${c.hint ? ` (${c.hint})` : ''}.` })),
+    ...interfaceTasks(),
   ];
 }
-const TASK_INDEX = new Map(tasks().map((t) => [`${t.section}:${t.item}`, t]));
-export const findTask = (section: string, item: string) => TASK_INDEX.get(`${section}:${item}`);
+/** Textes de l'application du bac à sable SAFINUM (captés par le middleware) : boutons, titres, messages. */
+function interfaceTasks(): Task[] {
+  let source: Record<string, { text: string; context?: string; max_chars?: number | null }> = {};
+  try { source = JSON.parse(readFileSync(join(UI_DIR(), 'safinum-source.json'), 'utf8')); } catch { return []; }
+  return Object.entries(source).sort(([a], [b]) => a.localeCompare(b)).map(([key, s]) => ({
+    section: 'interface' as const, item: key,
+    consigne: `Texte de l’application bancaire (${s.context ?? 'écran'})${s.max_chars ? `, ${s.max_chars} caractères au plus` : ''}.`,
+    exemple: s.text, reperes: s.text.match(/\{[A-Za-z0-9_]+\}/g) ?? [],
+  }));
+}
+export const findTask = (section: string, item: string) => tasks().find((t) => t.section === section && t.item === item);
 
 // ---------------------------------------------------------------- invitations
 
@@ -60,10 +71,12 @@ export class Contributions {
   readonly root: string;
   private sheetsDir: string;
   private audioDir: string;
-  constructor(opts: { root?: string; sheetsDir?: string; audioDir?: string } = {}) {
+  private uiDir: string;
+  constructor(opts: { root?: string; sheetsDir?: string; audioDir?: string; uiDir?: string } = {}) {
     this.root = opts.root ?? process.env.CT_COLLECTE_DIR ?? COLLECTE_INBOX;
     this.sheetsDir = opts.sheetsDir ?? COLLECTE_SHEETS;
     this.audioDir = opts.audioDir ?? AUDIO_DIR;
+    this.uiDir = opts.uiDir ?? UI_DIR();
   }
 
   private get invitationsFile() { return join(this.root, 'invitations.json'); }
@@ -176,7 +189,8 @@ export class Contributions {
     if (c.statut !== 'en_attente') throw fail('Contribution déjà traitée.', 409);
     const decided = { id, statut: decision, decideLe: new Date().toISOString() } as const;
     if (decision === 'accepte') {
-      if (c.texte) this.addToSheet(c);
+      if (c.texte && c.section === 'interface') this.addToInterface(c);
+      else if (c.texte) this.addToSheet(c);
       if (c.audio && c.section === 'demandes') this.addToVoiceTests(c);
     }
     this.append(lang, decided);
@@ -187,14 +201,14 @@ export class Contributions {
     const task = findTask(c.section, c.item)!;
     const file = join(this.sheetsDir, c.lang, `${c.section}.csv`);
     const trace = { auteur: c.contributeur, relecteur: '', statut: '', commentaire: `collecte en ligne ${c.at.slice(0, 10)}` };
-    const fresh: Record<Section, { header: string[]; row: Record<string, string> }> = {
+    const fresh: Record<Exclude<Section, 'interface'>, { header: string[]; row: Record<string, string> }> = {
       demandes: { header: ['situation_id', 'intention', 'situation', 'phrase'], row: { situation_id: c.item, intention: SITUATIONS.find((s) => s.id === c.item)!.intent, situation: task.consigne, phrase: c.texte } },
       reponses: { header: ['id', 'en_francais', 'reperes_a_garder', 'votre_phrase'], row: { id: c.item, en_francais: task.exemple ?? '', reperes_a_garder: (task.reperes ?? []).join(' '), votre_phrase: c.texte } },
       definitions: { header: ['id', 'en_francais', 'votre_explication'], row: { id: c.item, en_francais: task.exemple ?? '', votre_explication: c.texte } },
       nombres: { header: ['valeur', 'en_chiffres', 'comment_on_le_dit', 'autre_facon'], row: { valeur: c.item, en_chiffres: task.exemple ?? '', comment_on_le_dit: c.texte, autre_facon: '' } },
       lexique: { header: ['id', 'en_francais', 'precision', 'mot_ou_expression', 'variantes'], row: { id: c.item, en_francais: CONCEPTS.find((x) => x.id === c.item)?.fr ?? '', precision: '', mot_ou_expression: c.texte, variantes: '' } },
     };
-    const spec = fresh[c.section];
+    const spec = fresh[c.section as Exclude<Section, 'interface'>];
     const row: Record<string, string> = { ...spec.row, ...trace };
     mkdirSync(dirname(file), { recursive: true });
     if (!existsSync(file)) {
@@ -209,6 +223,16 @@ export class Contributions {
     const header = Object.keys(parseCsv(`${firstLine}\nx`)[0] ?? {});
     const line = header.map((h) => `"${(row[h] ?? '').replace(/"/g, '""')}"`).join(sep);
     appendFileSync(file, (text.endsWith('\n') ? '' : '\n') + line + '\n');
+  }
+
+  /** Texte d'écran accepté : rejoint le catalogue de la traduction d'écrans SAFINUM, en brouillon. */
+  private addToInterface(c: Contribution) {
+    const file = join(this.uiDir, `safinum-${c.lang}.json`);
+    let cat: Record<string, unknown> = {};
+    try { cat = JSON.parse(readFileSync(file, 'utf8')); } catch { /* premier texte de cette langue */ }
+    cat[c.item] = { text: c.texte, fr: findTask('interface', c.item)?.exemple ?? '', auteur: c.contributeur, valide: false };
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, JSON.stringify(cat, null, 1) + '\n');
   }
 
   private addToVoiceTests(c: Contribution) {
