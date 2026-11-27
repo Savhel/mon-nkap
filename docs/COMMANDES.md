@@ -20,6 +20,11 @@ machine, puis remplir les valeurs. Les commandes qui en ont besoin le lisent ave
 Laisser les deux terminaux ouverts pendant les essais et pendant que les natifs travaillent. Après une mise à jour du
 code (`git pull`), redémarrer le serveur.
 
+Avec le tunnel de démonstration, un camarade ouvre `https://audrina-nonintroverted-timorously.ngrok-free.dev/mobile`
+depuis son ordinateur ou son téléphone : identifiant `gifa`, mot de passe `CT_DEMO_PASSWORD` du `.env`
+(`grep CT_DEMO_PASSWORD .env`). Le middleware SAFINUM et la collecte restent ouverts sans mot de passe, `/admin` reste
+fermé. Le fichier `services/ngrok-demo.local.yml` contient le mot de passe : il n'est jamais envoyé sur GitHub.
+
 Pages locales : `http://localhost:8080/` (jury), `/mobile` (application, mode Conversation), `/banque`, `/gab`,
 `/canaux` (USSD et SMS), `/tableau` (journal), `/admin` (clés, entraînement, collecte), `/collecte` (natifs).
 

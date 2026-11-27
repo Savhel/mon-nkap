@@ -10,3 +10,6 @@ data/ui-resources.json
 .venv/
 mobile-android/www/
 data/collecte/
+
+# Tunnel de démonstration (contient un mot de passe)
+services/*.local.yml
