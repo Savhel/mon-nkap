@@ -66,7 +66,9 @@ async function machineTranslate(lang: string, src: string): Promise<string | nul
     const core = part.slice(lead.length, part.length - tail.length);
     const mt = await frenchTo(lang, core);
     if (!mt?.accepted) return null;
-    out.push(lead + mt.text + tail);
+    // Le modèle remet souvent la ponctuation finale : on garde celle du français (sinon « waɗugo? ? »).
+    const text = /[.!?:;]/.test(tail) ? mt.text.replace(/[\s.!?:;]+$/u, '') : mt.text;
+    out.push(lead + text + tail);
   }
   return out.join('');
 }
