@@ -46,18 +46,26 @@ function disableAutoSelectFamily(): void {
  * safinum.cm répond en ≈ 0,3 s sur une connexion déjà ouverte, mais en 1,3 à 7,5 s quand il faut la rouvrir
  * (mesuré le 27 novembre). Node ferme une connexion inactive après 4 s, et un client met toujours plus que cela
  * entre deux touches : chaque tour USSD rouvrait donc la connexion et dépassait les 3 s. On garde deux connexions
- * ouvertes par une requête légère toutes les 3 s (deux, car frais et solde partent en même temps).
- * CT_SAFINUM_KEEPALIVE_MS=0 désactive.
+ * ouvertes par une requête légère toutes les 3 s (deux, car frais et solde partent en même temps), mais seulement
+ * pendant une session : jusqu'à 90 s après le dernier vrai appel (CT_SAFINUM_KEEPALIVE_IDLE_MS). Hors session, aucun
+ * envoi : un serveur sollicité en continu finit par refuser notre adresse. CT_SAFINUM_KEEPALIVE_MS=0 désactive.
  */
-const warmed = new Set<string>();
+const warm = new Map<string, { last: number; timer?: ReturnType<typeof setInterval> }>();
 function keepWarm(baseUrl: string): void {
   const every = Number(process.env.CT_SAFINUM_KEEPALIVE_MS ?? 3000);
-  if (!every || warmed.has(baseUrl) || process.env.NODE_TEST_CONTEXT) return;
-  warmed.add(baseUrl);
+  const idle = Number(process.env.CT_SAFINUM_KEEPALIVE_IDLE_MS ?? 90_000);
+  if (!every || process.env.NODE_TEST_CONTEXT) return;
+  let w = warm.get(baseUrl);
+  if (!w) warm.set(baseUrl, (w = { last: 0 }));
+  w.last = Date.now();
+  if (w.timer) return;
   const ping = () => fetch(`${baseUrl}/health`, { signal: AbortSignal.timeout(8000) }).then((r) => r.arrayBuffer()).catch(() => {});
-  const tick = () => { void ping(); void ping(); };
-  tick();
-  setInterval(tick, every).unref();
+  const state = w;
+  state.timer = setInterval(() => {
+    if (Date.now() - state.last > idle) { clearInterval(state.timer); state.timer = undefined; return; }
+    void ping(); void ping();
+  }, every);
+  state.timer.unref();
 }
 
 function toSafinumType(kind: FeeKind | PendingTransactionInput['op']): string {
@@ -137,12 +145,14 @@ export class SafinumBackend implements FinancialBackend {
     // 2,3 s au plus par appel : avec le tunnel (≈ 0,3 s), la réponse, même d'échec, arrive avant les 3 s de l'USSD.
     this.timeoutMs = cfg.timeoutMs ?? Number(process.env.CT_SAFINUM_TIMEOUT_MS ?? 2300);
     this.fetchImpl = cfg.fetchImpl ?? fetch;
-    if (!cfg.fetchImpl) keepWarm(this.defaultBaseUrl);
+    this.warm = !cfg.fetchImpl;
   }
+  private warm: boolean;
 
   private async request<T>(method: string, path: string, body?: unknown): Promise<{ ok: true; data: T } | { ok: false; status: number; code?: string; message: string; raw: Record<string, unknown> }> {
     const ctx = traceStorage.getStore();
     const base = this.defaultBaseUrl;
+    if (this.warm) keepWarm(base);
     const headers: Record<string, string> = {
       accept: 'application/json',
       'x-team-key': this.teamKey,
