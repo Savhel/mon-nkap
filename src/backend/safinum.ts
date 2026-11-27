@@ -36,8 +36,11 @@ export interface SafinumConfig {
 
 /** Node 24 coupe l'IPv4 au bout de 250 ms avec Happy Eyeballs quand l'IPv6 est injoignable. */
 // Sans essai automatique, Node prend la PREMIÈRE adresse résolue : si c'est l'IPv6 et qu'elle est injoignable,
-// l'appel échoue (EHOSTUNREACH, vu le 27 novembre). On fait donc passer l'IPv4 en premier.
+// l'appel échoue (EHOSTUNREACH, vu le 27 novembre). On fait donc passer l'IPv4 en premier, sauf si
+// CT_SAFINUM_IP_ORDER=ipv6first (quand c'est au contraire l'IPv4 qui est refusée) : IPv6 d'abord, et l'essai
+// automatique reste actif pour se rabattre sur l'autre famille (10 réponses sur 10, mesuré le 27 novembre).
 function disableAutoSelectFamily(): void {
+  if (process.env.CT_SAFINUM_IP_ORDER === 'ipv6first') { try { setDefaultResultOrder('ipv6first'); } catch {} return; }
   try { setDefaultResultOrder('ipv4first'); } catch {}
   try { setDefaultAutoSelectFamily(false); } catch {}
 }
