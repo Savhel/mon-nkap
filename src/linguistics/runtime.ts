@@ -108,7 +108,11 @@ export function runtimeFor(lang: string): LangRuntime | null {
 export function clearRuntimeCache(): void { cache.clear(); }
 
 /** Texte où les montants dits en langue nationale sont remplacés par des chiffres (le reste est inchangé). */
+// Pidgin : la native écrit « k » pour mille et accepte aussi « ké » ; « ke » et « kay » sont les mêmes à l'oral.
+const PIDGIN_THOUSAND = /(?<![\p{L}\p{N}])(?:ké|ke|kay)(?![\p{L}\p{N}])/giu;
+
 export function numeralizeFor(lang: string, text: string): string {
+  if (lang === 'wes') text = text.replace(PIDGIN_THOUSAND, 'k');
   const rt = runtimeFor(lang);
   return rt && Object.keys(rt.grammar.words).length ? numeralize(text, rt.grammar) : publishedNumeralize(text, lang);
 }

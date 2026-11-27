@@ -29,3 +29,8 @@ test('SAFINUM : « pcm » et « pidgin » sont compris comme le pidgin camerouna
     assert.equal(r.interpretation.intent, 'BALANCE_INQUIRY');
   }
 });
+
+test('pidgin : « k » (écrit par la native) et « ké », « ke », « kay » valent mille', () => {
+  for (const k of ['k', 'ké', 'ke', 'kay']) assert.deepEqual(interpret(`a wan send five ${k} for Marie`, 'wes').amounts, [5000], k);
+  assert.deepEqual(interpret('a wan send twenty five ké', 'en').amounts, [25000]);
+});

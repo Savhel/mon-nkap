@@ -1,7 +1,7 @@
 {
  "schema": "ct-langpack.v1",
  "lang": "wes",
- "generatedAt": "2026-11-26T14:28:07.421Z",
+ "generatedAt": "2026-11-27T05:20:21.335Z",
  "source": "collecte/wes",
  "numbers": [
   {
@@ -202,7 +202,7 @@
   },
   {
    "value": 1000,
-   "text": "one ké",
+   "text": "one k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -223,7 +223,7 @@
   },
   {
    "value": 2000,
-   "text": "two ké",
+   "text": "two k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -244,7 +244,7 @@
   },
   {
    "value": 3000,
-   "text": "three ké",
+   "text": "three k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -258,7 +258,7 @@
   },
   {
    "value": 5000,
-   "text": "five ké",
+   "text": "five k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -279,7 +279,7 @@
   },
   {
    "value": 10000,
-   "text": "ten ké",
+   "text": "ten k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -300,7 +300,7 @@
   },
   {
    "value": 15000,
-   "text": "fifteen ké",
+   "text": "fifteen k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -314,7 +314,7 @@
   },
   {
    "value": 20000,
-   "text": "twenty ké",
+   "text": "twenty k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -328,7 +328,7 @@
   },
   {
    "value": 25000,
-   "text": "twenty five ké",
+   "text": "twenty five k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -342,7 +342,7 @@
   },
   {
    "value": 50000,
-   "text": "fifty ké",
+   "text": "fifty k",
    "author": "",
    "reviewer": "",
    "validated": false
@@ -647,7 +647,7 @@
     "validated": false
    },
    {
-    "text": "goo morning",
+    "text": "good morning",
     "author": "",
     "reviewer": "",
     "validated": false
@@ -1048,6 +1048,12 @@
    "reviewer": "",
    "validated": false
   },
+  "limit_exceeded": {
+   "text": "{plafond} dis amount don pass ya daily limit.",
+   "author": "",
+   "reviewer": "",
+   "validated": false
+  },
   "history_intro": {
    "text": "ya last transactions",
    "author": "",
@@ -1219,13 +1225,13 @@
    "validated": false
   },
   "beneficiary": {
-   "text": "beneficiary na person wey di receive the money. you get for check yi name and ei numba",
+   "text": "beneficiary na person wey di receive the money. you get always check ei name and ei numba",
    "author": "",
    "reviewer": "",
    "validated": false
   },
   "airtime": {
-   "text": "Dey di use credit for call person ,send message or for settle bill",
+   "text": "Dey di use credit for call person ,send message or for activate data",
    "author": "",
    "reviewer": "",
    "validated": false

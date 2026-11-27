@@ -16,7 +16,7 @@
 "confirm_withdraw","Retirer {montant} ? Frais : {frais}. Total : {total}. Confirmez-vous ?","{montant} {frais} {total}","you wan remove {montant} fees {frais} and the total na {total} You confirm am","","","",""
 "withdraw_done","Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}.","{montant} {solde}","","","","","à revoir avec le natif (le solde est placé avant « Take your notes », loin de « new balance ») : « You don remove{montant} {solde} Take your notes Your new balance na »"
 "insufficient","Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée.","{solde} {requis} {manque}","","","","","à revoir avec le natif (phrase incomplète : le montant requis et le manque ne sont pas annoncés) : « Ya balance no correct You get  {solde} with fees {requis} {manque} »"
-"limit_exceeded","Ce montant dépasse votre plafond de {plafond} par jour.","{plafond}","","","","","à revoir avec le natif (seul {plafond} est écrit, sans phrase) : « {plafond} »"
+"limit_exceeded","Ce montant dépasse votre plafond de {plafond} par jour.","{plafond}","{plafond} dis amount don pass ya daily limit.","","","","corrigé par la native (27/11)"
 "history_intro","Vos dernières opérations :","","ya last transactions","","","",""
 "hist_sent","envoyé","","sent","","","",""
 "hist_received","reçu","","received","","","",""
