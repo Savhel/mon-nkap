@@ -181,7 +181,9 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         const speechToText = speech.ctc || !!speech.conditioned;
         const piper = ['fr', 'en'].filter(ttsAvailable);
         const rows: LanguageEntry[] = languages.languages;
-        const plotweaver = useSafinum || customEngine || connectors.list().length ? [] : rows.map(({ code }) => code).filter(plotweaverLanguage);
+        // Voix PlotWeaver : seulement pour le moteur de démonstration (comptes fictifs). Les échanges du bac à sable
+        // officiel passent par un autre moteur (officialEngine) et ne sont jamais envoyés à PlotWeaver.
+        const plotweaver = customEngine || connectors.list().length ? [] : rows.map(({ code }) => code).filter(plotweaverLanguage);
         const pairs = new Set(mt.pairs);
         const list = rows.map((entry) => {
           const { code } = entry;
@@ -654,7 +656,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
       if (req.method === 'POST' && url.pathname === '/v1/tts/plotweaver') {
         const b = JSON.parse((await body(req, 4096)).toString('utf8') || '{}');
         const turn = engine.log.findLast((r) => r.at === b.at && r.sessionId === b.sessionId && r.institution === institution);
-        if (!turn || turn.reply.quality === 'fallback' || useSafinum || institution !== 'local' || connectors.list().length || customEngine) return json(res, 404, { error: 'voix_indisponible' });
+        if (!turn || turn.reply.quality === 'fallback' || institution !== 'local' || connectors.list().length || customEngine) return json(res, 404, { error: 'voix_indisponible' });
         const speech = await plotweaverSpeech(turn.lang, turn.reply.text);
         if (!speech) return json(res, 503, { error: 'voix_indisponible' });
         res.writeHead(200, { 'content-type': speech.mime, 'cache-control': 'no-store', 'x-montants-omis': speech.omitted ? '1' : '0', 'access-control-expose-headers': 'x-montants-omis' });
