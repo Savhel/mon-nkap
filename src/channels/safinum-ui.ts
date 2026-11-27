@@ -3,7 +3,8 @@
 //
 // Ordre, sans jamais inventer de texte en langue nationale :
 //   1. catalogue relu (data/ui/safinum-<langue>.json) : textes écrits par des locuteurs, ou anglais rédigé ;
-//   2. textes des natifs et libellés Mboa déjà au dépôt (correspondance exacte du français) ;
+//   2. textes des natifs et libellés Mboa déjà au dépôt (correspondance exacte du français), puis le moteur Mboa
+//      (vendor/mboa) : phrase validée ou composition de blocs validés, jamais de « mot-clé devant le français » ;
 //   3. traduction automatique gardée (aller-retour, langue vérifiée, jamais de chiffre), mise en cache ;
 //   4. sinon le français, tel quel.
 // Chaque texte rendu garde exactement ses emplacements ({amount}, {name}…) et respecte max_chars ; sinon, le français.
@@ -14,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { matchPackFromFrench } from '../core/translate.ts';
 import { normalize } from '../core/text.ts';
 import { allowDraft } from '../linguistics/pack.ts';
+import { mboaTranslate } from '../linguistics/mboa-compose.ts';
 import { frenchTo, MT_ROUTES } from '../mt/flagship.ts';
 
 export interface UiString { text: string; context?: string; max_chars?: number | null }
@@ -126,6 +128,8 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
     if (fits(s.text, cur[k], s.max_chars)) { out[k] = cur[k]; stats.curated++; continue; }
     const hit = matchPackFromFrench(lang, normalize(s.text), allowDraft());
     if (fits(s.text, hit?.text, s.max_chars)) { out[k] = hit!.text; stats.native++; continue; }
+    const mboa = mboaTranslate(lang, s.text);
+    if (fits(s.text, mboa?.text, s.max_chars)) { out[k] = mboa!.text; stats.native++; continue; }
     if (fits(s.text, cache[s.text], s.max_chars)) { out[k] = cache[s.text]; stats.machine++; continue; }
     out[k] = s.text;
     misses.push([k, s]);

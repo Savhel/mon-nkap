@@ -80,3 +80,14 @@ test('/safinum/middleware : une demande « ui_translation » reçoit { language,
     assert.ok(body.strings['error.INSUFFICIENT_FUNDS'].includes('{missing}'));
   } finally { server.close(); rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('Écrans : les blocs validés de Mboa composent les phrases inédites, sans mot-clé devant le français', async () => {
+  const strings = { ok: { text: 'Opération réussie' }, ko: { text: "L'opération n'a pas abouti. Réessayez." }, aide: { text: 'Le plafond est le montant maximum que vous pouvez envoyer en une fois.' } };
+  const fub = await translateUiScreen({ language: 'fub', strings });
+  assert.equal(fub.strings.ok, 'Golle ceede gasii');
+  assert.equal(fub.strings.ko, 'Golle ceede roŋkii. Eto kadi.');
+  assert.equal(fub.strings.aide, strings.aide.text);            // non composable : le français, pas « Nelde ceede · … »
+  const pcm = await translateUiScreen({ language: 'pcm', strings });
+  assert.equal(pcm.strings.ok, 'The transaction don work');
+  assert.ok(!/≈/.test(pcm.strings.ko));
+});
