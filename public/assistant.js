@@ -74,7 +74,14 @@
     var mic = el('button', 'ca-mic'); mic.type = 'button'; mic.setAttribute('aria-label', 'Parler'); mic.append(icon('mic', 20));
     var go = el('button', 'ca-send'); go.type = 'submit'; go.setAttribute('aria-label', 'Envoyer'); go.append(icon('arrowUp', 20));
     form.append(input, mic, go);
-    root.append(mode, log, quick, form);
+    // Mode conversation : la phrase dite part toute seule, la réponse est dite à voix haute, puis le micro se rouvre.
+    var CONV_KEY = 'mon_nkap_conversation';
+    var conversation = opts.conversation != null ? !!opts.conversation : (function () { try { return localStorage.getItem(CONV_KEY) !== '0'; } catch { return true; } })();
+    var convBar = el('div', 'ca-convbar');
+    var conv = el('button', 'ca-conv'); conv.type = 'button';
+    var convState = el('span', 'ca-conv-state'); convState.setAttribute('aria-live', 'polite');
+    convBar.append(conv, convState);
+    root.append(mode, log, quick, convBar, form);
     var empty = el('div', 'ca-empty');
     var badge = el('span', 'ca-empty-ico'); badge.append(icon('message', 26));
     var e = opts.empty || { title: 'Bonjour', text: 'Écrivez ou dites votre demande dans votre langue, ou choisissez une action ci-dessous.' };
@@ -92,7 +99,7 @@
     }
     setQuick(opts.quick);
     function setDetails(on) { root.classList.toggle('ca-details', !!on); if (info) info.setAttribute('aria-pressed', String(!!on)); }
-    function setLang(code) { lang = code; ct.setLang(code); if (langSel) langSel.value = code; updateMode(); }
+    function setLang(code) { if (code !== lang) interrupt(); lang = code; ct.setLang(code); if (langSel) langSel.value = code; updateMode(); }
 
     var runtime = {}, registry = [];
     function selectedLanguage() { return registry.find(function (l) { return l.code === lang; }); }
@@ -103,7 +110,7 @@
       mode.hidden = !selected;
       if (selected) {
         var parts = [g.MonNkap.languageLabel(selected)];
-        if (selected.experience?.microphone && canBank()) parts.push('Micro avec transcription à relire');
+        if (selected.experience?.microphone && canBank()) parts.push(conversation ? 'Conversation à voix haute' : 'Micro avec transcription à relire');
         if (!canRecord() && selected.experience?.asr) parts.push('Micro indisponible sur ce serveur');
         mode.textContent = parts.join(' · ');
       }
@@ -184,26 +191,14 @@
           var fr = el('details', 'ca-fr'); fr.append(el('summary', null, 'Voir en français'), el('p', null, r.reply.fr)); b.append(fr);
         }
       }
-      var nativeAudio = r.reply.speech && r.reply.speech.length && !REF[r.lang] && selectedLanguage()?.experience?.clips;
-      var cloudAudio = (runtime.plotweaver || []).includes(r.lang) && r.reply.quality !== 'fallback';
-      var piperAudio = (runtime.piper || []).includes(r.lang);
-      if (nativeAudio || cloudAudio || piperAudio) {
+      if (hasAudio(r)) {
         var listen = el('button', 'ca-listen'); listen.type = 'button';
         listen.append(icon('volume', 16), document.createTextNode('Écouter'));
         listen.onclick = async function () {
           listen.disabled = true;
+          interrupt();
           try {
-            var blob = null, source = '';
-            if (nativeAudio) {
-              var q = 'lang=' + encodeURIComponent(r.lang) + '&clips=' + r.reply.speech.map(encodeURIComponent).join(',');
-              var nativeResponse = await fetch((opts.server || '') + '/v1/native?' + q);
-              if (nativeResponse.ok) { blob = await nativeResponse.blob(); source = 'Voix enregistrée'; }
-            }
-            if (!blob && cloudAudio) { blob = await ct.speech(r); source = 'Synthèse PlotWeaver'; }
-            if (!blob && piperAudio) {
-              var res = await fetch((opts.server || '') + '/v1/tts?lang=' + r.lang + '&text=' + encodeURIComponent(r.reply.text));
-              if (res.ok) { blob = await res.blob(); source = 'Synthèse Piper'; }
-            }
+            var got = await audioFor(r), blob = got && got.blob, source = got && got.source;
             if (!blob) { listen.textContent = 'Audio indisponible pour cette réponse'; return; }
             var url = URL.createObjectURL(blob);
             var audio = el('audio'); audio.controls = true; audio.src = url; audio.setAttribute('aria-label', source);
@@ -214,6 +209,7 @@
         };
         b.append(listen);
       }
+      if (conversation) afterReply(r);
       b.append(el('pre', 'ca-canon', JSON.stringify({ operation: c.operation, act: c.act, entities: c.entities, status: c.status, confidence: c.confidence }, null, 1)));
       if (r.status === 'awaiting_confirmation' && c.confirmationToken) {
         b.classList.add('ca-confirm');
@@ -253,48 +249,149 @@
       scroll();
     }
 
-    function send(text, shown) {
+    function send(text, shown, spoken) {
       if (!text || !canBank() || root.getAttribute('aria-busy') === 'true') return;
+      interrupt();
       bubble('me', shown || text);
       busy(true);
-      ct.message(text).then(function (r) { busy(false); render(r); })
+      ct.message(text, spoken ? { input: 'voice' } : undefined).then(function (r) { busy(false); render(r); })
         .catch(function (err) { busy(false); bubble('err', 'Service indisponible : ' + err.message); });
     }
     form.onsubmit = function (ev) { ev.preventDefault(); if (!canBank()) return; var t = input.value.trim(); input.value = ''; send(t); };
 
-    // Le micro remplit le champ. La personne relit la transcription avant de l’envoyer.
+    // ---------------------------------------------------------------- voix sortante
+    function hasAudio(r) {
+      return !!((r.reply.speech && r.reply.speech.length && !REF[r.lang] && selectedLanguage()?.experience?.clips) ||
+        ((runtime.plotweaver || []).includes(r.lang) && r.reply.quality !== 'fallback') || (runtime.piper || []).includes(r.lang));
+    }
+    /** Voix d'un natif d'abord, puis PlotWeaver (jamais de chiffre), puis Piper (français, anglais). */
+    async function audioFor(r) {
+      if (r.reply.speech && r.reply.speech.length && !REF[r.lang] && selectedLanguage()?.experience?.clips) {
+        var q = 'lang=' + encodeURIComponent(r.lang) + '&clips=' + r.reply.speech.map(encodeURIComponent).join(',');
+        var n = await fetch((opts.server || '') + '/v1/native?' + q).catch(function () { return null; });
+        if (n && n.ok) return { blob: await n.blob(), source: 'Voix enregistrée' };
+      }
+      if ((runtime.plotweaver || []).includes(r.lang) && r.reply.quality !== 'fallback') {
+        var c = await ct.speech(r).catch(function () { return null; });
+        if (c) return { blob: c, source: 'Synthèse PlotWeaver' };
+      }
+      if ((runtime.piper || []).includes(r.lang)) {
+        var p = await fetch((opts.server || '') + '/v1/tts?lang=' + r.lang + '&text=' + encodeURIComponent(r.reply.text)).catch(function () { return null; });
+        if (p && p.ok) return { blob: await p.blob(), source: 'Synthèse Piper' };
+      }
+      return null;
+    }
+    var player = null, turn = 0;
+    function stopPlayback() { if (player) { player.pause(); player = null; } }
+    function play(blob) {
+      return new Promise(function (resolve) {
+        stopPlayback();
+        var a = new Audio(URL.createObjectURL(blob)); player = a;
+        a.onended = a.onerror = function () { if (player === a) player = null; resolve(); };
+        a.play().catch(function () { if (player === a) player = null; resolve(); });
+      });
+    }
+    /** Coupe ce qui est en cours (voix, écoute automatique) : l'utilisateur a repris la main. */
+    function interrupt() { turn++; stopPlayback(); if (rec && rec.auto) { rec.discard = true; rec.stop(); } }
+    function say(text) { convState.textContent = text || ''; }
+
+    async function afterReply(r) {
+      var id = ++turn;
+      say('Réponse…');
+      var got = await audioFor(r).catch(function () { return null; });
+      if (id !== turn || !conversation) return;
+      if (got) { say('Réponse dite · ' + got.source); await play(got.blob); }
+      else say('Pas de voix pour cette réponse dans cette langue.');
+      if (id !== turn || !conversation) return;
+      if (r.status === 'awaiting_confirmation') { say('Vérifiez le récapitulatif, puis appuyez sur Confirmer. La voix ne peut pas confirmer un envoi.'); return; }
+      if (!canRecord() || !canBank()) return;
+      setTimeout(function () { if (id === turn && conversation && !rec) record(true); }, 250);
+    }
+
+    function renderConv() {
+      conv.replaceChildren(icon(conversation ? 'volume' : 'message', 16), document.createTextNode(conversation ? 'Conversation' : 'Conversation désactivée'));
+      conv.setAttribute('aria-pressed', String(conversation));
+      conv.title = conversation ? 'La réponse est dite à voix haute et le micro se rouvre. Appuyez pour désactiver.' : 'Appuyez pour parler avec l’application à voix haute.';
+      if (!conversation) say('');
+      else if (!convState.textContent) say('Appuyez sur le micro et parlez.');
+    }
+    conv.onclick = function () {
+      conversation = !conversation;
+      try { localStorage.setItem(CONV_KEY, conversation ? '1' : '0'); } catch {}
+      if (!conversation) interrupt();
+      renderConv(); updateMode();
+    };
+    renderConv();
+
+    // ---------------------------------------------------------------- voix entrante
+    // Hors conversation, le micro remplit le champ et la personne relit avant d'envoyer.
+    // En conversation, l'écoute s'arrête seule après un silence, et la phrase reconnue part directement.
     var rec = null, chunks = [];
-    mic.onclick = function () {
-      if (rec) { rec.stop(); return; }
+    function micIdle() { mic.classList.remove('ca-rec'); mic.setAttribute('aria-label', 'Parler'); mic.replaceChildren(icon('mic', 20)); }
+    function record(auto) {
       if (!canRecord()) { bubble('err', 'Micro indisponible sur ce serveur. Vous pouvez écrire votre demande.'); return; }
       if (!navigator.mediaDevices) { bubble('err', 'Micro indisponible sur cet appareil.'); return; }
       if (!window.MediaRecorder) { bubble('err', 'Ce navigateur ne peut pas enregistrer le son.'); return; }
       mic.disabled = true;
-      var recordedLang = lang;
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      var recordedLang = lang, hands = conversation;
+      navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }).then(function (stream) {
         chunks = [];
-        try { rec = new MediaRecorder(stream); }
+        var r;
+        try { r = new MediaRecorder(stream); }
         catch (err) { stream.getTracks().forEach(function (track) { track.stop(); }); throw err; }
-        rec.ondataavailable = function (ev) { chunks.push(ev.data); };
-        var limit = setTimeout(function () { if (rec && rec.state === 'recording') rec.stop(); }, 19000);
-        rec.onstop = function () {
-          clearTimeout(limit);
+        rec = r; r.auto = auto; r.discard = false;
+        r.ondataavailable = function (ev) { chunks.push(ev.data); };
+        var limit = setTimeout(function () { if (r.state === 'recording') r.stop(); }, 19000);
+        // Détection simple de la parole (énergie du signal), seulement en conversation.
+        var ac = null, vad = null, heard = false;
+        if (hands && (window.AudioContext || window.webkitAudioContext)) {
+          try {
+            ac = new (window.AudioContext || window.webkitAudioContext)();
+            var an = ac.createAnalyser(); an.fftSize = 1024; ac.createMediaStreamSource(stream).connect(an);
+            var buf = new Float32Array(an.fftSize), t0 = Date.now(), last = Date.now(), floor = 0, n = 0;
+            vad = setInterval(function () {
+              an.getFloatTimeDomainData(buf);
+              var e = 0; for (var i = 0; i < buf.length; i++) e += buf[i] * buf[i];
+              var rms = Math.sqrt(e / buf.length), now = Date.now();
+              if (now - t0 < 300) { floor += rms; n++; return; }   // bruit de fond, mesuré au début
+              var threshold = Math.max(0.015, (n ? floor / n : 0) * 3);
+              if (rms > threshold) { heard = true; last = now; }
+              if (heard && now - last > 1300 && r.state === 'recording') r.stop();
+              else if (!heard && now - t0 > 8000 && r.state === 'recording') { r.discard = true; r.stop(); }
+            }, 100);
+          } catch { ac = null; }
+        }
+        r.onstop = function () {
+          clearTimeout(limit); if (vad) clearInterval(vad); if (ac) ac.close().catch(function () {});
           stream.getTracks().forEach(function (t) { t.stop(); });
-          mic.classList.remove('ca-rec'); mic.setAttribute('aria-label', 'Parler'); mic.replaceChildren(icon('mic', 20)); rec = null;
+          micIdle(); rec = null; mic.disabled = !canRecord();
+          if (r.discard) { if (hands && !heard) say('Je n’ai rien entendu. Appuyez sur le micro pour parler.'); return; }
           if (lang !== recordedLang) return;
-          busy(true);
+          busy(true); if (hands) say('Je transcris…');
           ct.voice(new Blob(chunks, { type: (chunks[0] && chunks[0].type) || 'audio/webm' }), { transcribeOnly: true }).then(function (v) {
             busy(false);
             if (lang !== recordedLang) return;
-            if (!v.transcript?.text) { bubble('err', v.note || 'Rien n’a été reconnu.'); return; }
-            input.value = v.transcript.text;
+            var text = v.transcript?.text?.trim();
+            if (!text) { if (hands) say('Rien n’a été reconnu. Appuyez sur le micro pour réessayer.'); else bubble('err', v.note || 'Rien n’a été reconnu.'); return; }
+            if (hands && conversation && canBank()) { send(text, null, true); return; }
+            input.value = text;
             input.focus();
             mode.hidden = false;
             mode.textContent = canBank() ? 'Relisez la transcription et envoyez votre demande.' : 'Vous pouvez modifier ou copier cette transcription.';
           }).catch(function (err) { busy(false); bubble('err', 'Reconnaissance vocale indisponible : ' + err.message); });
         };
-        rec.start(); mic.disabled = false; mic.classList.add('ca-rec'); mic.setAttribute('aria-label', 'Arrêter l’enregistrement'); mic.replaceChildren(icon('stop', 20));
-      }).catch(function () { mic.disabled = !canRecord(); bubble('err', 'Impossible d’accéder au micro.'); });
+        r.start(); mic.disabled = false; mic.classList.add('ca-rec'); mic.setAttribute('aria-label', 'Arrêter l’enregistrement'); mic.replaceChildren(icon('stop', 20));
+        if (hands) say('Je vous écoute…');
+      }).catch(function () {
+        mic.disabled = !canRecord(); micIdle(); rec = null;
+        if (auto) say('Micro non autorisé. Autorisez le micro, puis appuyez dessus pour parler.');
+        else bubble('err', 'Impossible d’accéder au micro.');
+      });
+    }
+    mic.onclick = function () {
+      if (rec) { rec.auto = false; rec.stop(); return; }   // un appui arrête l'écoute et envoie ce qui a été dit
+      turn++; stopPlayback();
+      record(false);
     };
     return { client: ct, send: send, setLang: setLang, setDetails: setDetails, setQuick: setQuick, focus: function () { input.focus(); } };
   }

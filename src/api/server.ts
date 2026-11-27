@@ -214,7 +214,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         const b = JSON.parse((await body(req, 64 * 1024)).toString('utf8') || '{}');
         if (typeof b.text !== 'string' || !b.text.trim()) return json(res, 400, { error: 'text requis' });
         const userSid = continuity && typeof b.userPhone === 'string' ? userSession(b.userPhone) : null;
-        const run = () => runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: userSid ?? String(b.sessionId ?? 'anon'), channel: channelOf(b.channel), lang: typeof b.lang === 'string' ? b.lang : undefined, text: b.text.slice(0, 1000), input: 'text', institution: institution ?? undefined, trial: juryTrial(b.trial) }));
+        const run = () => runWithInstitution(institution ?? 'local', () => engine!.handle({ sessionId: userSid ?? String(b.sessionId ?? 'anon'), channel: channelOf(b.channel), lang: typeof b.lang === 'string' ? b.lang : undefined, text: b.text.slice(0, 1000), input: b.input === 'voice' ? 'voice' : 'text', institution: institution ?? undefined, trial: juryTrial(b.trial) }));
         if (!idemKey) return json(res, 200, await run());
         const { value, replayed } = idem.run(`message:${idemKey}`, run);
         res.setHeader('idempotent-replayed', String(replayed));

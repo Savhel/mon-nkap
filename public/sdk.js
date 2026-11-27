@@ -27,8 +27,11 @@
       get sessionId() { return session; },
       setLang: function (l) { lang = l; },
       setApiKey: function (k) { apiKey = k || ''; },
-      message: async function (text) {
-        var r = await call('/v1/message', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sessionId: session, channel: channel, lang: lang, text: text, userPhone: opts.userPhone, trial: opts.trial }) });
+      /** messageOpts.input = 'voice' : phrase dictée ; le moteur ne la laisse jamais confirmer une opération. */
+      message: async function (text, messageOpts) {
+        var payload = { sessionId: session, channel: channel, lang: lang, text: text, userPhone: opts.userPhone, trial: opts.trial };
+        if (messageOpts && messageOpts.input === 'voice') payload.input = 'voice';
+        var r = await call('/v1/message', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) });
         lang = r.lang; // le moteur peut changer de langue en cours de conversation
         return r;
       },

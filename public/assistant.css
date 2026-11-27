@@ -98,3 +98,9 @@
 .ca-transcript-only .ca-actions { display: none; }
 .ca-mt-intro { margin: 0; font-weight: 650; }
 .ca-mt-intro + small { margin: 2px 0 10px; }
+
+/* Mode conversation : réponse dite à voix haute, micro rouvert après la réponse */
+.ca-convbar { display: flex; align-items: center; gap: 10px; padding: 8px 12px 0; background: var(--ca-page); min-height: 44px; }
+.ca-conv { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--ca-line); border-radius: 999px; background: var(--ca-bg); color: var(--ca-muted); font-size: 14px; font-weight: 500; }
+.ca-conv[aria-pressed="true"] { border-color: var(--ca-brand); background: color-mix(in srgb, var(--ca-brand) 10%, var(--ca-bg)); color: var(--ca-brand); font-weight: 600; }
+.ca-conv-state { flex: 1; min-width: 0; color: var(--ca-muted); font-size: 13px; line-height: 1.35; }
