@@ -82,3 +82,10 @@ test('mode « validé seulement » : une ligne non relue n’est pas apprise', (
   assert.ok(!('tano' in g.words));
   assert.equal(g.words.kilo, 1000);
 });
+
+test('un mot inconnu au milieu d’un nombre connu : aucun montant plutôt qu’un montant faux', () => {
+  const g = learnGrammar([[1000, 'boro'], [10000, 'boro sappo'], [5000, 'boro djoy']].map(([value, text]) => ({ value: value as number, text: text as string, validated: true })));
+  assert.equal(numeralize('boro sappo', g), '10000');
+  assert.doesNotMatch(numeralize('on yidi ittougo boro mone sappo na', g), /\d/);   // ni 1 000, ni 10 000
+  assert.match(numeralize('a yidi yerbinego boro djoy ha marie na', g), /5000/);
+});
