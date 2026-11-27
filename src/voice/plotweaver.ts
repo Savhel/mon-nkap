@@ -5,16 +5,35 @@ export function plotweaverLanguage(lang: string): string | undefined {
   if (code && /^[a-zA-Z0-9_-]{2,20}$/.test(code)) return code;
 }
 
-export async function plotweaverSpeech(lang: string, text: string): Promise<{ audio: Buffer; mime: string } | null> {
+/**
+ * Ce que la voix de synthèse peut dire : la phrase sans aucun chiffre. Essayé sur nos réponses,
+ * « 125 000 FCFA » est sauté en ewondo, inintelligible en fulfulde et douteux en pidgin. Les montants,
+ * numéros et références sont retirés (ils restent affichés à l'écran) ; null s'il ne reste rien à dire.
+ */
+export function speakable(text: string): { text: string; omitted: boolean } | null {
+  const cleaned = text
+    .replace(/(?=[^\s().,;:!?]*\d)(?=[^\s().,;:!?]*\p{L})[^\s().,;:!?]+/gu, ' ')   // références : TX9A2B, 5000F…
+    .replace(/\(?\+?\d[\d\s.,\u00a0\u202f]*(?:\s*(?:FCFA|XAF|F|frs?)\b)?\)?/gi, ' ')
+    .replace(/\S*\d\S*/g, ' ')
+    .replace(/\(\s*\)/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\s*[:,;]\s*(?=[.!?]|$)/g, '')   // « Frais : . » → « Frais. » (l'espace française avant « ? » reste)
+    .replace(/\s+([.,])/g, '$1')
+    .replace(/^[\s.,;:]+/, '')
+    .trim();
+  if (/\d/.test(cleaned) || !/\p{L}{2,}/u.test(cleaned)) return null;
+  return { text: cleaned, omitted: cleaned !== text.trim() };
+}
+
+export async function plotweaverSpeech(lang: string, text: string): Promise<{ audio: Buffer; mime: string; omitted: boolean } | null> {
   const language = plotweaverLanguage(lang);
-  // Jamais de chiffre : essayé sur nos réponses, « 125 000 FCFA » est sauté en ewondo, inintelligible en
-  // fulfulde et douteux en pidgin. Un montant reste affiché à l'écran, jamais dit par une voix de synthèse.
-  if (!language || !text || text.length > 600 || /\d/.test(text)) return null;
+  const said = text && text.length <= 600 ? speakable(text) : null;
+  if (!language || !said) return null;
   try {
     const response = await fetch('https://api.plotweaver.app/v1/speech', {
       method: 'POST',
       headers: { 'x-api-key': process.env.CT_PLOTWEAVER_KEY!, 'content-type': 'application/json' },
-      body: JSON.stringify({ text, language }),
+      body: JSON.stringify({ text: said.text, language }),
       redirect: 'error',
       signal: AbortSignal.timeout(15000),
     });
@@ -27,6 +46,6 @@ export async function plotweaverSpeech(lang: string, text: string): Promise<{ au
       if (size > 2 * 1024 * 1024) return null;
       chunks.push(chunk);
     }
-    return size ? { audio: Buffer.concat(chunks), mime } : null;
+    return size ? { audio: Buffer.concat(chunks), mime, omitted: said.omitted } : null;
   } catch { return null; }
 }

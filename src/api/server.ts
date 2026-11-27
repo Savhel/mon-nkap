@@ -657,7 +657,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         if (!turn || turn.reply.quality === 'fallback' || useSafinum || institution !== 'local' || connectors.list().length || customEngine) return json(res, 404, { error: 'voix_indisponible' });
         const speech = await plotweaverSpeech(turn.lang, turn.reply.text);
         if (!speech) return json(res, 503, { error: 'voix_indisponible' });
-        res.writeHead(200, { 'content-type': speech.mime, 'cache-control': 'no-store' });
+        res.writeHead(200, { 'content-type': speech.mime, 'cache-control': 'no-store', 'x-montants-omis': speech.omitted ? '1' : '0', 'access-control-expose-headers': 'x-montants-omis' });
         return res.end(speech.audio);
       }
 

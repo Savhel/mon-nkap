@@ -273,7 +273,7 @@
       }
       if ((runtime.plotweaver || []).includes(r.lang) && r.reply.quality !== 'fallback') {
         var c = await ct.speech(r).catch(function () { return null; });
-        if (c) return { blob: c, source: 'Synthèse PlotWeaver' };
+        if (c) return { blob: c, source: c.omitted ? 'Synthèse PlotWeaver, montants à l’écran' : 'Synthèse PlotWeaver' };
       }
       if ((runtime.piper || []).includes(r.lang)) {
         var p = await fetch((opts.server || '') + '/v1/tts?lang=' + r.lang + '&text=' + encodeURIComponent(r.reply.text)).catch(function () { return null; });

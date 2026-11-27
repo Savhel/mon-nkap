@@ -64,7 +64,10 @@
         var res = await fetch(url + '/v1/tts/plotweaver', {
           method: 'POST', headers: headers, body: JSON.stringify({ at: turn.at, sessionId: turn.sessionId }),
         });
-        return res.ok ? res.blob() : null;
+        if (!res.ok) return null;
+        var blob = await res.blob();
+        blob.omitted = res.headers.get('x-montants-omis') === '1'; // montants retirés de la voix, affichés à l'écran
+        return blob;
       },
       languages: function () { return call('/v1/languages'); },
       /** Libellés d'interface dans la langue (menu_balance, menu_transfer…), avec leur qualité. */
