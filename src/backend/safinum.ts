@@ -167,7 +167,11 @@ export class SafinumBackend implements FinancialBackend {
   }
 
   private async searchBeneficiaries(path: string): Promise<Contact[]> {
-    const r = await this.request<Record<string, unknown> | unknown[]>('GET', path).catch(() => null);
+    // Recherche bornée : si le répertoire tarde, on répond sans lui plutôt que de dépasser les 3 s de l'USSD.
+    const r = await Promise.race([
+      this.request<Record<string, unknown> | unknown[]>('GET', path).catch(() => null),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 1200).unref?.()),
+    ]);
     if (!r || !r.ok) return [];
     const list = Array.isArray(r.data)
       ? r.data

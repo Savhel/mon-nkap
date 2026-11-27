@@ -187,7 +187,9 @@ export class Engine {
     catch (e) { errors.push(String(e)); reply = render({ kind: 'backend_error' }, 'fr'); out.status = 'failed'; }
 
     // Traduire une annonce sans valeurs lorsque le récapitulatif doit rester en français.
-    if (FLAGSHIP_LANGS[s.lang] && reply.lang === s.lang && reply.quality !== 'validated') {
+    // Seulement pour une réponse restée en français : une réponse déjà écrite par les natifs n'en a pas besoin, et
+    // l'appel coûtait jusqu'à une seconde (l'USSD du bac à sable n'en laisse que trois).
+    if (FLAGSHIP_LANGS[s.lang] && reply.lang === s.lang && reply.quality === 'fallback') {
       const mt = await frenchTo(s.lang, reply.fr);
       if (mt) {
         const { ms: _ms, ...rest } = mt;
