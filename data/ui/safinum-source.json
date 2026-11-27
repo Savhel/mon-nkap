@@ -752,7 +752,9 @@
   "context": "Lien de la barre latérale",
   "max_chars": null,
   "screens": [
-   "home"
+   "home",
+   "pay",
+   "transfer"
   ]
  },
  "shell.secure": {
@@ -760,7 +762,9 @@
   "context": "Mention en pied de barre latérale",
   "max_chars": null,
   "screens": [
-   "home"
+   "home",
+   "pay",
+   "transfer"
   ]
  },
  "atm.balance": {

@@ -3,6 +3,7 @@
 // chaque appel bancaire soit relié à l'intention déclarée dans le journal du jury.
 
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { setDefaultResultOrder } from 'node:dns';
 import { setDefaultAutoSelectFamily } from 'node:net';
 import { normalize } from '../core/text.ts';
 import type {
@@ -34,7 +35,10 @@ export interface SafinumConfig {
 }
 
 /** Node 24 coupe l'IPv4 au bout de 250 ms avec Happy Eyeballs quand l'IPv6 est injoignable. */
+// Sans essai automatique, Node prend la PREMIÈRE adresse résolue : si c'est l'IPv6 et qu'elle est injoignable,
+// l'appel échoue (EHOSTUNREACH, vu le 27 novembre). On fait donc passer l'IPv4 en premier.
 function disableAutoSelectFamily(): void {
+  try { setDefaultResultOrder('ipv4first'); } catch {}
   try { setDefaultAutoSelectFamily(false); } catch {}
 }
 
