@@ -1,0 +1,351 @@
+{
+ "_source": "Textes des écrans SAFINUM écrits par une locutrice native du fulfulde (tableur ecrans-application-fulfulde-traduit.xlsx), avec ses remarques. Brouillons : à relire par un second locuteur.",
+ "nav.home": {
+  "text": "Galle",
+  "fr": "Accueil",
+  "valide": false,
+  "remarque": "« galle » = maison / chez soi. « koƴƴa » (dictionnaire) = accueil au sens de « bon accueil », trop formel pour un onglet."
+ },
+ "shell.greeting": {
+  "text": "Jam {name}",
+  "fr": "Bonjour {name}",
+  "valide": false,
+  "remarque": "Salutation neutre (« paix »). À valider : un locuteur peut préférer une salutation selon l’heure."
+ },
+ "common.loading": {
+  "text": "Doomu seeɗa",
+  "fr": "Chargement",
+  "valide": false,
+  "remarque": "« Attends un peu » (doomude = attendre). Pas de mot exact pour « chargement »."
+ },
+ "common.stop_listening": {
+  "text": "Haaɗu heɗito",
+  "fr": "Arrêter la lecture",
+  "valide": false,
+  "remarque": "Cohérent avec « Heɗito » (Écouter) déjà dans l’application."
+ },
+ "home.account": {
+  "text": "Konto {phone}",
+  "fr": "Compte {phone}",
+  "valide": false,
+  "remarque": "Emprunt au français « compte ». Alternative descriptive : « Pelle ceede »."
+ },
+ "home.action_airtime": {
+  "text": "Soodu kredi",
+  "fr": "Acheter du crédit",
+  "valide": false,
+  "remarque": "Emprunt « kredi » (usage courant pour le crédit téléphonique)."
+ },
+ "home.action_history": {
+  "text": "Golle am",
+  "fr": "Mes opérations",
+  "valide": false,
+  "remarque": "« golle » = opérations, comme dans « Golle ceede » déjà dans l’application."
+ },
+ "home.recent": {
+  "text": "Golle cakitiiɗe",
+  "fr": "Dernières opérations",
+  "valide": false,
+  "remarque": "À valider (« cakitiiɗe » = dernières)."
+ },
+ "home.see_all": {
+  "text": "Yi’u fuu",
+  "fr": "Tout voir",
+  "valide": false,
+  "remarque": "Impératif de yi’ude (voir) + fuu (tout)."
+ },
+ "home.empty": {
+  "text": "Walaa gollal jooni.",
+  "fr": "Aucune opération pour le moment.",
+  "valide": false,
+  "remarque": "« jooni » = maintenant."
+ },
+ "tx.transfer_out": {
+  "text": "Neldu {name}",
+  "fr": "Envoi à {name}",
+  "valide": false,
+  "remarque": "Même verbe que l’onglet « Neldu » (Envoyer)."
+ },
+ "tx.transfer_in": {
+  "text": "Heɓu e {name}",
+  "fr": "Reçu de {name}",
+  "valide": false,
+  "remarque": "À valider : forme courte de heɓude (recevoir) + e (de/avec)."
+ },
+ "tx.airtime": {
+  "text": "Kredi {operator}",
+  "fr": "Crédit {operator}",
+  "valide": false
+ },
+ "tx.bill": {
+  "text": "Faktiir {biller}",
+  "fr": "Facture {biller}",
+  "valide": false,
+  "remarque": "« faktiir » (emprunt) est dans le dictionnaire."
+ },
+ "tx.status.confirmed": {
+  "text": "Waɗaama",
+  "fr": "Effectuée",
+  "valide": false,
+  "remarque": "« Faite » (passif de waɗude)."
+ },
+ "tx.status.pending": {
+  "text": "Ɗon doomi",
+  "fr": "En attente",
+  "valide": false,
+  "remarque": "« En train d’attendre »."
+ },
+ "tx.status.failed": {
+  "text": "Waɗaay",
+  "fr": "Échouée",
+  "valide": false,
+  "remarque": "« N’a pas été faite » (négatif passé en -aay)."
+ },
+ "tx.status.cancelled": {
+  "text": "Accitinaama",
+  "fr": "Annulée",
+  "valide": false,
+  "remarque": "Passif de accitinde (annuler, dictionnaire)."
+ },
+ "transfer.saved": {
+  "text": "Heɓooɓe am",
+  "fr": "Mes bénéficiaires",
+  "valide": false,
+  "remarque": "Pluriel de « Heɓoowo » déjà utilisé pour bénéficiaire/destinataire."
+ },
+ "transfer.to_hint": {
+  "text": "Lamba telefoon malla innde",
+  "fr": "Numéro de téléphone ou nom",
+  "valide": false,
+  "remarque": "« lamba » = numéro (déjà utilisé dans vos tableurs)."
+ },
+ "transfer.amount_hint": {
+  "text": "Faa {max} e kala golle",
+  "fr": "Jusqu'à {max} par opération",
+  "valide": false,
+  "remarque": "À valider : « faa » = jusqu’à ; « kala » = chaque."
+ },
+ "transfer.fee_preview": {
+  "text": "Dalla: {fee}",
+  "fr": "Frais : {fee}",
+  "valide": false,
+  "remarque": "« dalla » est le mot déjà utilisé pour « Frais » (review.fee). Dans le dictionnaire il signifie plutôt « aide » ; « coggu » (prix, coût) serait une alternative à envisager."
+ },
+ "help.fee": {
+  "text": "Dalla woni ceede ɗe banki nanngata ngam waɗude golle ɗen.",
+  "fr": "Les frais sont la somme que la banque garde pour faire l'opération.",
+  "valide": false,
+  "remarque": "Voir remarque sur « dalla ». Phrase à valider."
+ },
+ "help.limit": {
+  "text": "Plafon woni keewal ceede ɓuri hewde ɗum waawɗaa neldude nde gootum.",
+  "fr": "Le plafond est le montant maximum que vous pouvez envoyer en une fois.",
+  "valide": false,
+  "remarque": "« ɓuri hewde » = maximum (dictionnaire). « Plafon » = emprunt. Phrase à valider."
+ },
+ "help.beneficiary": {
+  "text": "Heɓoowo woni goɗɗo heɓata ceede.",
+  "fr": "Le bénéficiaire est la personne qui reçoit l'argent.",
+  "valide": false
+ },
+ "error.INSUFFICIENT_FUNDS": {
+  "text": "Ceede ma heewaay: ŋakkii {missing}.",
+  "fr": "Solde insuffisant : il vous manque {missing}.",
+  "valide": false,
+  "remarque": "À valider (heewude = être suffisant/plein ; ŋakkude = manquer)."
+ },
+ "error.UNKNOWN_BENEFICIARY": {
+  "text": "Heɓoowo tawaaka. Ƴeewu lamba malla innde.",
+  "fr": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom.",
+  "valide": false,
+  "remarque": "« Ƴeewu » = vérifie."
+ },
+ "error.AMBIGUOUS_BENEFICIARY": {
+  "text": "Heɓooɓe keewɗe ngoni e innde ndee. Suɓu on ɗum yiɗaa.",
+  "fr": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon.",
+  "valide": false,
+  "remarque": "« Choisis celui que tu veux »."
+ },
+ "error.INVALID_AMOUNT": {
+  "text": "Keewal ceede moƴƴaay. Winndu lamba timmuɗum.",
+  "fr": "Montant invalide. Saisissez un nombre entier.",
+  "valide": false,
+  "remarque": "« lamba timmuɗum » = nombre complet (entier). Aucun chiffre écrit."
+ },
+ "error.LIMIT_EXCEEDED": {
+  "text": "Keewal ceede ɓuri: plafon woni {max} e kala golle.",
+  "fr": "Montant trop élevé : le plafond est de {max} par opération.",
+  "valide": false
+ },
+ "error.UNKNOWN_BILLER": {
+  "text": "Sarwiis ngoo andaaka. Suɓu e limtol.",
+  "fr": "Service inconnu. Choisissez dans la liste.",
+  "valide": false,
+  "remarque": "« limtol » = liste (dictionnaire)."
+ },
+ "review.title": {
+  "text": "Ƴeewu adii goonɗinde",
+  "fr": "Vérifiez avant de confirmer",
+  "valide": false,
+  "remarque": "goonɗinde = confirmer (dictionnaire)."
+ },
+ "review.service": {
+  "text": "Sarwiis",
+  "fr": "Service",
+  "valide": false,
+  "remarque": "Emprunt « sarwiis »."
+ },
+ "review.balance_after": {
+  "text": "Ceede heddooɗe ɓaawo golle",
+  "fr": "Solde après l'opération",
+  "valide": false,
+  "remarque": "« heddo » = reste (dictionnaire)."
+ },
+ "review.warning": {
+  "text": "Ceede ɗen ngaɗa yaadude nde goonɗinɗaa.",
+  "fr": "L'argent part dès que vous confirmez.",
+  "valide": false,
+  "remarque": "Faible confiance : phrase à faire valider."
+ },
+ "receipt.transfer": {
+  "text": "{amount} neldaama {name}.",
+  "fr": "{amount} envoyés à {name}.",
+  "valide": false
+ },
+ "receipt.bill": {
+  "text": "Faktiir {biller} ɗum {amount} yoɓaama.",
+  "fr": "Facture {biller} de {amount} payée.",
+  "valide": false
+ },
+ "receipt.airtime": {
+  "text": "Kredi {operator} ɗum {amount} neldaama {phone}.",
+  "fr": "Crédit {operator} de {amount} envoyé au {phone}.",
+  "valide": false
+ },
+ "receipt.new_balance": {
+  "text": "Ceede heddooɗe kesɗe",
+  "fr": "Nouveau solde",
+  "valide": false,
+  "remarque": "À valider (kesɗe = nouvelles)."
+ },
+ "receipt.cancelled": {
+  "text": "Golle accitinaama. Walaa ko ittaama.",
+  "fr": "Opération annulée. Rien n'a été débité.",
+  "valide": false,
+  "remarque": "« Rien n’a été retiré »."
+ },
+ "receipt.done": {
+  "text": "Timmin",
+  "fr": "Terminer",
+  "valide": false,
+  "remarque": "Impératif de timminde (terminer)."
+ },
+ "pay.tab_bill": {
+  "text": "Faktiir",
+  "fr": "Factures",
+  "valide": false
+ },
+ "pay.tab_airtime": {
+  "text": "Kredi telefoon",
+  "fr": "Crédit téléphone",
+  "valide": false
+ },
+ "pay.biller_label": {
+  "text": "Suɓu sarwiis",
+  "fr": "Choisissez le service",
+  "valide": false
+ },
+ "pay.phone_label": {
+  "text": "Lamba ngam kredi",
+  "fr": "Numéro à recharger",
+  "valide": false,
+  "remarque": "« Numéro pour le crédit »."
+ },
+ "pay.phone_hint": {
+  "text": "Lamba maa malla ɓadiiɗo maa",
+  "fr": "Le vôtre ou celui d'un proche",
+  "valide": false
+ },
+ "pay.operator_label": {
+  "text": "Operatoor",
+  "fr": "Opérateur",
+  "valide": false,
+  "remarque": "Emprunt."
+ },
+ "pay.operator_detected": {
+  "text": "Operatoor tawaama: {operator}",
+  "fr": "Opérateur reconnu : {operator}",
+  "valide": false,
+  "remarque": "« tawude » = trouver → « trouvé / reconnu »."
+ },
+ "biller.ENEO": {
+  "text": "Yite",
+  "fr": "Électricité",
+  "valide": false,
+  "remarque": "Déjà utilisé dans vos tableurs. À valider : « kuraan » (courant) est parfois dit pour l’électricité."
+ },
+ "biller.CAMWATER": {
+  "text": "Ndiyam",
+  "fr": "Eau",
+  "valide": false,
+  "remarque": "« ndiyam » = eau (vos tableurs écrivent « diyame »)."
+ },
+ "biller.CANAL": {
+  "text": "Telewiziyoŋ",
+  "fr": "Télévision",
+  "valide": false,
+  "remarque": "Emprunt."
+ },
+ "biller.CAMTEL": {
+  "text": "Internet e telefoon",
+  "fr": "Internet et téléphone",
+  "valide": false
+ },
+ "history.filter_out": {
+  "text": "Neldaaɗe",
+  "fr": "Sorties",
+  "valide": false,
+  "remarque": "« Ce qui a été envoyé »."
+ },
+ "history.filter_in": {
+  "text": "Heɓaaɗe",
+  "fr": "Entrées",
+  "valide": false,
+  "remarque": "« Ce qui a été reçu »."
+ },
+ "history.empty": {
+  "text": "Walaa gollal jooni.",
+  "fr": "Aucune opération pour le moment.",
+  "valide": false
+ },
+ "shell.logout": {
+  "text": "Yaltu",
+  "fr": "Se déconnecter",
+  "valide": false,
+  "remarque": "Impératif de yaltude (sortir)."
+ },
+ "nav.history": {
+  "text": "Taariki",
+  "fr": "Historique",
+  "valide": false,
+  "remarque": "Proposition : « taariki » = histoire/historique (dictionnaire). « dje boyma » est en graphie phonétique française que je ne sais pas normaliser. À valider."
+ },
+ "home.quick_actions": {
+  "text": "Ɗume ngiɗɗaa waɗude?",
+  "fr": "Que voulez-vous faire ?",
+  "valide": false,
+  "remarque": "Double « ? ? » supprimé ; forme -de (waɗude) comme dans le dictionnaire."
+ },
+ "tx.withdrawal": {
+  "text": "Ittugol",
+  "fr": "Retrait",
+  "valide": false,
+  "remarque": "Forme -ugol (dictionnaire) à la place de « ittougo » (infinitif en -go, autre parler)."
+ },
+ "review.confirm": {
+  "text": "Goonɗin",
+  "fr": "Confirmer",
+  "valide": false,
+  "remarque": "goonɗinde = confirmer (dictionnaire). À valider avec « djabbeh » (≈ jaɓude = accepter)."
+ }
+}
