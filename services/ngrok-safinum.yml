@@ -1,0 +1,10 @@
+# Tunnel public vers le middleware SAFINUM uniquement : tout autre chemin répond 404 depuis Internet
+# (voix PlotWeaver, administration et API restent locales). Usage : ngrok http 8080 --traffic-policy-file services/ngrok-safinum.yml
+on_http_request:
+  - expressions:
+      - "req.url.path != '/safinum/middleware'"
+    actions:
+      - type: custom-response
+        config:
+          status_code: 404
+          body: "introuvable"

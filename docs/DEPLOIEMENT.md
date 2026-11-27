@@ -78,7 +78,10 @@ définir `CT_PUBLIC_URL` et `CT_IVR_RECORDING_HOSTS` pour le serveur vocal.
 
 ## Bac à sable SAFINUM (`https://safinum.cm/sandbox/docs`)
 
-1. Exposer le serveur sur une URL publique (ou tunnel `ngrok http 8080` / `cloudflared tunnel --url http://localhost:8080`).
+1. Exposer le middleware sur une URL publique. Avec ngrok, ne publier que `/safinum/middleware` (le reste répond 404
+   depuis Internet, pour que personne ne consomme les voix PlotWeaver ni l’API) :
+   `ngrok http 8080 --traffic-policy-file services/ngrok-safinum.yml`.
+   Le serveur safinum.cm répond parfois par intermittence : réessayer l’enregistrement en cas de `ETIMEDOUT`.
 2. Démarrer Mon Nkap avec votre clé d'équipe SAFINUM (`CT_ALLOW_DRAFT=1` ajoute les langues encore en
    brouillon, dont le fulfulde) :
    ```bash
