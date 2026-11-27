@@ -9,3 +9,4 @@ data/connectors.json
 data/ui-resources.json
 .venv/
 mobile-android/www/
+data/collecte/

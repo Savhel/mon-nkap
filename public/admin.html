@@ -57,6 +57,7 @@
       <button role="tab" aria-selected="true" data-tab="keys">Clés API &amp; Entreprises</button>
       <button role="tab" aria-selected="false" data-tab="training">Entraînement &amp; Modèles</button>
       <button role="tab" aria-selected="false" data-tab="connectors">Connecteurs &amp; Catalogue UI</button>
+      <button role="tab" aria-selected="false" data-tab="collecte">Collecte des natifs</button>
     </div>
   </div>
   <nav>
@@ -281,6 +282,29 @@
       </div>
     </div>
   </section>
+  <section id="panel-collecte" role="tabpanel" hidden>
+    <div class="grid" id="col-kpis"></div>
+    <div class="card">
+      <h2>Inviter un locuteur natif</h2>
+      <p class="muted" style="margin:0 0 8px">La page <a href="/collecte">/collecte</a> n’est ouverte qu’avec un code personnel, valable pour une seule langue. Le code n’est affiché qu’une fois : transmettez-le directement à la personne. Aucun nom n’est enregistré, seulement un pseudonyme.</p>
+      <div class="row">
+        <div><label for="col-lang">Langue</label><select id="col-lang"></select></div>
+        <div style="flex:0 0 auto"><button type="button" class="btn" id="col-invite">Créer une invitation</button></div>
+      </div>
+      <div class="alert ok" id="col-code" hidden></div>
+      <div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Pseudonyme</th><th>Langue</th><th>Créée le</th><th>État</th><th></th></tr></thead><tbody id="col-invitations"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h2>Envois à relire</h2>
+      <p class="muted" style="margin:0 0 8px">Accepter ajoute le texte au tableur de la langue en <b>brouillon</b> (auteur = pseudonyme). Il ne devient « validé » qu’après la relecture d’un second natif. L’audio d’une demande acceptée rejoint le jeu de test vocal.</p>
+      <div class="row">
+        <div><label for="col-review-lang">Langue</label><select id="col-review-lang"></select></div>
+        <div><label for="col-filter">Afficher</label><select id="col-filter"><option value="en_attente">En attente</option><option value="accepte">Acceptés</option><option value="rejete">Rejetés</option><option value="">Tous</option></select></div>
+      </div>
+      <div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Date</th><th>Pseudonyme</th><th>Consigne</th><th>Texte envoyé</th><th>Audio</th><th>Décision</th></tr></thead><tbody id="col-items"></tbody></table></div>
+      <div class="alert bad" id="col-err" hidden></div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -308,6 +332,7 @@
     $('panel-keys').hidden = true;
     $('panel-training').hidden = true;
     $('panel-connectors').hidden = true;
+    $('panel-collecte').hidden = true;
     $('logout-btn').hidden = true;
     if (msg) {
       $('auth-err').textContent = msg;
@@ -323,6 +348,7 @@
     $('panel-keys').hidden = active !== 'keys';
     $('panel-training').hidden = active !== 'training';
     $('panel-connectors').hidden = active !== 'connectors';
+    $('panel-collecte').hidden = active !== 'collecte';
   }
 
   function kpi(value, label) {
@@ -469,8 +495,10 @@
       $('panel-keys').hidden = b.dataset.tab !== 'keys';
       $('panel-training').hidden = b.dataset.tab !== 'training';
       $('panel-connectors').hidden = b.dataset.tab !== 'connectors';
+      $('panel-collecte').hidden = b.dataset.tab !== 'collecte';
       if (b.dataset.tab === 'keys') await loadKeys();
       else if (b.dataset.tab === 'training') await loadTraining();
+      else if (b.dataset.tab === 'collecte') await loadCollecte();
       else await loadConnectorsAndUi();
     };
   });
@@ -615,6 +643,88 @@
       $('mt-res').textContent = err.message;
       $('mt-res').hidden = false;
     }
+  };
+
+  // ---------------------------------------------------------------- collecte des natifs
+  const cell = (text) => { const td = document.createElement('td'); td.textContent = text ?? '—'; return td; };
+  const SECTION_FR = { demandes: 'Demande', reponses: 'Réponse', definitions: 'Explication', nombres: 'Nombre', lexique: 'Mot' };
+  let collecte = null;
+  async function loadCollecte() {
+    collecte = await api('/v1/admin/collecte');
+    const k = $('col-kpis'); k.replaceChildren();
+    const sum = (f) => collecte.languages.reduce((n, l) => n + l[f], 0);
+    k.append(kpi(collecte.invitations.filter((i) => i.active).length, 'Invitations actives'), kpi(sum('en_attente'), 'Envois en attente'), kpi(sum('accepte'), 'Envois acceptés'), kpi(sum('rejete'), 'Envois rejetés'));
+    const sel = $('col-lang'), keep = sel.value; sel.replaceChildren();
+    for (const l of collecte.catalogue) sel.append(new Option(`${l.name} (${l.code})`, l.code));
+    if (keep) sel.value = keep;
+    const tb = $('col-invitations'); tb.replaceChildren();
+    for (const i of [...collecte.invitations].reverse()) {
+      const tr = document.createElement('tr');
+      const state = cell(i.active ? 'Active' : 'Révoquée'); state.className = i.active ? 'ok' : 'muted';
+      const act = document.createElement('td');
+      if (i.active) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'danger'; b.textContent = 'Révoquer';
+        b.onclick = async () => { if (!confirm(`Révoquer l’invitation ${i.id} ? La personne ne pourra plus rien envoyer.`)) return; await api('/v1/admin/collecte/invitations/revoke', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: i.id }) }); await loadCollecte(); };
+        act.append(b);
+      }
+      tr.append(cell(i.id), cell(i.langue), cell(i.createdAt.slice(0, 10)), state, act);
+      tb.append(tr);
+    }
+    if (!collecte.invitations.length) { const tr = document.createElement('tr'); const td = cell('Aucune invitation pour l’instant.'); td.colSpan = 5; td.className = 'muted'; tr.append(td); tb.append(tr); }
+    const rs = $('col-review-lang'), keepR = rs.value; rs.replaceChildren();
+    for (const l of collecte.languages) rs.append(new Option(`${l.langue} · ${l.en_attente} en attente`, l.lang));
+    if (keepR && collecte.languages.some((l) => l.lang === keepR)) rs.value = keepR;
+    await loadContributions();
+  }
+  async function loadContributions() {
+    const tb = $('col-items'); tb.replaceChildren(); $('col-err').hidden = true;
+    const lang = $('col-review-lang').value;
+    if (!lang) { const tr = document.createElement('tr'); const td = cell('Aucun envoi pour l’instant.'); td.colSpan = 6; td.className = 'muted'; tr.append(td); tb.append(tr); return; }
+    const { items } = await api(`/v1/admin/collecte/contributions?lang=${encodeURIComponent(lang)}`);
+    const filter = $('col-filter').value;
+    const shown = items.filter((c) => !filter || c.statut === filter);
+    for (const c of shown) {
+      const tr = document.createElement('tr');
+      const consigne = cell(`${SECTION_FR[c.section]} · ${c.exemple && c.section !== 'nombres' ? c.exemple : c.consigne}`);
+      consigne.style.maxWidth = '320px';
+      const texte = cell(c.texte || '(audio seulement)'); texte.lang = c.lang; texte.style.fontSize = '15px';
+      const audio = document.createElement('td');
+      if (c.audio) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'secondary'; b.textContent = `Écouter (${c.secondes} s)`;
+        b.onclick = async () => {
+          const res = await fetch(`/v1/admin/collecte/audio?lang=${encodeURIComponent(c.lang)}&id=${encodeURIComponent(c.id)}`, { headers: { 'x-admin-key': adminKey } });
+          if (!res.ok) return;
+          const el = document.createElement('audio'); el.controls = true; el.src = URL.createObjectURL(await res.blob()); el.style.width = '220px';
+          b.replaceWith(el); el.play().catch(() => {});
+        };
+        audio.append(b);
+      } else audio.textContent = '—';
+      const decision = document.createElement('td');
+      if (c.statut === 'en_attente') {
+        for (const [d, label, cls] of [['accepte', 'Accepter', 'btn'], ['rejete', 'Rejeter', 'danger']]) {
+          const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = label; b.style.marginRight = '6px';
+          b.onclick = async () => {
+            try { await api('/v1/admin/collecte/review', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lang: c.lang, id: c.id, decision: d }) }); await loadCollecte(); }
+            catch (err) { $('col-err').textContent = err.message; $('col-err').hidden = false; }
+          };
+          decision.append(b);
+        }
+      } else { decision.textContent = c.statut === 'accepte' ? 'Accepté' : 'Rejeté'; decision.className = c.statut === 'accepte' ? 'ok' : 'muted'; }
+      tr.append(cell(c.at.slice(0, 16).replace('T', ' ')), cell(c.contributeur), consigne, texte, audio, decision);
+      tb.append(tr);
+    }
+    if (!shown.length) { const tr = document.createElement('tr'); const td = cell('Rien à afficher.'); td.colSpan = 6; td.className = 'muted'; tr.append(td); tb.append(tr); }
+  }
+  $('col-review-lang').onchange = loadContributions;
+  $('col-filter').onchange = loadContributions;
+  $('col-invite').onclick = async () => {
+    const lang = $('col-lang').value;
+    const r = await api('/v1/admin/collecte/invitations', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lang }) });
+    const box = $('col-code'); box.replaceChildren();
+    const strong = document.createElement('b'); strong.textContent = r.code; strong.style.cssText = 'font-family:var(--nk-mono);font-size:20px;letter-spacing:.08em';
+    box.append(`Invitation ${r.invitation.id} (${lang}) : `, strong, document.createElement('br'), `À transmettre avec le lien ${location.origin}/collecte. Ce code ne sera plus affiché.`);
+    box.hidden = false;
+    await loadCollecte();
   };
 
   if (adminKey) connectAdmin();

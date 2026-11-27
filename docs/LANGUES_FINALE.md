@@ -80,3 +80,21 @@ du modèle conditionné et la qualité des annonces traduites restent à mesurer
 distinct peut ensuite valider les entrées. `npm run import-collecte -- bas bum` les rend disponibles
 avec les packs. Les menus USSD utilisent aussi les libellés des packs validés. Pour les libellés
 de menus, viser 17 caractères sur une seule ligne afin de tenir sur l’écran USSD.
+
+## Collecte en ligne, sur invitation
+
+La page `/collecte` permet à un locuteur natif d’écrire et d’enregistrer au micro, depuis son
+téléphone, les demandes, réponses, explications, nombres et mots du catalogue. Elle n’est pas
+ouverte à tous, pour éviter les fausses données :
+
+1. L’administrateur (`/admin`, onglet « Collecte des natifs », serveur lancé avec `CT_ADMIN_KEY`)
+   crée une invitation pour une langue. Le code (`XXXX-XXXX-XXXX`) n’est affiché qu’une fois ; seule
+   son empreinte est gardée. Une invitation se révoque à tout moment.
+2. Le natif ouvre `/collecte`, saisit son code et donne son accord. Aucun nom n’est enregistré :
+   il apparaît sous un pseudonyme (`c-4f9a2b`).
+3. Chaque envoi attend dans `data/collecte/<langue>/` (hors Git), audio compris (30 s au plus,
+   vérifié au décodage). Le texte est gardé tel qu’écrit, tons compris.
+4. L’administrateur écoute, puis accepte ou rejette. Accepter ajoute une ligne à la fin de
+   `collecte/<langue>/<feuille>.csv` en brouillon (auteur = pseudonyme, sans relecteur) : elle ne
+   devient validée qu’après la relecture d’un second natif. L’audio d’une demande acceptée rejoint
+   `data/audio/<langue>/demandes/` et son `labels.csv`, pour `tools/eval-voice.ts`.

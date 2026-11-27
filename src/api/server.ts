@@ -20,6 +20,8 @@
 //   POST /v1/translate                 { text | texts, from?, to, allowDraft? } → traduction vers/depuis les langues locales (protégé par x-api-key)
 //   POST /v1/identify                  { text } → langue du texte, ou « inconnue » si ce n'est pas sûr
 //   GET  /v1/audit                     journal d'audit chaîné + vérification de la chaîne
+//   GET  /collecte                     collecte des natifs (texte + micro), sur code d'invitation (x-collecte-code)
+//   GET|POST /v1/admin/collecte/*      invitations, file d'attente, acceptation ou rejet des envois
 //   GET|POST /v1/admin/keys            gestion des clés d'API par entreprise (en-tête x-admin-key si CT_ADMIN_KEY défini)
 //
 // Sécurité : clé d'API par institution (en-tête x-api-key, CT_API_KEYS ou data/api-keys.json) sur /v1/* (sauf health,
@@ -52,6 +54,7 @@ import { PUBLISHED_NUMBERS } from '../linguistics/published-numbers.ts';
 import { allowDraft, loadPack } from '../linguistics/pack.ts';
 import { getLangIdSummary, listCollecteLanguages, readCollecteSheet, refreshLangIdFromPacks, trainLanguagePack, writeCollecteSheet, type TrainerPaths } from '../linguistics/trainer.ts';
 import { MT_ROUTES } from '../mt/flagship.ts';
+import { Contributions, tasks as collecteTasks } from '../linguistics/contributions.ts';
 import { ensureMtService, mtStatus, stopMtService } from '../mt/service.ts';
 import { fileURLToPath } from 'node:url';
 
@@ -72,7 +75,7 @@ const HTML = 'text/html; charset=utf-8', JS = 'text/javascript; charset=utf-8';
 const STATIC: Record<string, [string, string]> = {
   '/lab': ['index.html', HTML], '/jury.css': ['jury.css', 'text/css; charset=utf-8'], '/jury.js': ['jury.js', JS],
   '/mobile': ['mobile.html', HTML], '/banque': ['banque.html', HTML], '/gab': ['gab.html', HTML], '/tableau': ['dashboard.html', HTML],
-  '/portail': ['portail.html', HTML], '/admin': ['admin.html', HTML],
+  '/portail': ['portail.html', HTML], '/admin': ['admin.html', HTML], '/collecte': ['collecte.html', HTML],
   '/assistant.js': ['assistant.js', JS], '/assistant.css': ['assistant.css', 'text/css; charset=utf-8'], '/tokens.css': ['tokens.css', 'text/css; charset=utf-8'], '/widget.js': ['widget.js', JS],
   '/sw.js': ['sw.js', JS], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'],
 };
@@ -90,6 +93,7 @@ export interface AppOptions {
   uiResourcesFile?: string | null;
   allowPrivateUrls?: boolean;
   trainerPaths?: TrainerPaths;
+  collecte?: { root?: string; sheetsDir?: string; audioDir?: string };
 }
 
 export function createApp(engine?: Engine, opts: AppOptions = {}) {
@@ -100,6 +104,8 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
   const officialEngine = useSafinum ? new Engine(new SafinumBackend(), 'fr', audit) : undefined;
   const connectors = new ConnectorRegistry({ file: opts.connectorsFile, allowPrivateUrls: opts.allowPrivateUrls });
   const uiCatalog = new UiCatalog(opts.uiResourcesFile);
+  const contributions = new Contributions(opts.collecte);
+  const languageName = (code: string) => (languages.languages as LanguageEntry[]).find((l) => l.code === code)?.name ?? code;
   engine ??= new Engine(new RouterBackend(fallbackBackend, connectors), 'fr', audit);
   const keys = new ApiKeys(process.env.CT_API_KEYS ?? '', opts.keysFile);
   const limiter = new RateLimiter();
@@ -144,7 +150,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
     const origin = req.headers.origin ?? '';
     res.setHeader('access-control-allow-origin', !corsOrigins.length ? '*' : corsOrigins.includes(origin) ? origin : 'null');
     res.setHeader('vary', 'origin');
-    res.setHeader('access-control-allow-headers', 'content-type, x-api-key, x-admin-key, idempotency-key');
+    res.setHeader('access-control-allow-headers', 'content-type, x-api-key, x-admin-key, x-collecte-code, idempotency-key');
     res.setHeader('x-content-type-options', 'nosniff');
     try {
       if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
@@ -157,7 +163,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         if (!verifySecret(adminKey, req.headers['x-admin-key'] as string | undefined)) return json(res, 401, { error: 'cle_admin_requise' });
       }
       // API des institutions : clé obligatoire si CT_API_KEYS ou data/api-keys.json est actif (les passerelles télécom ont leurs routes).
-      const publicPath = isAdminPath || ['/v1/health', '/v1/languages', '/v1/labels', '/v1/portal/config', '/v1/portal/keys'].includes(url.pathname) || !url.pathname.startsWith('/v1/');
+      const publicPath = isAdminPath || url.pathname.startsWith('/v1/collecte/') || ['/v1/health', '/v1/languages', '/v1/labels', '/v1/portal/config', '/v1/portal/keys'].includes(url.pathname) || !url.pathname.startsWith('/v1/');
       const institution = isAdminPath ? 'admin' : keys.institution(req.headers['x-api-key'] as string | undefined);
       if (!publicPath && !institution) return json(res, 401, { error: 'cle_api_requise' });
       const idemKey = req.headers['idempotency-key'] ? `${institution}:${String(req.headers['idempotency-key']).slice(0, 128)}` : null;
@@ -344,6 +350,81 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         } catch (err) {
           return json(res, 400, { error: err instanceof Error ? err.message : 'institution invalide' });
         }
+      }
+
+      // ---- Collecte des natifs : jamais ouverte à tous. Chaque requête porte un code d'invitation personnel.
+      if (url.pathname.startsWith('/v1/collecte/')) {
+        const code = req.method === 'POST' && url.pathname === '/v1/collecte/session'
+          ? String(JSON.parse((await body(req, 1024)).toString('utf8') || '{}').code ?? '')
+          : req.headers['x-collecte-code'] as string | undefined;
+        const inv = contributions.check(code);
+        if (!inv) return json(res, 401, { error: 'invitation_requise', message: 'Code d’invitation invalide ou révoqué.' });
+        const who = { contributeur: inv.id, lang: inv.lang, langue: languageName(inv.lang) };
+        if (req.method === 'POST' && url.pathname === '/v1/collecte/session') return json(res, 200, who);
+        if (req.method === 'GET' && url.pathname === '/v1/collecte/tasks') {
+          const mine = contributions.list(inv.lang).filter((c) => c.contributeur === inv.id && c.statut !== 'rejete');
+          const count = (section: string, item: string) => mine.filter((c) => c.section === section && c.item === item).length;
+          return json(res, 200, { ...who, tasks: collecteTasks().map((t) => ({ ...t, envoyes: count(t.section, t.item) })) });
+        }
+        if (req.method === 'POST' && url.pathname === '/v1/collecte/contribution') {
+          const b = JSON.parse((await body(req, 4 * 1024 * 1024)).toString('utf8') || '{}');
+          const EXT: Record<string, string> = { 'audio/webm': 'webm', 'audio/ogg': 'ogg', 'audio/mp4': 'm4a', 'audio/aac': 'aac', 'audio/mpeg': 'mp3', 'audio/wav': 'wav', 'audio/x-wav': 'wav' };
+          let audio: { bytes: Uint8Array; ext: string; seconds: number } | undefined;
+          if (b.audio && typeof b.audio === 'object') {
+            const ext = EXT[String(b.audio.mime ?? '').split(';')[0].trim().toLowerCase()];
+            if (!ext || typeof b.audio.data !== 'string') return json(res, 415, { error: 'format_audio', message: 'Format audio non pris en charge.' });
+            const bytes = new Uint8Array(Buffer.from(b.audio.data, 'base64'));
+            if (bytes.length < 1000 || bytes.length > 3 * 1024 * 1024) return json(res, 413, { error: 'taille_audio', message: 'Enregistrement vide ou trop lourd.' });
+            const wav = await toSamples16k(bytes, 30); // refuse ce qui n'est pas de l'audio, ou plus de 30 s
+            const seconds = Number((wav.samples.length / wav.sampleRate).toFixed(1));
+            if (seconds < 0.5) return json(res, 422, { error: 'audio_trop_court', message: 'Enregistrement trop court.' });
+            audio = { bytes, ext, seconds };
+          }
+          const saved = contributions.submit(inv, { section: String(b.section ?? ''), item: String(b.item ?? ''), texte: typeof b.texte === 'string' ? b.texte : '', consent: b.consent === true, audio });
+          return json(res, 201, { ok: true, id: saved.id, statut: saved.statut });
+        }
+        return json(res, 404, { error: 'introuvable' });
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/admin/collecte') {
+        const langs = [...new Set([...contributions.languages()])];
+        return json(res, 200, {
+          invitations: contributions.listInvitations().map((i) => ({ ...i, langue: languageName(i.lang) })),
+          languages: langs.map((lang) => {
+            const all = contributions.list(lang);
+            const n = (s: string) => all.filter((c) => c.statut === s).length;
+            return { lang, langue: languageName(lang), en_attente: n('en_attente'), accepte: n('accepte'), rejete: n('rejete') };
+          }),
+          catalogue: (languages.languages as LanguageEntry[]).filter((l) => !['fr', 'en'].includes(l.code)).map((l) => ({ code: l.code, name: l.name })),
+        });
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/collecte/invitations') {
+        const b = JSON.parse((await body(req, 1024)).toString('utf8') || '{}');
+        const lang = String(b.lang ?? '');
+        if (!(languages.languages as LanguageEntry[]).some((l) => l.code === lang)) return json(res, 400, { error: 'langue_inconnue' });
+        return json(res, 201, contributions.invite(lang));
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/collecte/invitations/revoke') {
+        const b = JSON.parse((await body(req, 1024)).toString('utf8') || '{}');
+        return contributions.revoke(String(b.id ?? '')) ? json(res, 200, { ok: true }) : json(res, 404, { error: 'invitation_introuvable' });
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/admin/collecte/contributions') {
+        const lang = url.searchParams.get('lang') ?? '';
+        const tasksBy = new Map(collecteTasks().map((t) => [`${t.section}:${t.item}`, t]));
+        const items = contributions.list(lang).sort((a, b) => b.at.localeCompare(a.at))
+          .map((c) => ({ ...c, consigne: tasksBy.get(`${c.section}:${c.item}`)?.consigne, exemple: tasksBy.get(`${c.section}:${c.item}`)?.exemple }));
+        return json(res, 200, { lang, items });
+      }
+      if (req.method === 'POST' && url.pathname === '/v1/admin/collecte/review') {
+        const b = JSON.parse((await body(req, 1024)).toString('utf8') || '{}');
+        if (b.decision !== 'accepte' && b.decision !== 'rejete') return json(res, 400, { error: 'decision_invalide' });
+        return json(res, 200, contributions.review(String(b.lang ?? ''), String(b.id ?? ''), b.decision));
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/admin/collecte/audio') {
+        const file = contributions.audioPath(url.searchParams.get('lang') ?? '', url.searchParams.get('id') ?? '');
+        if (!file) return json(res, 404, { error: 'audio_introuvable' });
+        const MIME: Record<string, string> = { webm: 'audio/webm', ogg: 'audio/ogg', m4a: 'audio/mp4', aac: 'audio/aac', mp3: 'audio/mpeg', wav: 'audio/wav' };
+        res.writeHead(200, { 'content-type': MIME[file.split('.').pop() ?? ''] ?? 'application/octet-stream', 'cache-control': 'no-store' });
+        return res.end(readFileSync(file));
       }
 
       if (req.method === 'GET' && url.pathname === '/v1/admin/training/status') {
