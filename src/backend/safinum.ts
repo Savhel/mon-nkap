@@ -159,7 +159,8 @@ export class SafinumBackend implements FinancialBackend {
       .filter((w) => !CONTACT_STOPWORDS.has(w.toLowerCase())))]
       .sort((a, b) => Number(/^\p{Lu}/u.test(b)) - Number(/^\p{Lu}/u.test(a)))
       .slice(0, 4);
-    const queries = words.length ? words.map((w) => `beneficiaries?q=${encodeURIComponent(w)}`) : ['beneficiaries'];
+    if (!words.length) return [];   // une touche (« 2 ») ou un montant seul : aucun nom à chercher
+    const queries = words.map((w) => `beneficiaries?q=${encodeURIComponent(w)}`);
     const lists = await Promise.all(queries.map((q) => this.searchBeneficiaries(q)));
     const byPhone = new Map<string, Contact>();
     for (const c of lists.flat()) if (!byPhone.has(c.phone)) byPhone.set(c.phone, { ...c, id: c.phone });

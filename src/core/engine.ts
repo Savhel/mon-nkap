@@ -145,8 +145,12 @@ export class Engine {
     let via: { via: 'lexicon' | 'mt'; translation?: string; mtEngine?: string } = { via: 'lexicon' };
     let detected: { code: string; confidence: number; switched: boolean } | undefined;
     try {
-      const contacts = await this.backend.listContacts(s.accountId, req.text);
-      it = interpret(req.text, s.lang, contacts);
+      // Le répertoire n'est consulté que si la demande peut désigner quelqu'un : un solde ou des frais n'en ont pas
+      // besoin, et chaque recherche dans le bac à sable coûte du temps sur les 3 s de l'USSD.
+      const first = interpret(req.text, s.lang, []);
+      const needsContacts = !first.intent || first.intent === 'transfer' || first.intent === 'airtime' || first.isCorrection;
+      const contacts = needsContacts ? await this.backend.listContacts(s.accountId, req.text) : [];
+      it = needsContacts ? interpret(req.text, s.lang, contacts) : first;
       // Langue détectée dans le texte : on ne change de langue que si l'identification est sûre ET que la langue
       // détectée comprend la demande alors que la langue courante ne la comprend pas.
       const model = loadLangId();
