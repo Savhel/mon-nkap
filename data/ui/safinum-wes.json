@@ -1,0 +1,98 @@
+{
+ "_source": "Textes des écrans SAFINUM écrits par une locutrice native du pidgin camerounais (tableur ecrans-application-pidgin.xlsx). Brouillons : à relire par un second locuteur.",
+ "nav.home": {
+  "text": "house page",
+  "fr": "Accueil",
+  "valide": false
+ },
+ "common.loading": {
+  "text": "ei di load",
+  "fr": "Chargement",
+  "valide": false
+ },
+ "common.stop_listening": {
+  "text": "stop for tok",
+  "fr": "Arrêter la lecture",
+  "valide": false
+ },
+ "home.see_all": {
+  "text": "see all tin",
+  "fr": "Tout voir",
+  "valide": false
+ },
+ "tx.status.confirmed": {
+  "text": "ei don go",
+  "fr": "Effectuée",
+  "valide": false
+ },
+ "tx.status.pending": {
+  "text": "ei di wait",
+  "fr": "En attente",
+  "valide": false
+ },
+ "tx.status.failed": {
+  "text": "ei no go",
+  "fr": "Échouée",
+  "valide": false
+ },
+ "transfer.to_hint": {
+  "text": "numba or name",
+  "fr": "Numéro de téléphone ou nom",
+  "valide": false
+ },
+ "error.INSUFFICIENT_FUNDS": {
+  "text": "mony no reach. Ei remain {missing}.",
+  "fr": "Solde insuffisant : il vous manque {missing}.",
+  "valide": false
+ },
+ "error.UNKNOWN_BENEFICIARY": {
+  "text": "we no di find the person. Abeg check di numba and the name",
+  "fr": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom.",
+  "valide": false
+ },
+ "error.INVALID_AMOUNT": {
+  "text": "the amount no correct. Abeg put whole numba",
+  "fr": "Montant invalide. Saisissez un nombre entier.",
+  "valide": false
+ },
+ "error.UNKNOWN_BILLER": {
+  "text": "di service no dey. Abeg choose one service for list",
+  "fr": "Service inconnu. Choisissez dans la liste.",
+  "valide": false
+ },
+ "review.title": {
+  "text": "check am before you continue",
+  "fr": "Vérifiez avant de confirmer",
+  "valide": false
+ },
+ "review.service": {
+  "text": "service",
+  "fr": "Service",
+  "valide": false
+ },
+ "review.warning": {
+  "text": "dey go send the mony when you validate am",
+  "fr": "L'argent part dès que vous confirmez.",
+  "valide": false
+ },
+ "receipt.done": {
+  "text": "finish",
+  "fr": "Terminer",
+  "valide": false
+ },
+ "pay.biller_label": {
+  "text": "choose the service",
+  "fr": "Choisissez le service",
+  "valide": false
+ },
+ "pay.phone_label": {
+  "text": "numba wey you wan recharge",
+  "fr": "Numéro à recharger",
+  "valide": false
+ },
+ "pay.phone_hint": {
+  "text": "na ya own or na for ya person",
+  "fr": "Le vôtre ou celui d'un proche",
+  "valide": false
+ }
+}
