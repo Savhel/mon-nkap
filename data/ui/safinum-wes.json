@@ -94,5 +94,71 @@
   "text": "na ya own or na for ya person",
   "fr": "Le vôtre ou celui d'un proche",
   "valide": false
+ },
+ "atm.bank": {
+  "text": "Safinum Bank",
+  "fr": "Banque Safinum",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.cancel_hint": {
+  "text": "Red button : cancel",
+  "fr": "Touche rouge : annuler",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.welcome": {
+  "text": "Welcome",
+  "fr": "Bienvenue",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.insert_card": {
+  "text": "Put ya card",
+  "fr": "Insérez votre carte",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.available": {
+  "text": "The service dey open 24h/24",
+  "fr": "Service disponible 24h/24",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.pin_title": {
+  "text": "Enter ya secret code",
+  "fr": "Saisissez votre code secret",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.pin_hide": {
+  "text": "Hide the keyboard with ya hand",
+  "fr": "Cachez le clavier avec votre main",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.pin_confirm": {
+  "text": "Then press the green button",
+  "fr": "Puis appuyez sur la touche verte",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.menu_title": {
+  "text": "Choose one transaction",
+  "fr": "Choisissez une opération",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.key_statement": {
+  "text": "Small statement",
+  "fr": "Mini-relevé",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.key_exit": {
+  "text": "Take ya card",
+  "fr": "Rendre la carte",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
  }
 }
