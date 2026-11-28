@@ -35,8 +35,9 @@ Pages locales : `http://localhost:8080/` (jury), `/mobile` (application, mode Co
 
 Depuis le 28 novembre, SAFINUM appelle notre serveur par **cloudflared** et non plus par ngrok : leur serveur vocal
 joue nos propres voix (`response.audio`), et le ngrok gratuit intercale une page d'avertissement qui rend ces fichiers
-illisibles. Par l'adresse cloudflared, seules `/safinum/middleware` et `/voix/…` répondent ; tout le reste est
-introuvable. **L'adresse change à chaque relance de cloudflared** : il faut alors la réenregistrer pour les six canaux :
+illisibles. L'adresse cloudflared applique les mêmes règles que le tunnel ngrok : passerelle, voix et collecte
+ouvertes, le reste (`/mobile`, `/banque`…) derrière l'identifiant `gifa` et le mot de passe de démonstration, `/admin`
+en plus derrière la clé d'administration. **L'adresse change à chaque relance de cloudflared** : il faut alors la réenregistrer pour les six canaux :
 `node --env-file=.env tools/safinum.ts endpoint https://<adresse>.trycloudflare.com/safinum/middleware`.
 Le tunnel ngrok reste pour les pages de démonstration (`/mobile`…, avec mot de passe).
 

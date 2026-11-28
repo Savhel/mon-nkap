@@ -157,9 +157,25 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
     res.setHeader('x-content-type-options', 'nosniff');
     try {
       if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
-      // Tunnel Cloudflare (adresse déclarée à SAFINUM, sans mot de passe) : seulement la passerelle et les voix.
+      // Tunnel Cloudflare (adresse déclarée à SAFINUM) : mêmes règles que le tunnel de démonstration ngrok.
+      // Ouverts : passerelle SAFINUM, voix, collecte des natifs. Le reste : identifiant + mot de passe de démonstration
+      // (CT_DEMO_USER / CT_DEMO_PASSWORD) ; /admin seulement si CT_DEMO_ADMIN=1, et toujours avec la clé d'administration.
       const viaCloudflare = Boolean(req.headers['cf-connecting-ip']) || /\.trycloudflare\.com$/i.test(String(req.headers.host ?? ''));
-      if (viaCloudflare && !(url.pathname === '/safinum/middleware' || url.pathname.startsWith('/voix/'))) return json(res, 404, { error: 'introuvable' });
+      if (viaCloudflare) {
+        const p = url.pathname;
+        const open = p === '/safinum/middleware' || p.startsWith('/voix/') || p === '/collecte' || p.startsWith('/v1/collecte/') || p === '/tokens.css' || p === '/icon.svg';
+        const admin = p === '/admin' || p.startsWith('/v1/admin');
+        if (admin && process.env.CT_DEMO_ADMIN !== '1') return json(res, 404, { error: 'introuvable' });
+        if (!open) {
+          const pass = process.env.CT_DEMO_PASSWORD ?? '';
+          const given = /^Basic\s+(.+)$/i.exec(String(req.headers.authorization ?? ''))?.[1];
+          const expected = Buffer.from(`${process.env.CT_DEMO_USER ?? 'gifa'}:${pass}`).toString('base64');
+          if (!pass || !given || !verifySecret(expected, given)) {
+            res.writeHead(401, { 'www-authenticate': 'Basic realm="Mon Nkap - demonstration", charset="UTF-8"', 'content-type': 'text/plain; charset=utf-8' });
+            return res.end('Identifiant et mot de passe requis.');
+          }
+        }
+      }
       if (req.method === 'GET' && url.pathname.startsWith('/voix/')) {
         const tts = /^\/voix\/tts\/([A-Za-z0-9_-]{6,32})\.mp3$/.exec(url.pathname);
         const clip = /^\/voix\/([a-z]{2,3})\/([a-z0-9_]{1,40})\.mp3$/.exec(url.pathname);
