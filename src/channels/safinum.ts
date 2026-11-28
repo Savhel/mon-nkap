@@ -388,7 +388,9 @@ export class SafinumChannel {
           language: result.lang,
         },
         transaction,
-      };
+        // Pour la voix du serveur vocal (retiré avant l'envoi) : clips de natifs prévus et qualité de la réponse.
+        _voice: { plan: result.reply.speech ?? [], quality: result.reply.quality },
+      } as SafinumGatewayResponse;
     });
   }
 }

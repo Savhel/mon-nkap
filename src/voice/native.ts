@@ -192,7 +192,7 @@ export function speechPlan(r: ReplyKind, lang: string): string[] {
 
 // --- Fichiers ---------------------------------------------------------------------------------
 
-function clipFile(lang: string, key: string): string | null {
+export function clipFile(lang: string, key: string): string | null {
   for (const e of EXTS) { const f = `${AUDIO_ROOT}${lang}/${key}.${e}`; if (existsSync(f)) return f; }
   return null;
 }

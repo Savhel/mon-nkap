@@ -20,9 +20,13 @@ function load(lang: string): AutoFile | null {
 
 /** Texte d'écran automatique, seulement si son français source n'a pas changé. */
 export function autoScreenText(lang: string, key: string, fr: string): string | null {
-  const e = load(lang)?.ecrans?.[key];
-  if (!e?.text || (e.fr && e.fr !== fr)) return null;
-  return e.text;
+  const all = load(lang)?.ecrans;
+  const e = all?.[key];
+  if (e?.text && (!e.fr || e.fr === fr)) return e.text;
+  // Même français déjà traduit pour un autre écran : même traduction (une seule traduction par mot).
+  const norm = (s: string) => s.normalize('NFC').replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
+  for (const v of Object.values(all ?? {})) if (v?.text && v.fr && norm(v.fr) === norm(fr)) return v.text;
+  return null;
 }
 
 /** Phrase de conversation automatique (repères {montant}… conservés), ou null. */

@@ -16,6 +16,7 @@ machine, puis remplir les valeurs. Les commandes qui en ont besoin le lisent ave
 | Serveur (app, API, middleware SAFINUM, collecte) | `node --env-file=.env src/api/server.ts` |
 | Tunnel public (middleware SAFINUM + page de collecte, rien d'autre) | `ngrok http 8080 --traffic-policy-file services/ngrok-safinum.yml` |
 | Tunnel de démonstration (en plus : `/mobile` et les autres pages, avec mot de passe) | `node --env-file=.env tools/tunnel-demo.ts` puis `ngrok http 8080 --traffic-policy-file services/ngrok-demo.local.yml` |
+| Tunnel SAFINUM (passerelle + voix du serveur vocal, rien d'autre) | `~/.local/bin/cloudflared tunnel --no-autoupdate --url http://localhost:8080` puis enregistrer l'adresse affichée (voir plus bas) |
 | Arrêter l'un ou l'autre | `Ctrl+C` dans son terminal |
 
 Laisser les deux terminaux ouverts pendant les essais et pendant que les natifs travaillent. Après une mise à jour du
@@ -31,6 +32,17 @@ Pages locales : `http://localhost:8080/` (jury), `/mobile` (application, mode Co
 `/canaux` (USSD et SMS), `/tableau` (journal), `/admin` (clés, entraînement, collecte), `/collecte` (natifs).
 
 ## Bac à sable SAFINUM
+
+Depuis le 28 novembre, SAFINUM appelle notre serveur par **cloudflared** et non plus par ngrok : leur serveur vocal
+joue nos propres voix (`response.audio`), et le ngrok gratuit intercale une page d'avertissement qui rend ces fichiers
+illisibles. Par l'adresse cloudflared, seules `/safinum/middleware` et `/voix/…` répondent ; tout le reste est
+introuvable. **L'adresse change à chaque relance de cloudflared** : il faut alors la réenregistrer pour les six canaux :
+`node --env-file=.env tools/safinum.ts endpoint https://<adresse>.trycloudflare.com/safinum/middleware`.
+Le tunnel ngrok reste pour les pages de démonstration (`/mobile`…, avec mot de passe).
+
+Voix du serveur vocal (`CT_IVR_AUDIO=0` la coupe) : réponse entière dite par une native si chaque morceau est
+enregistré ; sinon voix PlotWeaver (pidgin, fulfulde, ewondo, basaa) sans chiffre, et montants dits avec les nombres
+enregistrés par les natives (`data/audio/<langue>/n_*.aac`), à défaut par la synthèse de SAFINUM.
 
 | Quoi | Commande |
 |---|---|

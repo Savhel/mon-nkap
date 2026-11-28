@@ -38,6 +38,8 @@ import { UssdChannel } from '../channels/ussd.ts';
 import { SmsChannel } from '../channels/sms.ts';
 import { IvrChannel, toAfricasTalkingXml, type IvrTurn } from '../channels/ivr.ts';
 import { SafinumChannel } from '../channels/safinum.ts';
+import { nativeResponse } from '../core/respond.ts';
+import { clipMp3, ivrAudio, prewarm, segmentMp3 } from '../channels/ivr-audio.ts';
 import { asrStatus, encodeWav, synthesize, toSamples16k, transcribe, ttsAvailable } from '../voice/speech.ts';
 import { assemble, coverage, missingClips } from '../voice/native.ts';
 import { AuditLog, verifyChain } from '../security/audit.ts';
@@ -155,6 +157,17 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
     res.setHeader('x-content-type-options', 'nosniff');
     try {
       if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
+      // Tunnel Cloudflare (adresse déclarée à SAFINUM, sans mot de passe) : seulement la passerelle et les voix.
+      const viaCloudflare = Boolean(req.headers['cf-connecting-ip']) || /\.trycloudflare\.com$/i.test(String(req.headers.host ?? ''));
+      if (viaCloudflare && !(url.pathname === '/safinum/middleware' || url.pathname.startsWith('/voix/'))) return json(res, 404, { error: 'introuvable' });
+      if (req.method === 'GET' && url.pathname.startsWith('/voix/')) {
+        const tts = /^\/voix\/tts\/([A-Za-z0-9_-]{6,32})\.mp3$/.exec(url.pathname);
+        const clip = /^\/voix\/([a-z]{2,3})\/([a-z0-9_]{1,40})\.mp3$/.exec(url.pathname);
+        const mp3 = tts ? await segmentMp3(tts[1]) : clip ? await clipMp3(clip[1], clip[2]) : null;
+        if (!mp3) return json(res, 404, { error: 'introuvable' });
+        res.writeHead(200, { 'content-type': 'audio/mpeg', 'content-length': mp3.length, 'cache-control': 'public, max-age=1800', 'access-control-allow-origin': '*' });
+        return res.end(mp3);
+      }
       const client = String(req.headers['x-api-key'] ?? req.socket.remoteAddress ?? 'anon');
       if (req.method === 'POST' && !limiter.allow(client)) return json(res, 429, { error: 'trop_de_requetes' });
       const isAdminPath = url.pathname.startsWith('/v1/admin/');
@@ -619,7 +632,15 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
           input: b.input && typeof b.input === 'object' ? b.input : {},
           constraints: b.constraints && typeof b.constraints === 'object' ? b.constraints : undefined,
         });
-        return json(res, 200, out);
+        const { _voice, ...reply } = out as typeof out & { _voice?: { plan?: string[]; quality?: string } };
+        if (b.channel === 'ivr') {
+          // Voix naturelle : nos fichiers, servis par la même adresse que celle qui nous appelle.
+          const host = String(req.headers['x-forwarded-host'] ?? req.headers.host ?? '').split(',')[0].trim();
+          const proto = String(req.headers['x-forwarded-proto'] ?? (host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https')).split(',')[0].trim();
+          const audio = host ? ivrAudio(reply.interpretation.language ?? '', reply.response.text, `${proto}://${host}`, _voice) : undefined;
+          if (audio) (reply.response as typeof reply.response & { audio?: unknown }).audio = audio;
+        }
+        return json(res, 200, reply);
       }
 
       if (req.method === 'POST' && url.pathname === '/v1/ivr') {
@@ -695,5 +716,18 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     else console.error(`ATTENTION : service de traduction INDISPONIBLE (${mt.error ?? 'raison inconnue'}). Le dialogue local reste disponible. Installation : npm run mt:install && npm run mt:models`);
   }).catch(() => console.error('Impossible de démarrer le service de traduction.'));
   for (const sig of ['SIGINT', 'SIGTERM'] as const) process.on(sig, () => { stopMtService(); process.exit(0); });
-  createApp().server.listen(port, () => console.log(`Mon Nkap : http://localhost:${port}`));
+  const app = createApp();
+  app.server.listen(port, () => {
+    console.log(`Mon Nkap : http://localhost:${port}`);
+    // Voix du serveur vocal SAFINUM : phrases fixes préparées d'avance (la première synthèse peut dépasser 6 s).
+    void (async () => {
+      const ch = new SafinumChannel(app.engine);
+      for (const lang of ['wes', 'fub', 'ewo', 'bas']) {
+        const w = await ch.handle({ trace_id: 'prewarm', channel: 'ivr', session_id: `prewarm-${lang}`, phone: `prewarm-${lang}`, language: lang, input: { type: 'text', text: '' } }).catch(() => null);
+        const fixed = ['greeting', 'not_understood', 'ask_amount', 'ask_intent', 'ask_which', 'cancelled', 'help', 'corrected', 'backend_error'].map((id) => nativeResponse(lang, id) ?? '');
+        const n = prewarm(lang, [w?.response.text ?? '', ...fixed]);
+        if (n) console.log(`Voix ${lang} : ${n} phrases fixes préparées pour le serveur vocal`);
+      }
+    })();
+  });
 }
