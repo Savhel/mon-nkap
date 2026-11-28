@@ -160,5 +160,257 @@
   "fr": "Rendre la carte",
   "valide": false,
   "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "shell.greeting": {
+  "text": "Hello {name}",
+  "fr": "Bonjour {name}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "home.account": {
+  "text": "Account {phone}",
+  "fr": "Compte {phone}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "home.quick_actions": {
+  "text": "You wan do weti ?",
+  "fr": "Que voulez-vous faire ?",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "home.action_airtime": {
+  "text": "Buy credit",
+  "fr": "Acheter du crédit",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "home.action_history": {
+  "text": "Ma transactions",
+  "fr": "Mes opérations",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "home.recent": {
+  "text": "Ya last transactions",
+  "fr": "Dernières opérations",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "home.empty": {
+  "text": "No transaction yet.",
+  "fr": "Aucune opération pour le moment.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "tx.transfer_out": {
+  "text": "Money send for {name}",
+  "fr": "Envoi à {name}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "tx.transfer_in": {
+  "text": "Money from {name}",
+  "fr": "Reçu de {name}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "tx.airtime": {
+  "text": "Credit {operator}",
+  "fr": "Crédit {operator}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "tx.bill": {
+  "text": "Bill {biller}",
+  "fr": "Facture {biller}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "tx.status.cancelled": {
+  "text": "Dey don cancel",
+  "fr": "Annulée",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "transfer.saved": {
+  "text": "Ma beneficiary dem",
+  "fr": "Mes bénéficiaires",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "transfer.amount_hint": {
+  "text": "Up to {max} for one time",
+  "fr": "Jusqu'à {max} par opération",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "transfer.fee_preview": {
+  "text": "Fees : {fee}",
+  "fr": "Frais : {fee}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "help.fee": {
+  "text": "Fees na money wey the bank di cut for do the transaction.",
+  "fr": "Les frais sont la somme que la banque garde pour faire l'opération.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "help.limit": {
+  "text": "Limit na the highest amount you fit send for one time.",
+  "fr": "Le plafond est le montant maximum que vous pouvez envoyer en une fois.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "help.beneficiary": {
+  "text": "Beneficiary na person wey di receive the money.",
+  "fr": "Le bénéficiaire est la personne qui reçoit l'argent.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "error.AMBIGUOUS_BENEFICIARY": {
+  "text": "Plenty people them get this name. Choose the correct one.",
+  "fr": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "error.LIMIT_EXCEEDED": {
+  "text": "The amount too big : limit na {max} for one time.",
+  "fr": "Montant trop élevé : le plafond est de {max} par opération.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "review.balance_after": {
+  "text": "Balance after the transaction",
+  "fr": "Solde après l'opération",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "receipt.transfer": {
+  "text": "{amount} don go for {name}.",
+  "fr": "{amount} envoyés à {name}.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "receipt.bill": {
+  "text": "You don pay {biller} bill of {amount}.",
+  "fr": "Facture {biller} de {amount} payée.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "receipt.airtime": {
+  "text": "Credit {operator} of {amount} don go for {phone}.",
+  "fr": "Crédit {operator} de {amount} envoyé au {phone}.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "receipt.new_balance": {
+  "text": "New balance",
+  "fr": "Nouveau solde",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "receipt.cancelled": {
+  "text": "Dey don cancel the transaction. Dey no cut no mony.",
+  "fr": "Opération annulée. Rien n'a été débité.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "pay.tab_bill": {
+  "text": "Bills",
+  "fr": "Factures",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "pay.tab_airtime": {
+  "text": "Credit",
+  "fr": "Crédit téléphone",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "pay.operator_label": {
+  "text": "Operator",
+  "fr": "Opérateur",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "pay.operator_detected": {
+  "text": "Operator na {operator}",
+  "fr": "Opérateur reconnu : {operator}",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "biller.ENEO": {
+  "text": "Light",
+  "fr": "Électricité",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "biller.CAMWATER": {
+  "text": "Wata",
+  "fr": "Eau",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "biller.CANAL": {
+  "text": "Television",
+  "fr": "Télévision",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "biller.CAMTEL": {
+  "text": "Internet and phone",
+  "fr": "Internet et téléphone",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "history.filter_all": {
+  "text": "All",
+  "fr": "Tout",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "history.filter_out": {
+  "text": "Money go",
+  "fr": "Sorties",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "history.filter_in": {
+  "text": "Money come",
+  "fr": "Entrées",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "history.empty": {
+  "text": "No transaction yet.",
+  "fr": "Aucune opération pour le moment.",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "shell.logout": {
+  "text": "Log out",
+  "fr": "Se déconnecter",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.balance": {
+  "text": "See ya balance",
+  "fr": "Consulter le solde",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "atm.withdraw": {
+  "text": "Remove money",
+  "fr": "Retrait espèces",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
+ },
+ "history.col_date": {
+  "text": "Date",
+  "fr": "Date",
+  "valide": false,
+  "remarque": "proposition de l’équipe en attendant la native (tableur ecrans-application-pidgin-complement)"
  }
 }

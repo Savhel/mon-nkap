@@ -752,6 +752,7 @@
   "context": "Lien de la barre latérale",
   "max_chars": null,
   "screens": [
+   "history",
    "home",
    "pay",
    "transfer"
@@ -762,6 +763,7 @@
   "context": "Mention en pied de barre latérale",
   "max_chars": null,
   "screens": [
+   "history",
    "home",
    "pay",
    "transfer"
@@ -778,6 +780,156 @@
  "atm.withdraw": {
   "text": "Retrait espèces",
   "context": "Touche GAB",
+  "max_chars": 18,
+  "screens": [
+   "atm_menu"
+  ]
+ },
+ "history.col_date": {
+  "text": "Date",
+  "context": "En-tête de colonne",
+  "max_chars": null,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.col_label": {
+  "text": "Opération",
+  "context": "En-tête de colonne",
+  "max_chars": null,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.col_amount": {
+  "text": "Montant",
+  "context": "En-tête de colonne",
+  "max_chars": null,
+  "screens": [
+   "history"
+  ]
+ },
+ "history.col_status": {
+  "text": "Statut",
+  "context": "En-tête de colonne",
+  "max_chars": null,
+  "screens": [
+   "history"
+  ]
+ },
+ "atm.bank": {
+  "text": "Banque Safinum",
+  "context": "GAB : bandeau en haut de l'écran",
+  "max_chars": 40,
+  "screens": [
+   "atm_menu",
+   "atm_pin",
+   "atm_welcome"
+  ]
+ },
+ "atm.cancel_hint": {
+  "text": "Touche rouge : annuler",
+  "context": "GAB : rappel en bas de l'écran",
+  "max_chars": 40,
+  "screens": [
+   "atm_menu",
+   "atm_pin",
+   "atm_welcome"
+  ]
+ },
+ "atm.please_wait": {
+  "text": "Veuillez patienter",
+  "context": "GAB : traitement en cours",
+  "max_chars": 40,
+  "screens": [
+   "atm_menu",
+   "atm_pin",
+   "atm_welcome"
+  ]
+ },
+ "atm.welcome": {
+  "text": "Bienvenue",
+  "context": "GAB : titre de l'écran d'accueil",
+  "max_chars": 40,
+  "screens": [
+   "atm_welcome"
+  ]
+ },
+ "atm.insert_card": {
+  "text": "Insérez votre carte",
+  "context": "GAB : consigne principale",
+  "max_chars": 40,
+  "screens": [
+   "atm_welcome"
+  ]
+ },
+ "atm.available": {
+  "text": "Service disponible 24h/24",
+  "context": "GAB : mention sous la consigne",
+  "max_chars": 40,
+  "screens": [
+   "atm_welcome"
+  ]
+ },
+ "atm.pin_title": {
+  "text": "Saisissez votre code secret",
+  "context": "GAB : titre de l'écran du code",
+  "max_chars": 40,
+  "screens": [
+   "atm_pin"
+  ]
+ },
+ "atm.pin_hide": {
+  "text": "Cachez le clavier avec votre main",
+  "context": "GAB : conseil de sécurité",
+  "max_chars": 40,
+  "screens": [
+   "atm_pin"
+  ]
+ },
+ "atm.pin_confirm": {
+  "text": "Puis appuyez sur la touche verte",
+  "context": "GAB : consigne de validation",
+  "max_chars": 40,
+  "screens": [
+   "atm_pin"
+  ]
+ },
+ "atm.menu_title": {
+  "text": "Choisissez une opération",
+  "context": "GAB : titre du menu",
+  "max_chars": 40,
+  "screens": [
+   "atm_menu"
+  ]
+ },
+ "atm.key_withdraw": {
+  "text": "Retrait",
+  "context": "GAB : touche latérale du menu",
+  "max_chars": 18,
+  "screens": [
+   "atm_menu"
+  ]
+ },
+ "atm.key_balance": {
+  "text": "Solde",
+  "context": "GAB : touche latérale du menu",
+  "max_chars": 18,
+  "screens": [
+   "atm_menu"
+  ]
+ },
+ "atm.key_statement": {
+  "text": "Mini-relevé",
+  "context": "GAB : touche latérale du menu",
+  "max_chars": 18,
+  "screens": [
+   "atm_menu"
+  ]
+ },
+ "atm.key_exit": {
+  "text": "Rendre la carte",
+  "context": "GAB : touche latérale du menu",
   "max_chars": 18,
   "screens": [
    "atm_menu"
