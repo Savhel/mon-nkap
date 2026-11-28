@@ -1,5 +1,5 @@
 {
- "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-fulfulde-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-fulfulde-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit. ; GAB : gab-derniers-textes-banque.xlsx (28 novembre).",
  "ecrans": {
   "history.filter_all": {
    "text": "Ɗum fuu",
@@ -20,6 +20,26 @@
   "atm.key_exit": {
    "text": "Hokkit karte",
    "fr": "Rendre la carte"
+  },
+  "atm.another": {
+   "text": "Huunde feere na?",
+   "fr": "Une autre opération ?"
+  },
+  "atm.key_yes": {
+   "text": "Ooho",
+   "fr": "Oui"
+  },
+  "atm.key_no": {
+   "text": "A'aa",
+   "fr": "Non"
+  },
+  "atm.take_card": {
+   "text": "Hokkit karte maa",
+   "fr": "Reprenez votre carte"
+  },
+  "atm.goodbye": {
+   "text": "Useko, sai yeeso",
+   "fr": "Merci et à bientôt"
   }
  },
  "reponses": {

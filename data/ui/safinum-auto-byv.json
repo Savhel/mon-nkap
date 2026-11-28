@@ -1,5 +1,5 @@
 {
- "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-medumba-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-medumba-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit. ; GAB : gab-derniers-textes-banque.xlsx (28 novembre).",
  "ecrans": {
   "nav.home": {
    "text": "Ndɑ́",
@@ -420,6 +420,30 @@
   "atm.key_exit": {
    "text": "Kɔ́’ kàrt wû",
    "fr": "Rendre la carte"
+  },
+  "atm.another": {
+   "text": "Fà’ yə́ fʉ̀ ?",
+   "fr": "Une autre opération ?"
+  },
+  "atm.key_yes": {
+   "text": "Ɛ̌",
+   "fr": "Oui"
+  },
+  "atm.key_no": {
+   "text": "Gǎ",
+   "fr": "Non"
+  },
+  "atm.take_card": {
+   "text": "Kʉ̀’ kàrt yʉ̀",
+   "fr": "Reprenez votre carte"
+  },
+  "atm.goodbye": {
+   "text": "Mɛ̀sì, bə́ gɔ́’ yə́",
+   "fr": "Merci et à bientôt"
+  },
+  "atm.balance_title": {
+   "text": "Nkàb à bə̀ tsə̀",
+   "fr": "Solde disponible"
   }
  },
  "reponses": {

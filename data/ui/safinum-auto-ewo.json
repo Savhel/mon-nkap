@@ -1,5 +1,5 @@
 {
- "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-ewondo-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-ewondo-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit. ; GAB : gab-derniers-textes-banque.xlsx (28 novembre).",
  "ecrans": {
   "nav.home": {
    "text": "Ndá",
@@ -316,6 +316,26 @@
   "atm.key_exit": {
    "text": "Bulan karte",
    "fr": "Rendre la carte"
+  },
+  "atm.another": {
+   "text": "Ésae éfe ?",
+   "fr": "Une autre opération ?"
+  },
+  "atm.key_yes": {
+   "text": "Owé",
+   "fr": "Oui"
+  },
+  "atm.key_no": {
+   "text": "Tege",
+   "fr": "Non"
+  },
+  "atm.take_card": {
+   "text": "Nɔŋɔ katé dzôe",
+   "fr": "Reprenez votre carte"
+  },
+  "atm.goodbye": {
+   "text": "Akiba, bî a yénan",
+   "fr": "Merci et à bientôt"
   }
  },
  "reponses": {

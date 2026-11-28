@@ -1,5 +1,5 @@
 {
- "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-basaa-banque-v2.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-basaa-banque-v2.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit. ; GAB : gab-derniers-textes-banque.xlsx (28 novembre).",
  "ecrans": {
   "nav.home": {
    "text": "Lìbòg",
@@ -420,6 +420,30 @@
   "atm.key_exit": {
    "text": "Tìmbìs kàrt",
    "fr": "Rendre la carte"
+  },
+  "atm.another": {
+   "text": "Bɔlɔ ipe ?",
+   "fr": "Une autre opération ?"
+  },
+  "atm.key_yes": {
+   "text": "Ŋ̀ŋ",
+   "fr": "Oui"
+  },
+  "atm.key_no": {
+   "text": "Tɔ̀",
+   "fr": "Non"
+  },
+  "atm.take_card": {
+   "text": "Yɔŋ kàrt yɔŋ",
+   "fr": "Reprenez votre carte"
+  },
+  "atm.goodbye": {
+   "text": "Màsega, bɔ́ŋgɛ",
+   "fr": "Merci et à bientôt"
+  },
+  "atm.balance_title": {
+   "text": "Moni u yé i kɔnt",
+   "fr": "Solde disponible"
   }
  },
  "reponses": {
