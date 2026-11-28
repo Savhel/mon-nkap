@@ -278,6 +278,12 @@ const MENU_FR: Record<string, string> = {
   menu_bill: 'Payer une facture', menu_withdraw: 'Retrait', menu_language: 'Langue', menu_confirm: 'Confirmer', menu_cancel: 'Annuler', menu_more: 'Suite', menu_free_text: 'Ou écrivez votre demande',
 };
 const MENU_MBOA: Record<string, string> = { menu_balance: 'step_balance', menu_transfer: 'transfer_title', menu_fees: 'step_fees', menu_history: 'history', menu_language: 'language', menu_confirm: 'validate', menu_cancel: 'cancel' };
+/** Phrase de réponse écrite par un locuteur (greeting, not_understood…), ou null : jamais de texte inventé. */
+export function nativeResponse(lang: string, id: string): string | null {
+  const e = runtimeFor(lang)?.pack.responses[id];
+  return e && usable(e) ? e.text : null;
+}
+
 export function uiLabels(lang: string): Record<string, { text: string; quality: Quality }> {
   const out: Record<string, { text: string; quality: Quality }> = {};
   for (const [id, fr] of Object.entries(MENU_FR)) {

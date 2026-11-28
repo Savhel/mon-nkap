@@ -561,3 +561,20 @@ test('SAFINUM Vocal (ivr) : transcription audio WAV base64 vers intention moteur
   assert.equal(out.interpretation.parameters.balance, 100000);
   assert.ok(out.response.text.length <= 400);
 });
+
+test('SAFINUM IVR : accueil vocal avec la salutation écrite par la native, jamais de français en pidgin', async () => {
+  const { MockBackend } = await import('../src/backend/mock.ts');
+  const { SafinumChannel } = await import('../src/channels/safinum.ts');
+  const prev = process.env.CT_ALLOW_DRAFT;
+  process.env.CT_ALLOW_DRAFT = '1';
+  try {
+    const ch = new SafinumChannel(new Engine(new MockBackend()));
+    const r = await ch.handle({ trace_id: 'w', channel: 'ivr', session_id: 'ivr-wes', phone: 'demo-ivr', language: 'wes', input: { type: 'text', text: '' } } as never) as { response: { text: string } };
+    assert.match(r.response.text, /You wan do weti/);
+    assert.doesNotMatch(r.response.text, /Bienvenue|Parlez/);
+    const fr = await ch.handle({ trace_id: 'w2', channel: 'ivr', session_id: 'ivr-fr', phone: 'demo-ivr-fr', language: 'fr', input: { type: 'text', text: '' } } as never) as { response: { text: string } };
+    assert.match(fr.response.text, /^Bienvenue sur Mon Nkap\. Parlez ou tapez : 1, Solde/);
+  } finally {
+    if (prev === undefined) delete process.env.CT_ALLOW_DRAFT; else process.env.CT_ALLOW_DRAFT = prev;
+  }
+});

@@ -5,7 +5,7 @@
 import { userSession, type Channel, type Engine, type EngineResult } from '../core/engine.ts';
 import { runWithSafinumTrace } from '../backend/safinum.ts';
 import { identify, loadLangId } from '../linguistics/langid.ts';
-import { uiLabels } from '../core/respond.ts';
+import { nativeResponse, uiLabels } from '../core/respond.ts';
 import { transcribe } from '../voice/speech.ts';
 
 export interface SafinumGatewayAudio {
@@ -168,6 +168,13 @@ const USSD_MAIN_MENU: { key: string; labelId: string; utterance: string }[] = [
   { key: '6', labelId: 'menu_bill', utterance: 'payer une facture' },
 ];
 
+/** Début de l'accueil vocal : la salutation écrite par un natif de la langue, sinon français ou anglais rédigés. */
+function ivrIntro(lang: string): string {
+  if (lang === 'en') return 'Welcome to Mon Nkap. Speak or press:';
+  const native = lang !== 'fr' ? nativeResponse(lang, 'greeting') : null;
+  return native ? `Mon Nkap. ${native.replace(/[\s.?!]*$/u, '')} ?` : 'Bienvenue sur Mon Nkap. Parlez ou tapez :';
+}
+
 function formatChannelText(text: string, maxChars: number | null, useGsm7: boolean): string {
   if (useGsm7) return fitGsm7(text, maxChars ?? 182);
   if (!maxChars || text.length <= maxChars) return text;
@@ -221,7 +228,7 @@ export class SafinumChannel {
     );
     const hint = labels.menu_free_text?.text ?? 'Ou ecrivez votre demande';
     const raw = channel === 'ivr'
-      ? `Bienvenue sur Mon Nkap. Parlez ou tapez : ${items.join(' ; ')}.`
+      ? `${ivrIntro(lang)} ${items.join(' ; ')}.`
       : `Mon Nkap\n${items.join('\n')}\n${hint}`;
     return {
       response: {
@@ -236,9 +243,13 @@ export class SafinumChannel {
 
   private voiceClarification(lang: string, maxChars: number | null): SafinumGatewayResponse {
     const labels = uiLabels(lang);
-    const msg = lang === 'en'
-      ? 'Sorry, I could not hear your request clearly. Please repeat, or press 1 for balance, 2 for transfer, 3 for fees, 4 for history.'
-      : "Je n'ai pas compris votre message vocal. Veuillez répéter ou taper 1 pour le solde, 2 pour un transfert, 3 pour les frais, 4 pour l'historique.";
+    const native = lang !== 'fr' && lang !== 'en' ? nativeResponse(lang, 'not_understood') : null;
+    const menu = USSD_MAIN_MENU.slice(0, 4).map((m) => `${m.key}, ${labels[m.labelId]?.text ?? m.utterance}`).join(' ; ');
+    const msg = native
+      ? `${native} ${menu}.`
+      : lang === 'en'
+        ? 'Sorry, I could not hear your request clearly. Please repeat, or press 1 for balance, 2 for transfer, 3 for fees, 4 for history.'
+        : "Je n'ai pas compris votre message vocal. Veuillez répéter ou taper 1 pour le solde, 2 pour un transfert, 3 pour les frais, 4 pour l'historique.";
     return {
       response: {
         text: formatChannelText(msg, maxChars ?? 400, false),
