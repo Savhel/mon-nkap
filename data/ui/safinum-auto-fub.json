@@ -1,0 +1,87 @@
+{
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-fulfulde-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "ecrans": {
+  "history.filter_all": {
+   "text": "Ɗum fuu",
+   "fr": "Tout"
+  },
+  "history.col_date": {
+   "text": "Nyalaande",
+   "fr": "Date"
+  },
+  "atm.bank": {
+   "text": "Banki Safinum",
+   "fr": "Banque Safinum"
+  },
+  "atm.cancel_hint": {
+   "text": "Biyol boɗeejol : ustugo",
+   "fr": "Touche rouge : annuler"
+  },
+  "atm.key_exit": {
+   "text": "Hokkit karte",
+   "fr": "Rendre la carte"
+  }
+ },
+ "reponses": {
+  "balance": {
+   "text": "Ceede maa luttuɗe ɗon {solde}.",
+   "fr": "Votre solde disponible est de {solde}."
+  },
+  "fee_quote": {
+   "text": "Ngam neldugo {montant}, ceede kuugal ɗum {frais}. Fuu {total} ɓe ittata nder konte maa.",
+   "fr": "Pour envoyer {montant}, les frais sont de {frais}. Au total, {total} seront retirés de votre compte."
+  },
+  "ask_amount_to": {
+   "text": "Ceede noy ngiɗ-ɗaa neldugo {nom} ?",
+   "fr": "Quel montant voulez-vous envoyer à {nom} ?"
+  },
+  "ask_beneficiary": {
+   "text": "Moye ngiɗ-ɗaa neldugo {montant} ? Hokku innde malla limoore.",
+   "fr": "À qui voulez-vous envoyer {montant} ? Donnez un nom ou un numéro."
+  },
+  "confirm_transfer": {
+   "text": "A nelday {montant} haa {nom} ({numero}). Ceede kuugal : {frais}. Fuu : {total}. A jaɓi na ?",
+   "fr": "Vous allez envoyer {montant} à {nom} ({numero}). Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "transfer_done": {
+   "text": "Neldugo timmi : {montant} neldaama haa {nom}. Lamba seedamku {reference}. Luttuɗe kesum : {solde}.",
+   "fr": "Transfert réussi : {montant} envoyés à {nom}. Référence {reference}. Nouveau solde : {solde}."
+  },
+  "confirm_airtime": {
+   "text": "Soodugo kiredi {montant} ngam {numero} ? Walaa ceede kuugal.",
+   "fr": "Acheter {montant} de crédit pour le {numero} ? Sans frais."
+  },
+  "airtime_done": {
+   "text": "Kiredi neldaama : {montant} haa {numero}. Luttuɗe kesum : {solde}.",
+   "fr": "Crédit envoyé : {montant} au {numero}. Nouveau solde : {solde}."
+  },
+  "confirm_bill": {
+   "text": "Yoɓugo faktur {fournisseur} mo {montant} ? Ceede kuugal : {frais}. Fuu : {total}.",
+   "fr": "Payer la facture {fournisseur} de {montant} ? Frais : {frais}. Total : {total}."
+  },
+  "bill_done": {
+   "text": "Faktur {fournisseur} yoɓaama : {montant}. Luttuɗe kesum : {solde}.",
+   "fr": "Facture {fournisseur} payée : {montant}. Nouveau solde : {solde}."
+  },
+  "confirm_withdraw": {
+   "text": "Ittugo {montant} ? Ceede kuugal : {frais}. Fuu : {total}. A jaɓi na ?",
+   "fr": "Retirer {montant} ? Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "withdraw_done": {
+   "text": "Ittugo timmi : {montant}. Hoocu ceede maa. Luttuɗe kesum : {solde}.",
+   "fr": "Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}."
+  },
+  "insufficient": {
+   "text": "Ceede maa heƴaay. A woodi {solde}, ɗum haani {requis} bee ceede kuugal. Ɗum ŋakki {manque}. Walaa ko waɗaa.",
+   "fr": "Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée."
+  },
+  "limit_exceeded": {
+   "text": "Ceede ɗee ɓuri keeri maa {plafond} nder nyalaande woore.",
+   "fr": "Ce montant dépasse votre plafond de {plafond} par jour."
+  },
+  "language_switched": {
+   "text": "To, en tokku bee {langue}.",
+   "fr": "D’accord, on continue en {langue}."
+  }
+ }
+}

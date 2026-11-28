@@ -1,0 +1,599 @@
+{
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-haoussa-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "ecrans": {
+  "nav.home": {
+   "text": "Gida",
+   "fr": "Accueil"
+  },
+  "nav.transfer": {
+   "text": "Aika",
+   "fr": "Envoyer"
+  },
+  "nav.pay": {
+   "text": "Biya",
+   "fr": "Payer"
+  },
+  "nav.history": {
+   "text": "Tarihi",
+   "fr": "Historique"
+  },
+  "shell.greeting": {
+   "text": "Barka da zuwa {name}",
+   "fr": "Bonjour {name}"
+  },
+  "common.back": {
+   "text": "Koma baya",
+   "fr": "Retour"
+  },
+  "common.continue": {
+   "text": "Ci gaba",
+   "fr": "Continuer"
+  },
+  "common.cancel": {
+   "text": "Soke",
+   "fr": "Annuler"
+  },
+  "common.loading": {
+   "text": "Ana lodawa",
+   "fr": "Chargement"
+  },
+  "common.listen": {
+   "text": "Saurara",
+   "fr": "Écouter"
+  },
+  "common.stop_listening": {
+   "text": "Tsayar da karatu",
+   "fr": "Arrêter la lecture"
+  },
+  "home.balance_label": {
+   "text": "Kuɗin da ke asusu",
+   "fr": "Solde disponible"
+  },
+  "home.account": {
+   "text": "Asusu {phone}",
+   "fr": "Compte {phone}"
+  },
+  "home.quick_actions": {
+   "text": "Me kuke so ku yi?",
+   "fr": "Que voulez-vous faire ?"
+  },
+  "home.action_transfer": {
+   "text": "Aika kuɗi",
+   "fr": "Envoyer de l'argent"
+  },
+  "home.action_bill": {
+   "text": "Biya kuɗin hidima",
+   "fr": "Payer une facture"
+  },
+  "home.action_airtime": {
+   "text": "Sayi katin waya",
+   "fr": "Acheter du crédit"
+  },
+  "home.action_history": {
+   "text": "Harkokina",
+   "fr": "Mes opérations"
+  },
+  "home.recent": {
+   "text": "Harkokin baya-bayan nan",
+   "fr": "Dernières opérations"
+  },
+  "home.see_all": {
+   "text": "Duba duka",
+   "fr": "Tout voir"
+  },
+  "home.empty": {
+   "text": "Babu wata harka tukuna.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "tx.transfer_out": {
+   "text": "An aika wa {name}",
+   "fr": "Envoi à {name}"
+  },
+  "tx.transfer_in": {
+   "text": "An karɓa daga {name}",
+   "fr": "Reçu de {name}"
+  },
+  "tx.airtime": {
+   "text": "Katin waya {operator}",
+   "fr": "Crédit {operator}"
+  },
+  "tx.bill": {
+   "text": "Lissafin {biller}",
+   "fr": "Facture {biller}"
+  },
+  "tx.withdrawal": {
+   "text": "Cire kuɗi",
+   "fr": "Retrait"
+  },
+  "tx.status.confirmed": {
+   "text": "An kammala",
+   "fr": "Effectuée"
+  },
+  "tx.status.pending": {
+   "text": "Ana jira",
+   "fr": "En attente"
+  },
+  "tx.status.failed": {
+   "text": "Bai yi ba",
+   "fr": "Échouée"
+  },
+  "tx.status.cancelled": {
+   "text": "An soke",
+   "fr": "Annulée"
+  },
+  "transfer.title": {
+   "text": "Aika kuɗi",
+   "fr": "Envoyer de l'argent"
+  },
+  "transfer.saved": {
+   "text": "Masu karɓa na",
+   "fr": "Mes bénéficiaires"
+  },
+  "transfer.to_label": {
+   "text": "Mai karɓa",
+   "fr": "Bénéficiaire"
+  },
+  "transfer.to_hint": {
+   "text": "Lambar waya ko suna",
+   "fr": "Numéro de téléphone ou nom"
+  },
+  "transfer.amount_label": {
+   "text": "Adadin kuɗi",
+   "fr": "Montant"
+  },
+  "transfer.amount_hint": {
+   "text": "Har zuwa {max} a kowace harka",
+   "fr": "Jusqu'à {max} par opération"
+  },
+  "transfer.fee_preview": {
+   "text": "Kuɗin aiki : {fee}",
+   "fr": "Frais : {fee}"
+  },
+  "help.fee": {
+   "text": "Kuɗin aiki su ne kuɗin da banki ke cirewa don gudanar da wannan harka.",
+   "fr": "Les frais sont la somme que la banque garde pour faire l'opération."
+  },
+  "help.limit": {
+   "text": "Iyaka ita ce mafi yawan kuɗin da za ku iya aikawa a lokaci guda.",
+   "fr": "Le plafond est le montant maximum que vous pouvez envoyer en une fois."
+  },
+  "help.beneficiary": {
+   "text": "Mai karɓa shi ne mutumin da zai karɓi kuɗin.",
+   "fr": "Le bénéficiaire est la personne qui reçoit l'argent."
+  },
+  "error.INSUFFICIENT_FUNDS": {
+   "text": "Kuɗin asusu bai isa ba : kuna buƙatar ƙarin {missing}.",
+   "fr": "Solde insuffisant : il vous manque {missing}."
+  },
+  "error.UNKNOWN_BENEFICIARY": {
+   "text": "Ba a sami mai karɓa ba. Duba lambar ko sunan.",
+   "fr": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom."
+  },
+  "error.AMBIGUOUS_BENEFICIARY": {
+   "text": "Mutane da yawa suna da wannan suna. Zaɓi wanda ya dace.",
+   "fr": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon."
+  },
+  "error.INVALID_AMOUNT": {
+   "text": "Adadin kuɗi bai dace ba. Shigar da cikakken adadi.",
+   "fr": "Montant invalide. Saisissez un nombre entier."
+  },
+  "error.LIMIT_EXCEEDED": {
+   "text": "Kuɗin ya yi yawa : iyaka ita ce {max} a kowace harka.",
+   "fr": "Montant trop élevé : le plafond est de {max} par opération."
+  },
+  "error.UNKNOWN_BILLER": {
+   "text": "Ba a san wannan hidima ba. Zaɓi daga jerin.",
+   "fr": "Service inconnu. Choisissez dans la liste."
+  },
+  "error.GENERIC": {
+   "text": "Harkar ba ta yi nasara ba. Sake gwadawa.",
+   "fr": "L'opération n'a pas abouti. Réessayez."
+  },
+  "review.title": {
+   "text": "Duba kafin ku tabbatar",
+   "fr": "Vérifiez avant de confirmer"
+  },
+  "review.to": {
+   "text": "Mai karɓa",
+   "fr": "Destinataire"
+  },
+  "review.service": {
+   "text": "Hidima",
+   "fr": "Service"
+  },
+  "review.amount": {
+   "text": "Adadin kuɗi",
+   "fr": "Montant"
+  },
+  "review.fee": {
+   "text": "Kuɗin aiki",
+   "fr": "Frais"
+  },
+  "review.total": {
+   "text": "Jimillar da za a cire",
+   "fr": "Total débité"
+  },
+  "review.balance_after": {
+   "text": "Sauran kuɗi bayan harka",
+   "fr": "Solde après l'opération"
+  },
+  "review.warning": {
+   "text": "Kuɗin za su tafi da zarar kun tabbatar.",
+   "fr": "L'argent part dès que vous confirmez."
+  },
+  "review.confirm": {
+   "text": "Tabbatar",
+   "fr": "Confirmer"
+  },
+  "review.edit": {
+   "text": "Gyara",
+   "fr": "Modifier"
+  },
+  "receipt.success": {
+   "text": "Harka ta yi nasara",
+   "fr": "Opération réussie"
+  },
+  "receipt.transfer": {
+   "text": "An aika {amount} zuwa {name}.",
+   "fr": "{amount} envoyés à {name}."
+  },
+  "receipt.bill": {
+   "text": "An biya lissafin {biller} na {amount}.",
+   "fr": "Facture {biller} de {amount} payée."
+  },
+  "receipt.airtime": {
+   "text": "An aika katin {operator} na {amount} zuwa {phone}.",
+   "fr": "Crédit {operator} de {amount} envoyé au {phone}."
+  },
+  "receipt.reference": {
+   "text": "Lambar shaida",
+   "fr": "Référence"
+  },
+  "receipt.new_balance": {
+   "text": "Sabon ma'aunin kuɗi",
+   "fr": "Nouveau solde"
+  },
+  "receipt.cancelled": {
+   "text": "An soke harka. Ba a cire ko sisi ba.",
+   "fr": "Opération annulée. Rien n'a été débité."
+  },
+  "receipt.done": {
+   "text": "Kammala",
+   "fr": "Terminer"
+  },
+  "pay.title": {
+   "text": "Biya",
+   "fr": "Payer"
+  },
+  "pay.tab_bill": {
+   "text": "Lissafin kuɗi",
+   "fr": "Factures"
+  },
+  "pay.tab_airtime": {
+   "text": "Katin waya",
+   "fr": "Crédit téléphone"
+  },
+  "pay.biller_label": {
+   "text": "Zaɓi hidima",
+   "fr": "Choisissez le service"
+  },
+  "pay.phone_label": {
+   "text": "Lambar da za a sa wa kati",
+   "fr": "Numéro à recharger"
+  },
+  "pay.phone_hint": {
+   "text": "Taku ko ta wani naku",
+   "fr": "Le vôtre ou celui d'un proche"
+  },
+  "pay.operator_label": {
+   "text": "Kamfanin sadarwa",
+   "fr": "Opérateur"
+  },
+  "pay.operator_detected": {
+   "text": "An gane kamfani : {operator}",
+   "fr": "Opérateur reconnu : {operator}"
+  },
+  "pay.amount_label": {
+   "text": "Adadin kuɗi",
+   "fr": "Montant"
+  },
+  "biller.ENEO": {
+   "text": "Wutar lantarki",
+   "fr": "Électricité"
+  },
+  "biller.CAMWATER": {
+   "text": "Ruwa",
+   "fr": "Eau"
+  },
+  "biller.CANAL": {
+   "text": "Talabijin",
+   "fr": "Télévision"
+  },
+  "biller.CAMTEL": {
+   "text": "Intanet da waya",
+   "fr": "Internet et téléphone"
+  },
+  "history.title": {
+   "text": "Tarihin harkoki",
+   "fr": "Historique"
+  },
+  "history.filter_all": {
+   "text": "Duka",
+   "fr": "Tout"
+  },
+  "history.filter_out": {
+   "text": "Kuɗin fita",
+   "fr": "Sorties"
+  },
+  "history.filter_in": {
+   "text": "Kuɗin shiga",
+   "fr": "Entrées"
+  },
+  "history.empty": {
+   "text": "Babu wata harka tukuna.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "shell.logout": {
+   "text": "Fita daga asusu",
+   "fr": "Se déconnecter"
+  },
+  "shell.secure": {
+   "text": "Amintaccen haɗi",
+   "fr": "Connexion sécurisée"
+  },
+  "atm.balance": {
+   "text": "Duba ma'auni",
+   "fr": "Consulter le solde"
+  },
+  "atm.withdraw": {
+   "text": "Cire kuɗi",
+   "fr": "Retrait espèces"
+  },
+  "history.col_date": {
+   "text": "Kwanan wata",
+   "fr": "Date"
+  },
+  "history.col_label": {
+   "text": "Harka",
+   "fr": "Opération"
+  },
+  "history.col_amount": {
+   "text": "Adadin kuɗi",
+   "fr": "Montant"
+  },
+  "history.col_status": {
+   "text": "Matsayi",
+   "fr": "Statut"
+  },
+  "atm.bank": {
+   "text": "Bankin Safinum",
+   "fr": "Banque Safinum"
+  },
+  "atm.cancel_hint": {
+   "text": "Maballin ja : soke",
+   "fr": "Touche rouge : annuler"
+  },
+  "atm.please_wait": {
+   "text": "Da fatan za a jira",
+   "fr": "Veuillez patienter"
+  },
+  "atm.welcome": {
+   "text": "Barka da zuwa",
+   "fr": "Bienvenue"
+  },
+  "atm.insert_card": {
+   "text": "Saka katin ku",
+   "fr": "Insérez votre carte"
+  },
+  "atm.available": {
+   "text": "Hidima a buɗe dare da rana",
+   "fr": "Service disponible 24h/24"
+  },
+  "atm.pin_title": {
+   "text": "Shigar da lambar sirri",
+   "fr": "Saisissez votre code secret"
+  },
+  "atm.pin_hide": {
+   "text": "Rufe madannai da hannun ku",
+   "fr": "Cachez le clavier avec votre main"
+  },
+  "atm.pin_confirm": {
+   "text": "Sa'an nan a danna maballin kore",
+   "fr": "Puis appuyez sur la touche verte"
+  },
+  "atm.menu_title": {
+   "text": "Zaɓi harkar da za a yi",
+   "fr": "Choisissez une opération"
+  },
+  "atm.key_withdraw": {
+   "text": "Cire kuɗi",
+   "fr": "Retrait"
+  },
+  "atm.key_balance": {
+   "text": "Ma'aunin kuɗi",
+   "fr": "Solde"
+  },
+  "atm.key_statement": {
+   "text": "Takaitaccen bayani",
+   "fr": "Mini-relevé"
+  },
+  "atm.key_exit": {
+   "text": "Karɓi katin ku",
+   "fr": "Rendre la carte"
+  }
+ },
+ "reponses": {
+  "balance": {
+   "text": "Kuɗin da ke cikin asusun ku shi ne {solde}.",
+   "fr": "Votre solde disponible est de {solde}."
+  },
+  "fee_quote": {
+   "text": "Don aika {montant}, kuɗin aiki su ne {frais}. Jimilla za a cire {total} daga asusun ku.",
+   "fr": "Pour envoyer {montant}, les frais sont de {frais}. Au total, {total} seront retirés de votre compte."
+  },
+  "ask_amount": {
+   "text": "Nawa kuke so ku aika?",
+   "fr": "Quel montant voulez-vous envoyer ?"
+  },
+  "ask_amount_to": {
+   "text": "Nawa kuke so ku aika wa {nom}?",
+   "fr": "Quel montant voulez-vous envoyer à {nom} ?"
+  },
+  "ask_beneficiary": {
+   "text": "Wa kuke so ku aika wa {montant}? Ku ba da suna ko lamba.",
+   "fr": "À qui voulez-vous envoyer {montant} ? Donnez un nom ou un numéro."
+  },
+  "ask_which": {
+   "text": "Mutane da yawa suna da wannan suna. Wanne daga ciki?",
+   "fr": "Plusieurs personnes portent ce nom. Laquelle ?"
+  },
+  "ask_intent": {
+   "text": "Ban fahimta sosai ba. Kuna son duba ma'aunin kuɗi, aika kuɗi, sanin kuɗin aiki ko duba tarihi?",
+   "fr": "Je n’ai pas bien compris. Voulez-vous voir votre solde, envoyer de l’argent, connaître les frais ou voir votre historique ?"
+  },
+  "confirm_transfer": {
+   "text": "Za ku aika {montant} zuwa {nom} ({numero}). Kuɗin aiki : {frais}. Jimilla : {total}. Kun tabbatar?",
+   "fr": "Vous allez envoyer {montant} à {nom} ({numero}). Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "corrected": {
+   "text": "An gyara.",
+   "fr": "C’est corrigé."
+  },
+  "transfer_done": {
+   "text": "An yi nasarar aika {montant} zuwa {nom}. Lambar shaida {reference}. Sabon ma'auni : {solde}.",
+   "fr": "Transfert réussi : {montant} envoyés à {nom}. Référence {reference}. Nouveau solde : {solde}."
+  },
+  "confirm_airtime": {
+   "text": "A sayi katin {montant} don lamba {numero}? Babu kuɗin aiki.",
+   "fr": "Acheter {montant} de crédit pour le {numero} ? Sans frais."
+  },
+  "airtime_done": {
+   "text": "An aika katin waya : {montant} zuwa {numero}. Sabon ma'auni : {solde}.",
+   "fr": "Crédit envoyé : {montant} au {numero}. Nouveau solde : {solde}."
+  },
+  "confirm_bill": {
+   "text": "A biya lissafin {fournisseur} na {montant}? Kuɗin aiki : {frais}. Jimilla : {total}.",
+   "fr": "Payer la facture {fournisseur} de {montant} ? Frais : {frais}. Total : {total}."
+  },
+  "bill_done": {
+   "text": "An biya lissafin {fournisseur} : {montant}. Sabon ma'auni : {solde}.",
+   "fr": "Facture {fournisseur} payée : {montant}. Nouveau solde : {solde}."
+  },
+  "confirm_withdraw": {
+   "text": "A cire {montant}? Kuɗin aiki : {frais}. Jimilla : {total}. Kun tabbatar?",
+   "fr": "Retirer {montant} ? Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "withdraw_done": {
+   "text": "An cire kuɗi : {montant}. Ku ɗauki kuɗin ku. Sabon ma'auni : {solde}.",
+   "fr": "Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}."
+  },
+  "insufficient": {
+   "text": "Kuɗin asusu bai isa ba. Kuna da {solde}, ana buƙatar {requis} har da kuɗin aiki. Ya rage {manque}. Ba a yi wata harka ba.",
+   "fr": "Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée."
+  },
+  "limit_exceeded": {
+   "text": "Wannan adadi ya wuce iyakar ku ta {plafond} a rana.",
+   "fr": "Ce montant dépasse votre plafond de {plafond} par jour."
+  },
+  "history_intro": {
+   "text": "Harkokin ku na baya-bayan nan :",
+   "fr": "Vos dernières opérations :"
+  },
+  "hist_sent": {
+   "text": "an aika",
+   "fr": "envoyé"
+  },
+  "hist_received": {
+   "text": "an karɓa",
+   "fr": "reçu"
+  },
+  "hist_airtime": {
+   "text": "katin waya",
+   "fr": "crédit"
+  },
+  "hist_bill": {
+   "text": "lissafin kuɗi",
+   "fr": "facture"
+  },
+  "hist_withdraw": {
+   "text": "cire kuɗi",
+   "fr": "retrait"
+  },
+  "cancelled": {
+   "text": "An soke harka. Ba a aika ko sisi ba.",
+   "fr": "Opération annulée. Aucun argent n’a été envoyé."
+  },
+  "language_switched": {
+   "text": "To, za mu ci gaba da {langue}.",
+   "fr": "D’accord, on continue en {langue}."
+  },
+  "help": {
+   "text": "Zan iya : faɗa muku ma'aunin kuɗi, aika kuɗi, bayyana kuɗin aiki, nuna tarihi, sayen katin waya, biyan lissafin kuɗi.",
+   "fr": "Je peux : donner votre solde, envoyer de l’argent, expliquer les frais, montrer l’historique, acheter du crédit, payer une facture."
+  },
+  "greeting": {
+   "text": "Barka da zuwa! Me kuke so ku yi? Duba ma'auni, aika kuɗi, kuɗin aiki ko tarihi.",
+   "fr": "Bonjour ! Que voulez-vous faire ? Solde, transfert, frais ou historique."
+  },
+  "not_understood": {
+   "text": "Ban fahimta ba. Za ku iya faɗa ta wata hanya?",
+   "fr": "Je n’ai pas compris. Pouvez-vous le dire autrement ?"
+  },
+  "which_language": {
+   "text": "Ban tabbatar da harshen ba. Da wane harshe kuke so mu ci gaba?",
+   "fr": "Je ne suis pas sûr de la langue. Dans quelle langue voulez-vous continuer ?"
+  },
+  "backend_error": {
+   "text": "Hidimar ba ta aiki a halin yanzu. Ba a yi wata harka ba. A sake gwadawa.",
+   "fr": "Le service est momentanément indisponible. Aucune opération n’a été effectuée. Réessayez."
+  },
+  "menu_confirm": {
+   "text": "Tabbatar",
+   "fr": "Confirmer"
+  },
+  "menu_cancel": {
+   "text": "Soke",
+   "fr": "Annuler"
+  },
+  "menu_balance": {
+   "text": "Ma'aunin kuɗi",
+   "fr": "Solde"
+  },
+  "menu_transfer": {
+   "text": "Aika kuɗi",
+   "fr": "Envoyer de l’argent"
+  },
+  "menu_fees": {
+   "text": "Kuɗin aiki",
+   "fr": "Frais"
+  },
+  "menu_history": {
+   "text": "Tarihi",
+   "fr": "Historique"
+  },
+  "menu_airtime": {
+   "text": "Katin waya",
+   "fr": "Crédit téléphonique"
+  },
+  "menu_bill": {
+   "text": "Biya lissafin kuɗi",
+   "fr": "Payer une facture"
+  },
+  "menu_withdraw": {
+   "text": "Cire kuɗi",
+   "fr": "Retrait"
+  },
+  "menu_language": {
+   "text": "Harshe",
+   "fr": "Langue"
+  },
+  "menu_more": {
+   "text": "Ci gaba",
+   "fr": "Suite"
+  },
+  "menu_free_text": {
+   "text": "Ko ku rubuta buƙatar ku",
+   "fr": "Ou écrivez votre demande"
+  }
+ }
+}

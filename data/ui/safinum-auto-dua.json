@@ -1,0 +1,495 @@
+{
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-duala-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "ecrans": {
+  "nav.home": {
+   "text": "Mboa",
+   "fr": "Accueil"
+  },
+  "nav.history": {
+   "text": "Myango",
+   "fr": "Historique"
+  },
+  "shell.greeting": {
+   "text": "Mbolo {name}",
+   "fr": "Bonjour {name}"
+  },
+  "common.loading": {
+   "text": "Di ma bwa...",
+   "fr": "Chargement"
+  },
+  "common.stop_listening": {
+   "text": "Telɛ langa",
+   "fr": "Arrêter la lecture"
+  },
+  "home.account": {
+   "text": "Kɔnt {phone}",
+   "fr": "Compte {phone}"
+  },
+  "home.quick_actions": {
+   "text": "Nje o ma pula bola ?",
+   "fr": "Que voulez-vous faire ?"
+  },
+  "home.action_transfer": {
+   "text": "Loma moni",
+   "fr": "Envoyer de l'argent"
+  },
+  "home.action_bill": {
+   "text": "Sawe faktu",
+   "fr": "Payer une facture"
+  },
+  "home.action_airtime": {
+   "text": "Anda kredi",
+   "fr": "Acheter du crédit"
+  },
+  "home.action_history": {
+   "text": "Mabola mam",
+   "fr": "Mes opérations"
+  },
+  "home.recent": {
+   "text": "Mabola ma sɔŋ",
+   "fr": "Dernières opérations"
+  },
+  "home.see_all": {
+   "text": "Jɛnɛ tɛsɛ",
+   "fr": "Tout voir"
+  },
+  "home.empty": {
+   "text": "To ebolo e titi nan.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "tx.transfer_out": {
+   "text": "E lomabe na {name}",
+   "fr": "Envoi à {name}"
+  },
+  "tx.transfer_in": {
+   "text": "E kusebe na {name}",
+   "fr": "Reçu de {name}"
+  },
+  "tx.airtime": {
+   "text": "Kredi {operator}",
+   "fr": "Crédit {operator}"
+  },
+  "tx.bill": {
+   "text": "Faktu {biller}",
+   "fr": "Facture {biller}"
+  },
+  "tx.status.confirmed": {
+   "text": "E bolabe",
+   "fr": "Effectuée"
+  },
+  "tx.status.pending": {
+   "text": "Di ma engele",
+   "fr": "En attente"
+  },
+  "tx.status.failed": {
+   "text": "E si bolabe",
+   "fr": "Échouée"
+  },
+  "tx.status.cancelled": {
+   "text": "E bɔisabe",
+   "fr": "Annulée"
+  },
+  "transfer.title": {
+   "text": "Loma moni",
+   "fr": "Envoyer de l'argent"
+  },
+  "transfer.saved": {
+   "text": "Bakuse moni bam",
+   "fr": "Mes bénéficiaires"
+  },
+  "transfer.to_hint": {
+   "text": "Nɔmba telefon to dina",
+   "fr": "Numéro de téléphone ou nom"
+  },
+  "transfer.amount_hint": {
+   "text": "Nate {max} o ebolo ewo",
+   "fr": "Jusqu'à {max} par opération"
+  },
+  "transfer.fee_preview": {
+   "text": "Moni ma ebolo : {fee}",
+   "fr": "Frais : {fee}"
+  },
+  "help.fee": {
+   "text": "Moni ma ebolo me nde moni bank e ma teye o bola ebolo.",
+   "fr": "Les frais sont la somme que la banque garde pour faire l'opération."
+  },
+  "help.limit": {
+   "text": "Muea me nde moni ma bwea o tano loma o pond'ewo.",
+   "fr": "Le plafond est le montant maximum que vous pouvez envoyer en une fois."
+  },
+  "help.beneficiary": {
+   "text": "Mukuse moni a nde moto nu ma kusa moni.",
+   "fr": "Le bénéficiaire est la personne qui reçoit l'argent."
+  },
+  "error.INSUFFICIENT_FUNDS": {
+   "text": "Moni ma si dongo : o ma bɛlɛ {missing}.",
+   "fr": "Solde insuffisant : il vous manque {missing}."
+  },
+  "error.UNKNOWN_BENEFICIARY": {
+   "text": "Mukuse moni a si sɔbe. Jombwa nɔmba to dina.",
+   "fr": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom."
+  },
+  "error.AMBIGUOUS_BENEFICIARY": {
+   "text": "Bato jita ba be na din dina. Pɔsɔ nu teŋgeŋ.",
+   "fr": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon."
+  },
+  "error.INVALID_AMOUNT": {
+   "text": "Moni ma si teŋgeŋ. Tila musoŋgi mwa bwam.",
+   "fr": "Montant invalide. Saisissez un nombre entier."
+  },
+  "error.LIMIT_EXCEEDED": {
+   "text": "Moni ma buki : muea me nde {max} o ebolo ewo.",
+   "fr": "Montant trop élevé : le plafond est de {max} par opération."
+  },
+  "error.UNKNOWN_BILLER": {
+   "text": "Ebolo e si biabe. Pɔsɔ o musoŋgi.",
+   "fr": "Service inconnu. Choisissez dans la liste."
+  },
+  "review.title": {
+   "text": "Jombwa bwam oboso bwa eme",
+   "fr": "Vérifiez avant de confirmer"
+  },
+  "review.service": {
+   "text": "Ebolo",
+   "fr": "Service"
+  },
+  "review.fee": {
+   "text": "Moni ma ebolo",
+   "fr": "Frais"
+  },
+  "review.balance_after": {
+   "text": "Moni ma diabe ombusa ebolo",
+   "fr": "Solde après l'opération"
+  },
+  "review.warning": {
+   "text": "Moni ma ma ala ponda o ma eme no.",
+   "fr": "L'argent part dès que vous confirmez."
+  },
+  "review.confirm": {
+   "text": "Eme",
+   "fr": "Confirmer"
+  },
+  "receipt.transfer": {
+   "text": "{amount} ma lomabe na {name}.",
+   "fr": "{amount} envoyés à {name}."
+  },
+  "receipt.bill": {
+   "text": "Faktu {biller} ya {amount} e sawabe.",
+   "fr": "Facture {biller} de {amount} payée."
+  },
+  "receipt.airtime": {
+   "text": "Kredi {operator} ya {amount} e lomabe o {phone}.",
+   "fr": "Crédit {operator} de {amount} envoyé au {phone}."
+  },
+  "receipt.reference": {
+   "text": "Nɔmba ebolo",
+   "fr": "Référence"
+  },
+  "receipt.new_balance": {
+   "text": "Moni ma peŋa",
+   "fr": "Nouveau solde"
+  },
+  "receipt.cancelled": {
+   "text": "Ebolo e bɔisabe. To moni mu si busabe.",
+   "fr": "Opération annulée. Rien n'a été débité."
+  },
+  "receipt.done": {
+   "text": "Bɔlɔ",
+   "fr": "Terminer"
+  },
+  "pay.tab_bill": {
+   "text": "Faktu",
+   "fr": "Factures"
+  },
+  "pay.tab_airtime": {
+   "text": "Kredi telefon",
+   "fr": "Crédit téléphone"
+  },
+  "pay.biller_label": {
+   "text": "Pɔsɔ ebolo",
+   "fr": "Choisissez le service"
+  },
+  "pay.phone_label": {
+   "text": "Nɔmba o wɛlɛ kredi",
+   "fr": "Numéro à recharger"
+  },
+  "pay.phone_hint": {
+   "text": "Nɔmba ŋgɔ to ya munaŋgɔ",
+   "fr": "Le vôtre ou celui d'un proche"
+  },
+  "pay.operator_label": {
+   "text": "Mulombe telefon",
+   "fr": "Opérateur"
+  },
+  "pay.operator_detected": {
+   "text": "Mulombe telefon a sɔbe : {operator}",
+   "fr": "Opérateur reconnu : {operator}"
+  },
+  "biller.ENEO": {
+   "text": "Wina (ENEO)",
+   "fr": "Électricité"
+  },
+  "biller.CAMWATER": {
+   "text": "Madiba (CAMWATER)",
+   "fr": "Eau"
+  },
+  "biller.CANAL": {
+   "text": "Televisɔŋ (CANAL)",
+   "fr": "Télévision"
+  },
+  "biller.CAMTEL": {
+   "text": "Internet na telefon",
+   "fr": "Internet et téléphone"
+  },
+  "history.filter_all": {
+   "text": "Tɛsɛ",
+   "fr": "Tout"
+  },
+  "history.filter_out": {
+   "text": "Ma busa",
+   "fr": "Sorties"
+  },
+  "history.filter_in": {
+   "text": "Ma iŋgɛlɛ",
+   "fr": "Entrées"
+  },
+  "history.empty": {
+   "text": "To ebolo e titi nan.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "shell.logout": {
+   "text": "Busa o kɔnt",
+   "fr": "Se déconnecter"
+  },
+  "atm.balance": {
+   "text": "Jombwa moni",
+   "fr": "Consulter le solde"
+  },
+  "atm.withdraw": {
+   "text": "Busa moni",
+   "fr": "Retrait espèces"
+  },
+  "history.col_date": {
+   "text": "Buña",
+   "fr": "Date"
+  },
+  "atm.bank": {
+   "text": "Bank Safinum",
+   "fr": "Banque Safinum"
+  },
+  "atm.cancel_hint": {
+   "text": "Bɔtɔn e bolea : bɔisɛ",
+   "fr": "Touche rouge : annuler"
+  },
+  "atm.welcome": {
+   "text": "Poa bwam",
+   "fr": "Bienvenue"
+  },
+  "atm.insert_card": {
+   "text": "Wɛlɛ karte aŋgɔ",
+   "fr": "Insérez votre carte"
+  },
+  "atm.available": {
+   "text": "Ebolo e be ponda tɛsɛ",
+   "fr": "Service disponible 24h/24"
+  },
+  "atm.pin_title": {
+   "text": "Tila nɔmba aŋgɔ ya jita",
+   "fr": "Saisissez votre code secret"
+  },
+  "atm.pin_hide": {
+   "text": "Wuta matila na dia lɔŋgɔ",
+   "fr": "Cachez le clavier avec votre main"
+  },
+  "atm.pin_confirm": {
+   "text": "Ombusa nika ñɛmsɛ bɔtɔn ya mpololo",
+   "fr": "Puis appuyez sur la touche verte"
+  },
+  "atm.menu_title": {
+   "text": "Pɔsɔ ebolo ewo",
+   "fr": "Choisissez une opération"
+  },
+  "atm.key_statement": {
+   "text": "Myango ma sɔŋ",
+   "fr": "Mini-relevé"
+  },
+  "atm.key_exit": {
+   "text": "Timbisɛ karte",
+   "fr": "Rendre la carte"
+  }
+ },
+ "reponses": {
+  "balance": {
+   "text": "Moni mɔŋgɔ ma diabe me nde {solde}.",
+   "fr": "Votre solde disponible est de {solde}."
+  },
+  "fee_quote": {
+   "text": "O loma {montant}, moni ma ebolo me nde {frais}. Tɛsɛ, {total} ma ma busabe o kɔnt aŋgɔ.",
+   "fr": "Pour envoyer {montant}, les frais sont de {frais}. Au total, {total} seront retirés de votre compte."
+  },
+  "ask_amount": {
+   "text": "Moni ninge o ma pula loma ?",
+   "fr": "Quel montant voulez-vous envoyer ?"
+  },
+  "ask_amount_to": {
+   "text": "Moni ninge o ma pula loma na {nom} ?",
+   "fr": "Quel montant voulez-vous envoyer à {nom} ?"
+  },
+  "ask_beneficiary": {
+   "text": "Nja o ma pula loma {montant} ? Bola dina to nɔmba.",
+   "fr": "À qui voulez-vous envoyer {montant} ? Donnez un nom ou un numéro."
+  },
+  "ask_which": {
+   "text": "Bato jita ba be na din dina. Nja o ma pɔsɔ ?",
+   "fr": "Plusieurs personnes portent ce nom. Laquelle ?"
+  },
+  "ask_intent": {
+   "text": "Na si sɔŋtane bwam. O ma pula jombwa moni mɔŋgɔ, loma moni, bia moni ma ebolo, to jombwa myango ?",
+   "fr": "Je n’ai pas bien compris. Voulez-vous voir votre solde, envoyer de l’argent, connaître les frais ou voir votre historique ?"
+  },
+  "confirm_transfer": {
+   "text": "O ma ala loma {montant} na {nom} ({numero}). Moni ma ebolo : {frais}. Tɛsɛ : {total}. O ma eme ?",
+   "fr": "Vous allez envoyer {montant} à {nom} ({numero}). Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "corrected": {
+   "text": "Di teŋgisabe.",
+   "fr": "C’est corrigé."
+  },
+  "transfer_done": {
+   "text": "Ebolo e bolabe : {montant} ma lomabe na {nom}. Nɔmba ebolo {reference}. Moni ma peŋa : {solde}.",
+   "fr": "Transfert réussi : {montant} envoyés à {nom}. Référence {reference}. Nouveau solde : {solde}."
+  },
+  "confirm_airtime": {
+   "text": "Anda {montant} ma kredi o {numero} ? To moni ma ebolo ma titi.",
+   "fr": "Acheter {montant} de crédit pour le {numero} ? Sans frais."
+  },
+  "airtime_done": {
+   "text": "Kredi e lomabe : {montant} o {numero}. Moni ma peŋa : {solde}.",
+   "fr": "Crédit envoyé : {montant} au {numero}. Nouveau solde : {solde}."
+  },
+  "confirm_bill": {
+   "text": "Sawe faktu {fournisseur} ya {montant} ? Moni ma ebolo : {frais}. Tɛsɛ : {total}.",
+   "fr": "Payer la facture {fournisseur} de {montant} ? Frais : {frais}. Total : {total}."
+  },
+  "bill_done": {
+   "text": "Faktu {fournisseur} e sawabe : {montant}. Moni ma peŋa : {solde}.",
+   "fr": "Facture {fournisseur} payée : {montant}. Nouveau solde : {solde}."
+  },
+  "confirm_withdraw": {
+   "text": "Busa {montant} ? Moni ma ebolo : {frais}. Tɛsɛ : {total}. O ma eme ?",
+   "fr": "Retirer {montant} ? Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "withdraw_done": {
+   "text": "Moni mu busabe : {montant}. Kusa moni mɔŋgɔ. Moni ma peŋa : {solde}.",
+   "fr": "Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}."
+  },
+  "insufficient": {
+   "text": "Moni ma si dongo. O be na {solde}, di ma pula {requis} na moni ma ebolo. O ma bɛlɛ {manque}. To ebolo e si bolabe.",
+   "fr": "Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée."
+  },
+  "limit_exceeded": {
+   "text": "Min moni mi buki muea mɔŋgɔ mwa {plafond} o buña bwo.",
+   "fr": "Ce montant dépasse votre plafond de {plafond} par jour."
+  },
+  "history_intro": {
+   "text": "Mabola mɔŋgɔ ma sɔŋ :",
+   "fr": "Vos dernières opérations :"
+  },
+  "hist_sent": {
+   "text": "e lomabe",
+   "fr": "envoyé"
+  },
+  "hist_received": {
+   "text": "e kusebe",
+   "fr": "reçu"
+  },
+  "hist_airtime": {
+   "text": "kredi",
+   "fr": "crédit"
+  },
+  "hist_bill": {
+   "text": "faktu",
+   "fr": "facture"
+  },
+  "hist_withdraw": {
+   "text": "busa moni",
+   "fr": "retrait"
+  },
+  "cancelled": {
+   "text": "Ebolo e bɔisabe. To moni mu si lomabe.",
+   "fr": "Opération annulée. Aucun argent n’a été envoyé."
+  },
+  "language_switched": {
+   "text": "E, di ma benga na {langue}.",
+   "fr": "D’accord, on continue en {langue}."
+  },
+  "help": {
+   "text": "Na tano : bola moni mɔŋgɔ, loma moni, tɔpɔ ońola moni ma ebolo, lee myango, anda kredi, sawe faktu.",
+   "fr": "Je peux : donner votre solde, envoyer de l’argent, expliquer les frais, montrer l’historique, acheter du crédit, payer une facture."
+  },
+  "greeting": {
+   "text": "Mbolo ! Nje o ma pula bola ? Moni ma kɔnt, loma moni, moni ma ebolo to myango.",
+   "fr": "Bonjour ! Que voulez-vous faire ? Solde, transfert, frais ou historique."
+  },
+  "not_understood": {
+   "text": "Na si sɔŋtane. O tano kwalane na mbadi epepe ?",
+   "fr": "Je n’ai pas compris. Pouvez-vous le dire autrement ?"
+  },
+  "which_language": {
+   "text": "Na si bi eyala bwam. O njika eyala o ma pula benga ?",
+   "fr": "Je ne suis pas sûr de la langue. Dans quelle langue voulez-vous continuer ?"
+  },
+  "backend_error": {
+   "text": "Ebolo e titi nan. To ebolo e si bolabe. Botea pɛtɛ.",
+   "fr": "Le service est momentanément indisponible. Aucune opération n’a été effectuée. Réessayez."
+  },
+  "menu_confirm": {
+   "text": "Eme",
+   "fr": "Confirmer"
+  },
+  "menu_cancel": {
+   "text": "Bɔisɛ",
+   "fr": "Annuler"
+  },
+  "menu_balance": {
+   "text": "Moni ma kɔnt",
+   "fr": "Solde"
+  },
+  "menu_transfer": {
+   "text": "Loma moni",
+   "fr": "Envoyer de l’argent"
+  },
+  "menu_fees": {
+   "text": "Moni ma ebolo",
+   "fr": "Frais"
+  },
+  "menu_history": {
+   "text": "Myango",
+   "fr": "Historique"
+  },
+  "menu_airtime": {
+   "text": "Kredi telefon",
+   "fr": "Crédit téléphonique"
+  },
+  "menu_bill": {
+   "text": "Sawe faktu",
+   "fr": "Payer une facture"
+  },
+  "menu_withdraw": {
+   "text": "Busa moni",
+   "fr": "Retrait"
+  },
+  "menu_language": {
+   "text": "Eyala",
+   "fr": "Langue"
+  },
+  "menu_more": {
+   "text": "Oboso",
+   "fr": "Suite"
+  },
+  "menu_free_text": {
+   "text": "To tila nje o ma pula",
+   "fr": "Ou écrivez votre demande"
+  }
+ }
+}

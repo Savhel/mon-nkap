@@ -98,3 +98,21 @@ ouverte à tous, pour éviter les fausses données :
    `collecte/<langue>/<feuille>.csv` en brouillon (auteur = pseudonyme, sans relecteur) : elle ne
    devient validée qu’après la relecture d’un second natif. L’audio d’une demande acceptée rejoint
    `data/audio/<langue>/demandes/` et son `labels.csv`, pour `tools/eval-voice.ts`.
+
+## Traductions automatiques non relues (28 novembre)
+
+Pour que les écrans de la sandbox SAFINUM (mobile, web, guichet) et les réponses de conversation ne retombent pas sur le
+français, des traductions **automatiques, non relues par un locuteur** comblent les manques, dans des fichiers séparés :
+`data/ui/safinum-auto-<langue>.json`.
+
+| Règle | Effet |
+|---|---|
+| Ordre | texte de natif, puis libellé Mboa, puis **automatique non relu**, puis français |
+| Garde-fous | mêmes repères (`{name}`, `{montant}`…), aucun chiffre ajouté, longueur maximale respectée ; sinon le français |
+| Montants | toujours insérés par le système, jamais écrits par la traduction |
+| Traçabilité | comptés à part dans le journal (« automatiques non relus ») ; réponses de conversation marquées `quality: machine` |
+| Désactivation | `CT_AUTO_TEXTS=0` |
+
+Couverture des écrans (105 textes) : basaa, bulu, ghomala', medumba, haoussa, ewondo et duala sont couverts presque
+entièrement par ces textes automatiques ; fulfulde et pidgin le sont par les natives (5 et 1 textes automatiques).
+Chaque texte automatique doit être relu par un locuteur avant d'être considéré comme fiable.

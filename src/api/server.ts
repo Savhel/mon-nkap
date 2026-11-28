@@ -603,7 +603,7 @@ export function createApp(engine?: Engine, opts: AppOptions = {}) {
         // Mobile et web du bac à sable : traduction des écrans de l'application, pas de conversation.
         if (b.type === 'ui_translation' || (b.strings && typeof b.strings === 'object' && !b.input)) {
           const { stats, ...screen } = await translateUiScreen({ language: b.language, source_language: b.source_language, screen: b.screen, strings: b.strings });
-          console.log(`SAFINUM écran ${b.screen ?? '?'} (${b.channel ?? '?'}) → ${screen.language} : ${stats.curated} relus, ${stats.native} natifs, ${stats.machine} automatiques, ${stats.french} en français`);
+          console.log(`SAFINUM écran ${b.screen ?? '?'} (${b.channel ?? '?'}) → ${screen.language} : ${stats.curated} relus, ${stats.native} natifs, ${stats.auto} automatiques non relus, ${stats.machine} traducteur local, ${stats.french} en français`);
           return json(res, 200, screen);
         }
         const traceId = String(b.trace_id ?? req.headers['x-trace-id'] ?? '').trim();

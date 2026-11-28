@@ -17,6 +17,7 @@ import { normalize } from '../core/text.ts';
 import { allowDraft } from '../linguistics/pack.ts';
 import { mboaTranslate } from '../linguistics/mboa-compose.ts';
 import { nativeResponse } from '../core/respond.ts';
+import { autoScreenText } from '../linguistics/auto-texts.ts';
 import { frenchTo, MT_ROUTES } from '../mt/flagship.ts';
 
 export interface UiString { text: string; context?: string; max_chars?: number | null }
@@ -117,7 +118,7 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
   const asked = typeof req.language === 'string' && req.language.trim() ? req.language.trim().toLowerCase() : null;
   const lang = asked ? ALIASES[asked] ?? asked : null;
   const out: Record<string, string> = {};
-  const stats = { curated: 0, native: 0, machine: 0, french: 0 };
+  const stats = { curated: 0, native: 0, auto: 0, machine: 0, french: 0 };
   // Langue absente (rien à détecter sur des textes d'écran) ou français : on rend le français.
   if (!lang || lang === 'fr') {
     for (const [k, s] of Object.entries(strings)) out[k] = s.text;
@@ -135,6 +136,8 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
     if (fits(s.text, mboa?.text, s.max_chars)) { out[k] = mboa!.text; stats.native++; continue; }
     const same = SAME_AS[k] ? nativeResponse(lang, SAME_AS[k]) : null;
     if (fits(s.text, same, s.max_chars)) { out[k] = same!; stats.native++; continue; }
+    const auto = autoScreenText(lang, k, s.text);
+    if (fits(s.text, auto, s.max_chars)) { out[k] = auto!; stats.auto++; continue; }
     if (fits(s.text, cache[s.text], s.max_chars)) { out[k] = cache[s.text]; stats.machine++; continue; }
     out[k] = s.text;
     misses.push([k, s]);
@@ -156,6 +159,6 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
     clearTimeout(timer);
     Object.assign(out, result);
   }
-  stats.french = Object.keys(strings).length - stats.curated - stats.native - stats.machine;
+  stats.french = Object.keys(strings).length - stats.curated - stats.native - stats.auto - stats.machine;
   return { language: asked!, strings: out, stats };
 }

@@ -1,0 +1,599 @@
+{
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-bulu-banque-v3.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit. Repères {…} traduits par erreur remis à l'identique d'après la feuille Correspondance_Variables du même fichier.",
+ "ecrans": {
+  "nav.home": {
+   "text": "Nsoan",
+   "fr": "Accueil"
+  },
+  "nav.transfer": {
+   "text": "Lôm",
+   "fr": "Envoyer"
+  },
+  "nav.pay": {
+   "text": "Ya’an",
+   "fr": "Payer"
+  },
+  "nav.history": {
+   "text": "Mame me nga",
+   "fr": "Historique"
+  },
+  "shell.greeting": {
+   "text": "Mbolo a {name}",
+   "fr": "Bonjour {name}"
+  },
+  "common.back": {
+   "text": "Bulan mvus",
+   "fr": "Retour"
+  },
+  "common.continue": {
+   "text": "Ke ôsu",
+   "fr": "Continuer"
+  },
+  "common.cancel": {
+   "text": "Tyam",
+   "fr": "Annuler"
+  },
+  "common.loading": {
+   "text": "É nga kôman",
+   "fr": "Chargement"
+  },
+  "common.listen": {
+   "text": "Vô’ôlô",
+   "fr": "Écouter"
+  },
+  "common.stop_listening": {
+   "text": "Telé nlaŋan",
+   "fr": "Arrêter la lecture"
+  },
+  "home.balance_label": {
+   "text": "Moni a li’i",
+   "fr": "Solde disponible"
+  },
+  "home.account": {
+   "text": "Nlaŋ {phone}",
+   "fr": "Compte {phone}"
+  },
+  "home.quick_actions": {
+   "text": "Wo kômbô bo jé ?",
+   "fr": "Que voulez-vous faire ?"
+  },
+  "home.action_transfer": {
+   "text": "Lôm moni",
+   "fr": "Envoyer de l'argent"
+  },
+  "home.action_bill": {
+   "text": "Ya’an faktu",
+   "fr": "Payer une facture"
+  },
+  "home.action_airtime": {
+   "text": "Kus kredi",
+   "fr": "Acheter du crédit"
+  },
+  "home.action_history": {
+   "text": "Bisaé biam",
+   "fr": "Mes opérations"
+  },
+  "home.recent": {
+   "text": "Bisaé bi ndôme boban",
+   "fr": "Dernières opérations"
+  },
+  "home.see_all": {
+   "text": "Yen bise",
+   "fr": "Tout voir"
+  },
+  "home.empty": {
+   "text": "Ésaé éziñ é ngenan te boban.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "tx.transfer_out": {
+   "text": "Nlôman be {name}",
+   "fr": "Envoi à {name}"
+  },
+  "tx.transfer_in": {
+   "text": "Nyoñan be {name}",
+   "fr": "Reçu de {name}"
+  },
+  "tx.airtime": {
+   "text": "Kredi {operator}",
+   "fr": "Crédit {operator}"
+  },
+  "tx.bill": {
+   "text": "Faktu {biller}",
+   "fr": "Facture {biller}"
+  },
+  "tx.withdrawal": {
+   "text": "Mvaan moni",
+   "fr": "Retrait"
+  },
+  "tx.status.confirmed": {
+   "text": "É bobaneya",
+   "fr": "Effectuée"
+  },
+  "tx.status.pending": {
+   "text": "É nga yange",
+   "fr": "En attente"
+  },
+  "tx.status.failed": {
+   "text": "É ku",
+   "fr": "Échouée"
+  },
+  "tx.status.cancelled": {
+   "text": "É tyamebaneya",
+   "fr": "Annulée"
+  },
+  "transfer.title": {
+   "text": "Lôm moni",
+   "fr": "Envoyer de l'argent"
+  },
+  "transfer.saved": {
+   "text": "Bôt bam be nga nyoñ moni",
+   "fr": "Mes bénéficiaires"
+  },
+  "transfer.to_label": {
+   "text": "Môt a nyoñ moni",
+   "fr": "Bénéficiaire"
+  },
+  "transfer.to_hint": {
+   "text": "Nlaŋ téléfôn nge ke jôé",
+   "fr": "Numéro de téléphone ou nom"
+  },
+  "transfer.amount_label": {
+   "text": "Abim moni",
+   "fr": "Montant"
+  },
+  "transfer.amount_hint": {
+   "text": "Akekui {max} ésaé jia",
+   "fr": "Jusqu'à {max} par opération"
+  },
+  "transfer.fee_preview": {
+   "text": "Moni ésaé : {fee}",
+   "fr": "Frais : {fee}"
+  },
+  "help.fee": {
+   "text": "Moni ésaé a ne moni ndá moni ja ba’ale asu na é bo ésaé.",
+   "fr": "Les frais sont la somme que la banque garde pour faire l'opération."
+  },
+  "help.limit": {
+   "text": "Minné a ne abim moni ô ne lôm éyoñ jia.",
+   "fr": "Le plafond est le montant maximum que vous pouvez envoyer en une fois."
+  },
+  "help.beneficiary": {
+   "text": "Môt a nyoñ a ne nyô a bi moni.",
+   "fr": "Le bénéficiaire est la personne qui reçoit l'argent."
+  },
+  "error.INSUFFICIENT_FUNDS": {
+   "text": "Moni a ne tyôtyoé : a jemban {missing}.",
+   "fr": "Solde insuffisant : il vous manque {missing}."
+  },
+  "error.UNKNOWN_BENEFICIARY": {
+   "text": "Bi nji yen môt ate. Fombô’ô nlaŋ nge ke jôé.",
+   "fr": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom."
+  },
+  "error.AMBIGUOUS_BENEFICIARY": {
+   "text": "Abui bôt be bili jôé di. Tobe’e nyô a ne nya môtô.",
+   "fr": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon."
+  },
+  "error.INVALID_AMOUNT": {
+   "text": "Abim moni é nji bo mvo’é. Tili’i nlaŋ ô ne ngum.",
+   "fr": "Montant invalide. Saisissez un nombre entier."
+  },
+  "error.LIMIT_EXCEEDED": {
+   "text": "Abim moni é lôteya minné : minné ô ne {max} ésaé jia.",
+   "fr": "Montant trop élevé : le plafond est de {max} par opération."
+  },
+  "error.UNKNOWN_BILLER": {
+   "text": "Ésaé é nji yembane. Tobe’e e kalate été.",
+   "fr": "Service inconnu. Choisissez dans la liste."
+  },
+  "error.GENERIC": {
+   "text": "Ésaé é nji boban. Beta’a ve’ele.",
+   "fr": "L'opération n'a pas abouti. Réessayez."
+  },
+  "review.title": {
+   "text": "Fombô’ô ôsusua na wo ka’a",
+   "fr": "Vérifiez avant de confirmer"
+  },
+  "review.to": {
+   "text": "Môt a nyoñ",
+   "fr": "Destinataire"
+  },
+  "review.service": {
+   "text": "Ésaé",
+   "fr": "Service"
+  },
+  "review.amount": {
+   "text": "Abim moni",
+   "fr": "Montant"
+  },
+  "review.fee": {
+   "text": "Moni ésaé",
+   "fr": "Frais"
+  },
+  "review.total": {
+   "text": "Moni ase a kôlô",
+   "fr": "Total débité"
+  },
+  "review.balance_after": {
+   "text": "Moni a li’i mvus ésaé",
+   "fr": "Solde après l'opération"
+  },
+  "review.warning": {
+   "text": "Moni a ke avôl éyoñ wo ka’a.",
+   "fr": "L'argent part dès que vous confirmez."
+  },
+  "review.confirm": {
+   "text": "Ka’a",
+   "fr": "Confirmer"
+  },
+  "review.edit": {
+   "text": "Tyendé",
+   "fr": "Modifier"
+  },
+  "receipt.success": {
+   "text": "Ésaé é bobaneya mvo’é",
+   "fr": "Opération réussie"
+  },
+  "receipt.transfer": {
+   "text": "{amount} be lômeya be {name}.",
+   "fr": "{amount} envoyés à {name}."
+  },
+  "receipt.bill": {
+   "text": "Faktu {biller} ya {amount} a ya’aneya.",
+   "fr": "Facture {biller} de {amount} payée."
+  },
+  "receipt.airtime": {
+   "text": "Kredi {operator} ya {amount} a lômeya be {phone}.",
+   "fr": "Crédit {operator} de {amount} envoyé au {phone}."
+  },
+  "receipt.reference": {
+   "text": "Nlaŋ ésaé",
+   "fr": "Référence"
+  },
+  "receipt.new_balance": {
+   "text": "Mfefé moni a li’i",
+   "fr": "Nouveau solde"
+  },
+  "receipt.cancelled": {
+   "text": "Ésaé é tyamebaneya. Moni éziñ a nji kôlô.",
+   "fr": "Opération annulée. Rien n'a été débité."
+  },
+  "receipt.done": {
+   "text": "Maneya",
+   "fr": "Terminer"
+  },
+  "pay.title": {
+   "text": "Ya’an",
+   "fr": "Payer"
+  },
+  "pay.tab_bill": {
+   "text": "Faktu",
+   "fr": "Factures"
+  },
+  "pay.tab_airtime": {
+   "text": "Kredi téléfôn",
+   "fr": "Crédit téléphone"
+  },
+  "pay.biller_label": {
+   "text": "Tobe’e ésaé",
+   "fr": "Choisissez le service"
+  },
+  "pay.phone_label": {
+   "text": "Nlaŋ ya fô’ô kredi",
+   "fr": "Numéro à recharger"
+  },
+  "pay.phone_hint": {
+   "text": "Nlaŋ wôé nge ke wu môt wôé",
+   "fr": "Le vôtre ou celui d'un proche"
+  },
+  "pay.operator_label": {
+   "text": "Nsamba téléfôn",
+   "fr": "Opérateur"
+  },
+  "pay.operator_detected": {
+   "text": "Nsamba téléfôn : {operator}",
+   "fr": "Opérateur reconnu : {operator}"
+  },
+  "pay.amount_label": {
+   "text": "Abim moni",
+   "fr": "Montant"
+  },
+  "biller.ENEO": {
+   "text": "Ndôñ",
+   "fr": "Électricité"
+  },
+  "biller.CAMWATER": {
+   "text": "Mendim",
+   "fr": "Eau"
+  },
+  "biller.CANAL": {
+   "text": "Télévizyôñ",
+   "fr": "Télévision"
+  },
+  "biller.CAMTEL": {
+   "text": "Intanét a téléfôn",
+   "fr": "Internet et téléphone"
+  },
+  "history.title": {
+   "text": "Mame me nga boban",
+   "fr": "Historique"
+  },
+  "history.filter_all": {
+   "text": "Bise",
+   "fr": "Tout"
+  },
+  "history.filter_out": {
+   "text": "Moni a kui",
+   "fr": "Sorties"
+  },
+  "history.filter_in": {
+   "text": "Moni a nyiin",
+   "fr": "Entrées"
+  },
+  "history.empty": {
+   "text": "Ésaé éziñ é ngenan te boban.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "shell.logout": {
+   "text": "Kui",
+   "fr": "Se déconnecter"
+  },
+  "shell.secure": {
+   "text": "Ésaé é ne mvo’é",
+   "fr": "Connexion sécurisée"
+  },
+  "atm.balance": {
+   "text": "Yen moni a li’i",
+   "fr": "Consulter le solde"
+  },
+  "atm.withdraw": {
+   "text": "Vaa moni",
+   "fr": "Retrait espèces"
+  },
+  "history.col_date": {
+   "text": "Môs",
+   "fr": "Date"
+  },
+  "history.col_label": {
+   "text": "Ésaé",
+   "fr": "Opération"
+  },
+  "history.col_amount": {
+   "text": "Abim moni",
+   "fr": "Montant"
+  },
+  "history.col_status": {
+   "text": "Été",
+   "fr": "Statut"
+  },
+  "atm.bank": {
+   "text": "Ndá Moni Safinum",
+   "fr": "Banque Safinum"
+  },
+  "atm.cancel_hint": {
+   "text": "Évele édo’o : tyam",
+   "fr": "Touche rouge : annuler"
+  },
+  "atm.please_wait": {
+   "text": "Bô’ô",
+   "fr": "Veuillez patienter"
+  },
+  "atm.welcome": {
+   "text": "Mba’a nsoan",
+   "fr": "Bienvenue"
+  },
+  "atm.insert_card": {
+   "text": "Futi’i kat jôé",
+   "fr": "Insérez votre carte"
+  },
+  "atm.available": {
+   "text": "Ésaé é ne môs a alu",
+   "fr": "Service disponible 24h/24"
+  },
+  "atm.pin_title": {
+   "text": "Tili’i nlaŋ asoé wôé",
+   "fr": "Saisissez votre code secret"
+  },
+  "atm.pin_hide": {
+   "text": "Buti’i bido’o a wo wôé",
+   "fr": "Cachez le clavier avec votre main"
+  },
+  "atm.pin_confirm": {
+   "text": "Mvus te, tindi’i édo’o é ne kôé",
+   "fr": "Puis appuyez sur la touche verte"
+  },
+  "atm.menu_title": {
+   "text": "Tobe’e ésaé jia",
+   "fr": "Choisissez une opération"
+  },
+  "atm.key_withdraw": {
+   "text": "Vaa moni",
+   "fr": "Retrait"
+  },
+  "atm.key_balance": {
+   "text": "Moni a li’i",
+   "fr": "Solde"
+  },
+  "atm.key_statement": {
+   "text": "Étyun kalate moni",
+   "fr": "Mini-relevé"
+  },
+  "atm.key_exit": {
+   "text": "Nyoñ kat jôé",
+   "fr": "Rendre la carte"
+  }
+ },
+ "reponses": {
+  "balance": {
+   "text": "Moni a li’i nlaŋ wôé a ne {solde}.",
+   "fr": "Votre solde disponible est de {solde}."
+  },
+  "fee_quote": {
+   "text": "Asu na ô lôm {montant}, moni ésaé a ne {frais}. Moni ase a ye kôlô nlaŋ wôé a ne {total}.",
+   "fr": "Pour envoyer {montant}, les frais sont de {frais}. Au total, {total} seront retirés de votre compte."
+  },
+  "ask_amount": {
+   "text": "Abim moni avé wo kômbô lôm ?",
+   "fr": "Quel montant voulez-vous envoyer ?"
+  },
+  "ask_amount_to": {
+   "text": "Abim moni avé wo kômbô lôm be {nom} ?",
+   "fr": "Quel montant voulez-vous envoyer à {nom} ?"
+  },
+  "ask_beneficiary": {
+   "text": "Za wo kômbô lôm {montant} ? Va’a jôé nge ke nlaŋ téléfôn.",
+   "fr": "À qui voulez-vous envoyer {montant} ? Donnez un nom ou un numéro."
+  },
+  "ask_which": {
+   "text": "Abui bôt be bili jôé di. Nyô avé ?",
+   "fr": "Plusieurs personnes portent ce nom. Laquelle ?"
+  },
+  "ask_intent": {
+   "text": "Me nji wô’ô mvo’é. Ye wo kômbô yen moni a li’i, lôm moni, yem moni ésaé, nge ke yen mame me nga boban ?",
+   "fr": "Je n’ai pas bien compris. Voulez-vous voir votre solde, envoyer de l’argent, connaître les frais ou voir votre historique ?"
+  },
+  "confirm_transfer": {
+   "text": "Wo zu lôm {montant} be {nom} ({numero}). Moni ésaé : {frais}. Moni ase : {total}. Ye wo ka’a ?",
+   "fr": "Vous allez envoyer {montant} à {nom} ({numero}). Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "corrected": {
+   "text": "É kômebaneya.",
+   "fr": "C’est corrigé."
+  },
+  "transfer_done": {
+   "text": "Nlôman ô bobaneya mvo’é : {montant} be lômeya be {nom}. Nlaŋ ésaé {reference}. Mfefé moni a li’i : {solde}.",
+   "fr": "Transfert réussi : {montant} envoyés à {nom}. Référence {reference}. Nouveau solde : {solde}."
+  },
+  "confirm_airtime": {
+   "text": "Kus kredi ya {montant} asu {numero} ? Moni ésaé a nji bo.",
+   "fr": "Acheter {montant} de crédit pour le {numero} ? Sans frais."
+  },
+  "airtime_done": {
+   "text": "Kredi a lômeya : {montant} be {numero}. Mfefé moni a li’i : {solde}.",
+   "fr": "Crédit envoyé : {montant} au {numero}. Nouveau solde : {solde}."
+  },
+  "confirm_bill": {
+   "text": "Ya’an faktu {fournisseur} ya {montant} ? Moni ésaé : {frais}. Moni ase : {total}.",
+   "fr": "Payer la facture {fournisseur} de {montant} ? Frais : {frais}. Total : {total}."
+  },
+  "bill_done": {
+   "text": "Faktu {fournisseur} a ya’aneya : {montant}. Mfefé moni a li’i : {solde}.",
+   "fr": "Facture {fournisseur} payée : {montant}. Nouveau solde : {solde}."
+  },
+  "confirm_withdraw": {
+   "text": "Vaa {montant} ? Moni ésaé : {frais}. Moni ase : {total}. Ye wo ka’a ?",
+   "fr": "Retirer {montant} ? Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "withdraw_done": {
+   "text": "Mvaan moni ô bobaneya : {montant}. Nyoñek moni wôé. Mfefé moni a li’i : {solde}.",
+   "fr": "Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}."
+  },
+  "insufficient": {
+   "text": "Moni a ne tyôtyoé. Ô bili {solde}, a yian {requis} a moni ésaé. A jemban {manque}. Ésaé éziñ é nji boban.",
+   "fr": "Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée."
+  },
+  "limit_exceeded": {
+   "text": "Abim moni di é lôteya minné wôé ya {plafond} môs wua.",
+   "fr": "Ce montant dépasse votre plafond de {plafond} par jour."
+  },
+  "history_intro": {
+   "text": "Bisaé biôé bi ndôme boban :",
+   "fr": "Vos dernières opérations :"
+  },
+  "hist_sent": {
+   "text": "nlôman",
+   "fr": "envoyé"
+  },
+  "hist_received": {
+   "text": "nyoñan",
+   "fr": "reçu"
+  },
+  "hist_airtime": {
+   "text": "kredi",
+   "fr": "crédit"
+  },
+  "hist_bill": {
+   "text": "faktu",
+   "fr": "facture"
+  },
+  "hist_withdraw": {
+   "text": "mvaan moni",
+   "fr": "retrait"
+  },
+  "cancelled": {
+   "text": "Ésaé é tyamebaneya. Moni éziñ a nji lômeban.",
+   "fr": "Opération annulée. Aucun argent n’a été envoyé."
+  },
+  "language_switched": {
+   "text": "Mvo’é, bi nga ke ôsu a {langue}.",
+   "fr": "D’accord, on continue en {langue}."
+  },
+  "help": {
+   "text": "Me ne : kate wo moni a li’i, lôm moni, timine moni ésaé, liti mame me nga boban, kus kredi, ya’an faktu.",
+   "fr": "Je peux : donner votre solde, envoyer de l’argent, expliquer les frais, montrer l’historique, acheter du crédit, payer une facture."
+  },
+  "greeting": {
+   "text": "Mbolo ! Wo kômbô bo jé ? Moni a li’i, nlôman, moni ésaé nge ke mame me nga boban.",
+   "fr": "Bonjour ! Que voulez-vous faire ? Solde, transfert, frais ou historique."
+  },
+  "not_understood": {
+   "text": "Me nji wô’ô. Ye ô ne beta’a jô aval afe ?",
+   "fr": "Je n’ai pas compris. Pouvez-vous le dire autrement ?"
+  },
+  "which_language": {
+   "text": "Me nji kôme yem nkobô. Nkobô avé wo kômbô ke ôsu ?",
+   "fr": "Je ne suis pas sûr de la langue. Dans quelle langue voulez-vous continuer ?"
+  },
+  "backend_error": {
+   "text": "Ésaé é nji bo éyoñ ji. Ésaé éziñ é nji boban. Beta’a ve’ele.",
+   "fr": "Le service est momentanément indisponible. Aucune opération n’a été effectuée. Réessayez."
+  },
+  "menu_confirm": {
+   "text": "Ka’a",
+   "fr": "Confirmer"
+  },
+  "menu_cancel": {
+   "text": "Tyam",
+   "fr": "Annuler"
+  },
+  "menu_balance": {
+   "text": "Moni a li’i",
+   "fr": "Solde"
+  },
+  "menu_transfer": {
+   "text": "Lôm moni",
+   "fr": "Envoyer de l’argent"
+  },
+  "menu_fees": {
+   "text": "Moni ésaé",
+   "fr": "Frais"
+  },
+  "menu_history": {
+   "text": "Mame me nga boban",
+   "fr": "Historique"
+  },
+  "menu_airtime": {
+   "text": "Kredi téléfôn",
+   "fr": "Crédit téléphonique"
+  },
+  "menu_bill": {
+   "text": "Ya’an faktu",
+   "fr": "Payer une facture"
+  },
+  "menu_withdraw": {
+   "text": "Vaa moni",
+   "fr": "Retrait"
+  },
+  "menu_language": {
+   "text": "Nkobô",
+   "fr": "Langue"
+  },
+  "menu_more": {
+   "text": "Éyoñ éfe",
+   "fr": "Suite"
+  },
+  "menu_free_text": {
+   "text": "Nge ke tili’i jôm wo yi",
+   "fr": "Ou écrivez votre demande"
+  }
+ }
+}

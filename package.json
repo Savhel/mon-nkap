@@ -4,7 +4,7 @@
   "description": "Moteur linguistique financier multicanal pour les langues nationales du Cameroun",
   "scripts": {
     "start": "node src/api/server.ts",
-    "test": "node --test tests/*.test.ts",
+    "test": "CT_AUTO_TEXTS=0 node --test tests/*.test.ts",
     "typecheck": "tsc",
     "models": "node tools/fetch-models.ts",
     "import-mboa": "node tools/import-mboa-pack.mjs",

@@ -1,0 +1,599 @@
+{
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-medumba-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "ecrans": {
+  "nav.home": {
+   "text": "Ndɑ́",
+   "fr": "Accueil"
+  },
+  "nav.transfer": {
+   "text": "Tʉ́m",
+   "fr": "Envoyer"
+  },
+  "nav.pay": {
+   "text": "Sà’",
+   "fr": "Payer"
+  },
+  "nav.history": {
+   "text": "Mə̀fà’",
+   "fr": "Historique"
+  },
+  "shell.greeting": {
+   "text": "À bə̀ {name}",
+   "fr": "Bonjour {name}"
+  },
+  "common.back": {
+   "text": "Kə̀tə̀",
+   "fr": "Retour"
+  },
+  "common.continue": {
+   "text": "Kə́ mə́ mbhì",
+   "fr": "Continuer"
+  },
+  "common.cancel": {
+   "text": "Cwì’",
+   "fr": "Annuler"
+  },
+  "common.loading": {
+   "text": "À gə̀ lɔ́’",
+   "fr": "Chargement"
+  },
+  "common.listen": {
+   "text": "Yú’",
+   "fr": "Écouter"
+  },
+  "common.stop_listening": {
+   "text": "Tɛ̀’ mə̀càŋ",
+   "fr": "Arrêter la lecture"
+  },
+  "home.balance_label": {
+   "text": "Nkàb à bə̀ tsə̀",
+   "fr": "Solde disponible"
+  },
+  "home.account": {
+   "text": "Kɔ̂nt {phone}",
+   "fr": "Compte {phone}"
+  },
+  "home.quick_actions": {
+   "text": "Ò kɔ́ŋ mə̀ ghə̀ kə́ ?",
+   "fr": "Que voulez-vous faire ?"
+  },
+  "home.action_transfer": {
+   "text": "Tʉ́m nkàb",
+   "fr": "Envoyer de l'argent"
+  },
+  "home.action_bill": {
+   "text": "Sà’ fàktʉ̀",
+   "fr": "Payer une facture"
+  },
+  "home.action_airtime": {
+   "text": "Yʉ̀n krèdì",
+   "fr": "Acheter du crédit"
+  },
+  "home.action_history": {
+   "text": "Mə̀fà’ mɑ̀",
+   "fr": "Mes opérations"
+  },
+  "home.recent": {
+   "text": "Mə̀fà’ mə̀ mbhì",
+   "fr": "Dernières opérations"
+  },
+  "home.see_all": {
+   "text": "Yə́n ncàm",
+   "fr": "Tout voir"
+  },
+  "home.empty": {
+   "text": "Fà’ bə̀ kə̀ tsə̀ lɛ̀n.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "tx.transfer_out": {
+   "text": "Tʉ́m mə́ {name}",
+   "fr": "Envoi à {name}"
+  },
+  "tx.transfer_in": {
+   "text": "Kà’ mə́ {name}",
+   "fr": "Reçu de {name}"
+  },
+  "tx.airtime": {
+   "text": "Krèdì {operator}",
+   "fr": "Crédit {operator}"
+  },
+  "tx.bill": {
+   "text": "Fàktʉ̀ {biller}",
+   "fr": "Facture {biller}"
+  },
+  "tx.withdrawal": {
+   "text": "Cʉ́’ nkàb",
+   "fr": "Retrait"
+  },
+  "tx.status.confirmed": {
+   "text": "À ghə̀ lə́",
+   "fr": "Effectuée"
+  },
+  "tx.status.pending": {
+   "text": "À gə̀ bɛ̀n",
+   "fr": "En attente"
+  },
+  "tx.status.failed": {
+   "text": "À kə̀ ghə̀",
+   "fr": "Échouée"
+  },
+  "tx.status.cancelled": {
+   "text": "À cwì’ lə́",
+   "fr": "Annulée"
+  },
+  "transfer.title": {
+   "text": "Tʉ́m nkàb",
+   "fr": "Envoyer de l'argent"
+  },
+  "transfer.saved": {
+   "text": "Bə̀n bə́ kà’ nkàb mɑ̀",
+   "fr": "Mes bénéficiaires"
+  },
+  "transfer.to_label": {
+   "text": "Mə̀n kà’ nkàb",
+   "fr": "Bénéficiaire"
+  },
+  "transfer.to_hint": {
+   "text": "Nə̀mbà tèlèfɔ̂n kə̀ lîn",
+   "fr": "Numéro de téléphone ou nom"
+  },
+  "transfer.amount_label": {
+   "text": "Nkàb",
+   "fr": "Montant"
+  },
+  "transfer.amount_hint": {
+   "text": "Tʉ́’ mə́ {max} nə̀ fà’ cə̀’",
+   "fr": "Jusqu'à {max} par opération"
+  },
+  "transfer.fee_preview": {
+   "text": "Nkàb fà’ : {fee}",
+   "fr": "Frais : {fee}"
+  },
+  "help.fee": {
+   "text": "Nkàb fà’ bə̀ nkàb bɑ̂ŋ kɔ́’ mə̀ ghə̀ fà’.",
+   "fr": "Les frais sont la somme que la banque garde pour faire l'opération."
+  },
+  "help.limit": {
+   "text": "Ndù’ nkàb bə̀ nkàb ncàm ò zə́’ mə̀ tʉ́m nə̀ ngʉ̀’ cə̀’.",
+   "fr": "Le plafond est le montant maximum que vous pouvez envoyer en une fois."
+  },
+  "help.beneficiary": {
+   "text": "Mə̀n kà’ nkàb bə̀ mə̀n à kà’ nkàb.",
+   "fr": "Le bénéficiaire est la personne qui reçoit l'argent."
+  },
+  "error.INSUFFICIENT_FUNDS": {
+   "text": "Nkàb kə̀ kʉ̀’ : {missing} à bə̀ kə̀ tsə̀.",
+   "fr": "Solde insuffisant : il vous manque {missing}."
+  },
+  "error.UNKNOWN_BENEFICIARY": {
+   "text": "Bə̀ kə̀ yə́n mə̀n kà’ nkàb. Bɛ̀n nə̀mbà kə̀ lîn.",
+   "fr": "Bénéficiaire introuvable. Vérifiez le numéro ou le nom."
+  },
+  "error.AMBIGUOUS_BENEFICIARY": {
+   "text": "Bə̀n ncàm bə̀ lîn yɔ́n. Cwà’ mə̀n à bə̀ bɔ̀ŋ.",
+   "fr": "Plusieurs bénéficiaires portent ce nom. Choisissez le bon."
+  },
+  "error.INVALID_AMOUNT": {
+   "text": "Nkàb kə̀ bɔ̀ŋ. Tì’ nə̀mbà à kʉ̀’.",
+   "fr": "Montant invalide. Saisissez un nombre entier."
+  },
+  "error.LIMIT_EXCEEDED": {
+   "text": "Nkàb cɑ̀’tə̀ : ndù’ bə̀ {max} nə̀ fà’ cə̀’.",
+   "fr": "Montant trop élevé : le plafond est de {max} par opération."
+  },
+  "error.UNKNOWN_BILLER": {
+   "text": "Bə̀ kə̀ zí fà’ yɔ́n. Cwà’ nə̀ ndɑ́ fà’.",
+   "fr": "Service inconnu. Choisissez dans la liste."
+  },
+  "error.GENERIC": {
+   "text": "Fà’ kə̀ ghə̀ bɔ̀ŋ. Bɛ̀n mə̀ ghə̀.",
+   "fr": "L'opération n'a pas abouti. Réessayez."
+  },
+  "review.title": {
+   "text": "Bɛ̀n bɔ̀ŋ mə̀ kwɛ̀t",
+   "fr": "Vérifiez avant de confirmer"
+  },
+  "review.to": {
+   "text": "Mə̀n kà’ nkàb",
+   "fr": "Destinataire"
+  },
+  "review.service": {
+   "text": "Fà’",
+   "fr": "Service"
+  },
+  "review.amount": {
+   "text": "Nkàb",
+   "fr": "Montant"
+  },
+  "review.fee": {
+   "text": "Nkàb fà’",
+   "fr": "Frais"
+  },
+  "review.total": {
+   "text": "Nkàb ncàm bə̀ cʉ́’",
+   "fr": "Total débité"
+  },
+  "review.balance_after": {
+   "text": "Nkàb à lì’ nə̀ mbhì fà’",
+   "fr": "Solde après l'opération"
+  },
+  "review.warning": {
+   "text": "Nkàb à kə́ tʉ́m ngʉ̀’ ò kwɛ̀t.",
+   "fr": "L'argent part dès que vous confirmez."
+  },
+  "review.confirm": {
+   "text": "Kwɛ̀t",
+   "fr": "Confirmer"
+  },
+  "review.edit": {
+   "text": "Sɛ̀n",
+   "fr": "Modifier"
+  },
+  "receipt.success": {
+   "text": "Fà’ à ghə̀ bɔ̀ŋ",
+   "fr": "Opération réussie"
+  },
+  "receipt.transfer": {
+   "text": "Bə̀ tʉ́m {amount} mə́ {name}.",
+   "fr": "{amount} envoyés à {name}."
+  },
+  "receipt.bill": {
+   "text": "Bə̀ sà’ fàktʉ̀ {biller} yə́ {amount}.",
+   "fr": "Facture {biller} de {amount} payée."
+  },
+  "receipt.airtime": {
+   "text": "Bə̀ tʉ́m krèdì {operator} yə́ {amount} nə̀ {phone}.",
+   "fr": "Crédit {operator} de {amount} envoyé au {phone}."
+  },
+  "receipt.reference": {
+   "text": "Nə̀mbà fà’",
+   "fr": "Référence"
+  },
+  "receipt.new_balance": {
+   "text": "Nkàb fə̀fə̀ à lì’",
+   "fr": "Nouveau solde"
+  },
+  "receipt.cancelled": {
+   "text": "Fà’ à cwì’ lə́. Bə̀ kə̀ cʉ́’ nkàb.",
+   "fr": "Opération annulée. Rien n'a été débité."
+  },
+  "receipt.done": {
+   "text": "Mə̀sʉ̀’",
+   "fr": "Terminer"
+  },
+  "pay.title": {
+   "text": "Sà’",
+   "fr": "Payer"
+  },
+  "pay.tab_bill": {
+   "text": "Mə̀fàktʉ̀",
+   "fr": "Factures"
+  },
+  "pay.tab_airtime": {
+   "text": "Krèdì tèlèfɔ̂n",
+   "fr": "Crédit téléphone"
+  },
+  "pay.biller_label": {
+   "text": "Cwà’ fà’",
+   "fr": "Choisissez le service"
+  },
+  "pay.phone_label": {
+   "text": "Nə̀mbà mə̀ tʉ́m krèdì",
+   "fr": "Numéro à recharger"
+  },
+  "pay.phone_hint": {
+   "text": "Wû kə̀ wə́ mə̀n wû",
+   "fr": "Le vôtre ou celui d'un proche"
+  },
+  "pay.operator_label": {
+   "text": "Nə̀tʉ́m krèdì",
+   "fr": "Opérateur"
+  },
+  "pay.operator_detected": {
+   "text": "Bə̀ yə́n nə̀tʉ́m krèdì : {operator}",
+   "fr": "Opérateur reconnu : {operator}"
+  },
+  "pay.amount_label": {
+   "text": "Nkàb",
+   "fr": "Montant"
+  },
+  "biller.ENEO": {
+   "text": "Ndɑ́ màkù’",
+   "fr": "Électricité"
+  },
+  "biller.CAMWATER": {
+   "text": "Ntsə̀",
+   "fr": "Eau"
+  },
+  "biller.CANAL": {
+   "text": "Tèlèvìzìɔ̂n",
+   "fr": "Télévision"
+  },
+  "biller.CAMTEL": {
+   "text": "Intɛ̀nɛ̂t nà tèlèfɔ̂n",
+   "fr": "Internet et téléphone"
+  },
+  "history.title": {
+   "text": "Mə̀fà’ mə̀ lə́",
+   "fr": "Historique"
+  },
+  "history.filter_all": {
+   "text": "Ncàm",
+   "fr": "Tout"
+  },
+  "history.filter_out": {
+   "text": "Nkàb fʉ̀’",
+   "fr": "Sorties"
+  },
+  "history.filter_in": {
+   "text": "Nkàb kà’",
+   "fr": "Entrées"
+  },
+  "history.empty": {
+   "text": "Fà’ bə̀ kə̀ tsə̀ lɛ̀n.",
+   "fr": "Aucune opération pour le moment."
+  },
+  "shell.logout": {
+   "text": "Fʉ̀’ nə̀ kɔ̂nt",
+   "fr": "Se déconnecter"
+  },
+  "shell.secure": {
+   "text": "Nzə̀ à bə̀ bɔ̀ŋ",
+   "fr": "Connexion sécurisée"
+  },
+  "atm.balance": {
+   "text": "Bɛ̀n nkàb à lì’",
+   "fr": "Consulter le solde"
+  },
+  "atm.withdraw": {
+   "text": "Cʉ́’ nkàb",
+   "fr": "Retrait espèces"
+  },
+  "history.col_date": {
+   "text": "Lə́’",
+   "fr": "Date"
+  },
+  "history.col_label": {
+   "text": "Fà’",
+   "fr": "Opération"
+  },
+  "history.col_amount": {
+   "text": "Nkàb",
+   "fr": "Montant"
+  },
+  "history.col_status": {
+   "text": "Nə̀bə̀",
+   "fr": "Statut"
+  },
+  "atm.bank": {
+   "text": "Bɑ̂ŋ Safinum",
+   "fr": "Banque Safinum"
+  },
+  "atm.cancel_hint": {
+   "text": "Mbàŋ bə̀ŋ : cwì’",
+   "fr": "Touche rouge : annuler"
+  },
+  "atm.please_wait": {
+   "text": "Bɛ̀n mə̀tì’",
+   "fr": "Veuillez patienter"
+  },
+  "atm.welcome": {
+   "text": "À bə̀ bɔ̀ŋ",
+   "fr": "Bienvenue"
+  },
+  "atm.insert_card": {
+   "text": "Tì’ kàrt wû",
+   "fr": "Insérez votre carte"
+  },
+  "atm.available": {
+   "text": "Fà’ à bə̀ tsə̀ lə́’ nà tsʉ̀’",
+   "fr": "Service disponible 24h/24"
+  },
+  "atm.pin_title": {
+   "text": "Tì’ nə̀mbà fì’ wû",
+   "fr": "Saisissez votre code secret"
+  },
+  "atm.pin_hide": {
+   "text": "Bù’ mə̀tì’ nà bɔ̀ wû",
+   "fr": "Cachez le clavier avec votre main"
+  },
+  "atm.pin_confirm": {
+   "text": "Bɔ̀ŋ ò nà’ mbàŋ kwɛ̀t",
+   "fr": "Puis appuyez sur la touche verte"
+  },
+  "atm.menu_title": {
+   "text": "Cwà’ fà’ cə̀’",
+   "fr": "Choisissez une opération"
+  },
+  "atm.key_withdraw": {
+   "text": "Cʉ́’ nkàb",
+   "fr": "Retrait"
+  },
+  "atm.key_balance": {
+   "text": "Nkàb à lì’",
+   "fr": "Solde"
+  },
+  "atm.key_statement": {
+   "text": "Mə̀càŋ mə̀fà’",
+   "fr": "Mini-relevé"
+  },
+  "atm.key_exit": {
+   "text": "Kɔ́’ kàrt wû",
+   "fr": "Rendre la carte"
+  }
+ },
+ "reponses": {
+  "balance": {
+   "text": "Nkàb wû à bə̀ tsə̀ bə̀ {solde}.",
+   "fr": "Votre solde disponible est de {solde}."
+  },
+  "fee_quote": {
+   "text": "Mə̀ tʉ́m {montant}, nkàb fà’ bə̀ {frais}. Ncàm, bə̀ kə́ cʉ́’ {total} nə̀ kɔ̂nt wû.",
+   "fr": "Pour envoyer {montant}, les frais sont de {frais}. Au total, {total} seront retirés de votre compte."
+  },
+  "ask_amount": {
+   "text": "Ò kɔ́ŋ mə̀ tʉ́m nkàb kə́ ?",
+   "fr": "Quel montant voulez-vous envoyer ?"
+  },
+  "ask_amount_to": {
+   "text": "Ò kɔ́ŋ mə̀ tʉ́m nkàb kə́ mə́ {nom} ?",
+   "fr": "Quel montant voulez-vous envoyer à {nom} ?"
+  },
+  "ask_beneficiary": {
+   "text": "Ò kɔ́ŋ mə̀ tʉ́m {montant} mə́ wə́ ? Hɑ́ lîn kə̀ nə̀mbà.",
+   "fr": "À qui voulez-vous envoyer {montant} ? Donnez un nom ou un numéro."
+  },
+  "ask_which": {
+   "text": "Bə̀n ncàm bə̀ lîn yɔ́n. Wə́ nə̀ bɔ̀ ?",
+   "fr": "Plusieurs personnes portent ce nom. Laquelle ?"
+  },
+  "ask_intent": {
+   "text": "Mə̀ kə̀ yú’ bɔ̀ŋ. Ò kɔ́ŋ mə̀ yə́n nkàb wû, tʉ́m nkàb, zí nkàb fà’ kə̀ yə́n mə̀fà’ ?",
+   "fr": "Je n’ai pas bien compris. Voulez-vous voir votre solde, envoyer de l’argent, connaître les frais ou voir votre historique ?"
+  },
+  "confirm_transfer": {
+   "text": "Ò kə́ tʉ́m {montant} mə́ {nom} ({numero}). Nkàb fà’ : {frais}. Ncàm : {total}. Ò kwɛ̀t ?",
+   "fr": "Vous allez envoyer {montant} à {nom} ({numero}). Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "corrected": {
+   "text": "Bə̀ sɛ̀n lə́.",
+   "fr": "C’est corrigé."
+  },
+  "transfer_done": {
+   "text": "Fà’ à ghə̀ bɔ̀ŋ : bə̀ tʉ́m {montant} mə́ {nom}. Nə̀mbà fà’ {reference}. Nkàb fə̀fə̀ : {solde}.",
+   "fr": "Transfert réussi : {montant} envoyés à {nom}. Référence {reference}. Nouveau solde : {solde}."
+  },
+  "confirm_airtime": {
+   "text": "Yʉ̀n krèdì {montant} nə̀ {numero} ? Nkàb fà’ kə̀ tsə̀.",
+   "fr": "Acheter {montant} de crédit pour le {numero} ? Sans frais."
+  },
+  "airtime_done": {
+   "text": "Bə̀ tʉ́m krèdì : {montant} nə̀ {numero}. Nkàb fə̀fə̀ : {solde}.",
+   "fr": "Crédit envoyé : {montant} au {numero}. Nouveau solde : {solde}."
+  },
+  "confirm_bill": {
+   "text": "Sà’ fàktʉ̀ {fournisseur} yə́ {montant} ? Nkàb fà’ : {frais}. Ncàm : {total}.",
+   "fr": "Payer la facture {fournisseur} de {montant} ? Frais : {frais}. Total : {total}."
+  },
+  "bill_done": {
+   "text": "Bə̀ sà’ fàktʉ̀ {fournisseur} : {montant}. Nkàb fə̀fə̀ : {solde}.",
+   "fr": "Facture {fournisseur} payée : {montant}. Nouveau solde : {solde}."
+  },
+  "confirm_withdraw": {
+   "text": "Cʉ́’ {montant} ? Nkàb fà’ : {frais}. Ncàm : {total}. Ò kwɛ̀t ?",
+   "fr": "Retirer {montant} ? Frais : {frais}. Total : {total}. Confirmez-vous ?"
+  },
+  "withdraw_done": {
+   "text": "Bə̀ cʉ́’ nkàb : {montant}. Kɔ́’ nkàb wû. Nkàb fə̀fə̀ : {solde}.",
+   "fr": "Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}."
+  },
+  "insufficient": {
+   "text": "Nkàb kə̀ kʉ̀’. Ò ghə̀ {solde}, à kɔ́ŋ {requis} nà nkàb fà’. {manque} à lì’. Bə̀ kə̀ ghə̀ fà’.",
+   "fr": "Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée."
+  },
+  "limit_exceeded": {
+   "text": "Nkàb yɔ́n cɑ̀’tə̀ ndù’ wû yə́ {plafond} nə̀ lə́’ cə̀’.",
+   "fr": "Ce montant dépasse votre plafond de {plafond} par jour."
+  },
+  "history_intro": {
+   "text": "Mə̀fà’ mû mə̀ mbhì :",
+   "fr": "Vos dernières opérations :"
+  },
+  "hist_sent": {
+   "text": "tʉ́m",
+   "fr": "envoyé"
+  },
+  "hist_received": {
+   "text": "kà’",
+   "fr": "reçu"
+  },
+  "hist_airtime": {
+   "text": "krèdì",
+   "fr": "crédit"
+  },
+  "hist_bill": {
+   "text": "fàktʉ̀",
+   "fr": "facture"
+  },
+  "hist_withdraw": {
+   "text": "cʉ́’ nkàb",
+   "fr": "retrait"
+  },
+  "cancelled": {
+   "text": "Fà’ à cwì’ lə́. Bə̀ kə̀ tʉ́m nkàb.",
+   "fr": "Opération annulée. Aucun argent n’a été envoyé."
+  },
+  "language_switched": {
+   "text": "À bə̀ bɔ̀ŋ, bə̀ kə́ mə́ mbhì nə̀ {langue}.",
+   "fr": "D’accord, on continue en {langue}."
+  },
+  "help": {
+   "text": "Mə̀ zə́’ : tɔ́ŋ nkàb wû, tʉ́m nkàb, tɔ́ŋ nkàb fà’, yə́n mə̀fà’, yʉ̀n krèdì, sà’ fàktʉ̀.",
+   "fr": "Je peux : donner votre solde, envoyer de l’argent, expliquer les frais, montrer l’historique, acheter du crédit, payer une facture."
+  },
+  "greeting": {
+   "text": "À bə̀ ! Ò kɔ́ŋ mə̀ ghə̀ kə́ ? Nkàb à lì’, tʉ́m nkàb, nkàb fà’ kə̀ mə̀fà’.",
+   "fr": "Bonjour ! Que voulez-vous faire ? Solde, transfert, frais ou historique."
+  },
+  "not_understood": {
+   "text": "Mə̀ kə̀ yú’. Ò zə́’ mə̀ tɔ́ŋ nə̀ nzə̀ fə̀fə̀ ?",
+   "fr": "Je n’ai pas compris. Pouvez-vous le dire autrement ?"
+  },
+  "which_language": {
+   "text": "Mə̀ kə̀ zí ghə̀m. Ò kɔ́ŋ mə̀ kə́ mə́ mbhì nə̀ ghə̀m kə́ ?",
+   "fr": "Je ne suis pas sûr de la langue. Dans quelle langue voulez-vous continuer ?"
+  },
+  "backend_error": {
+   "text": "Fà’ à tɛ̀’ lɛ̀n. Bə̀ kə̀ ghə̀ fà’. Bɛ̀n mə̀ ghə̀.",
+   "fr": "Le service est momentanément indisponible. Aucune opération n’a été effectuée. Réessayez."
+  },
+  "menu_confirm": {
+   "text": "Kwɛ̀t",
+   "fr": "Confirmer"
+  },
+  "menu_cancel": {
+   "text": "Cwì’",
+   "fr": "Annuler"
+  },
+  "menu_balance": {
+   "text": "Nkàb à lì’",
+   "fr": "Solde"
+  },
+  "menu_transfer": {
+   "text": "Tʉ́m nkàb",
+   "fr": "Envoyer de l’argent"
+  },
+  "menu_fees": {
+   "text": "Nkàb fà’",
+   "fr": "Frais"
+  },
+  "menu_history": {
+   "text": "Mə̀fà’",
+   "fr": "Historique"
+  },
+  "menu_airtime": {
+   "text": "Krèdì tèlèfɔ̂n",
+   "fr": "Crédit téléphonique"
+  },
+  "menu_bill": {
+   "text": "Sà’ fàktʉ̀",
+   "fr": "Payer une facture"
+  },
+  "menu_withdraw": {
+   "text": "Cʉ́’ nkàb",
+   "fr": "Retrait"
+  },
+  "menu_language": {
+   "text": "Ghə̀m",
+   "fr": "Langue"
+  },
+  "menu_more": {
+   "text": "Mbhì",
+   "fr": "Suite"
+  },
+  "menu_free_text": {
+   "text": "Kə̀ ŋwà’ mə̀kɔ́ŋ mû",
+   "fr": "Ou écrivez votre demande"
+  }
+ }
+}

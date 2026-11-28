@@ -13,6 +13,7 @@ import { speechPlan } from '../voice/native.ts';
 import type { Transaction } from '../backend/types.ts';
 import { runtimeFor } from '../linguistics/runtime.ts';
 import { usable, type Entry } from '../linguistics/pack.ts';
+import { autoReply } from '../linguistics/auto-texts.ts';
 
 /** reference = français / anglais, langues de référence (jamais présentées comme langues nationales validées). */
 export type Quality = 'reference' | 'validated' | 'draft' | 'machine' | 'fallback';
@@ -175,12 +176,15 @@ function nativeReply(r: ReplyKind, lang: string): { text: string; quality: Quali
   if (!rt) return null;
   const used: Entry[] = [];
   const F = (n: number) => formatFcfa(n, 'fr');
+  let usedAuto = false;
   const T = (id: string, vals: Record<string, string> = {}): string | null => {
     const e = rt.pack.responses[id];
-    if (!e || !usable(e)) return null;
-    used.push(e);
-    if (Object.keys(vals).some((key) => !e.text.includes(`{${key}}`))) return null;
-    return e.text.replace(/\{([a-z_]+)\}/g, (_, k: string) => vals[k] ?? `{${k}}`);
+    let txt: string | null = null;
+    if (e && usable(e)) { used.push(e); txt = e.text; }
+    else { txt = autoReply(lang, id); if (txt) usedAuto = true; } // traduction automatique non relue, en dernier recours
+    if (!txt) return null;
+    if (Object.keys(vals).some((key) => !txt!.includes(`{${key}}`))) return null;
+    return txt.replace(/\{([a-z_]+)\}/g, (_, k: string) => vals[k] ?? `{${k}}`);
   };
   const D = (id: string): string | null => { const e = rt.pack.definitions[id]; if (!e || !usable(e)) return null; used.push(e); return e.text; };
   let text: string | null = null;
@@ -220,7 +224,7 @@ function nativeReply(r: ReplyKind, lang: string): { text: string; quality: Quali
     case 'cancelled': case 'help': case 'greeting': case 'not_understood': case 'backend_error': case 'which_language': text = T(r.kind); break;
   }
   if (text === null) return null;
-  return { text, quality: used.every((e) => e.validated) ? 'validated' : 'draft' };
+  return { text, quality: usedAuto ? 'machine' : used.every((e) => e.validated) ? 'validated' : 'draft' };
 }
 
 function menuFor(r: ReplyKind, lang: string): Reply['menu'] {

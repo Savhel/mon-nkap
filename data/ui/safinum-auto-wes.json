@@ -1,0 +1,23 @@
+{
+ "_source": "Traduction automatique, NON relue par un locuteur (a-traduire-pidgin-kamtok-banque.xlsx, 28 novembre 2026). Servie seulement quand aucun texte de natif n'existe ; à remplacer dès qu'un natif relit.",
+ "ecrans": {
+  "history.col_date": {
+   "text": "Date",
+   "fr": "Date"
+  },
+  "atm.available": {
+   "text": "Service dey open 24h/24",
+   "fr": "Service disponible 24h/24"
+  }
+ },
+ "reponses": {
+  "withdraw_done": {
+   "text": "You don withdraw {montant}. Take ya money. New balance na {solde}.",
+   "fr": "Retrait effectué : {montant}. Prenez vos billets. Nouveau solde : {solde}."
+  },
+  "insufficient": {
+   "text": "Money no reach for account. You get {solde}, you need {requis} with charges. E remain {manque}. No transaction don happen.",
+   "fr": "Solde insuffisant. Vous avez {solde}, il faut {requis} frais compris. Il manque {manque}. Aucune opération n’a été effectuée."
+  }
+ }
+}
