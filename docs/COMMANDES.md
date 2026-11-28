@@ -23,8 +23,9 @@ code (`git pull`), redémarrer le serveur.
 
 Avec le tunnel de démonstration, un camarade ouvre `https://audrina-nonintroverted-timorously.ngrok-free.dev/mobile`
 depuis son ordinateur ou son téléphone : identifiant `gifa`, mot de passe `CT_DEMO_PASSWORD` du `.env`
-(`grep CT_DEMO_PASSWORD .env`). Le middleware SAFINUM et la collecte restent ouverts sans mot de passe, `/admin` reste
-fermé. Le fichier `services/ngrok-demo.local.yml` contient le mot de passe : il n'est jamais envoyé sur GitHub.
+(`grep CT_DEMO_PASSWORD .env`). Le middleware SAFINUM et la collecte restent ouverts sans mot de passe. `/admin` reste
+fermé, sauf avec `CT_DEMO_ADMIN=1` dans `.env` (puis relancer `tools/tunnel-demo.ts` et ngrok) : il passe alors
+derrière le mot de passe de démonstration, puis la clé d'administration (`grep CT_ADMIN_KEY .env`). Le fichier `services/ngrok-demo.local.yml` contient le mot de passe : il n'est jamais envoyé sur GitHub.
 
 Pages locales : `http://localhost:8080/` (jury), `/mobile` (application, mode Conversation), `/banque`, `/gab`,
 `/canaux` (USSD et SMS), `/tableau` (journal), `/admin` (clés, entraînement, collecte), `/collecte` (natifs).

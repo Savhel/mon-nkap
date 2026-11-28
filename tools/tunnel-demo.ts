@@ -21,15 +21,19 @@ if (!/^[\w.~-]{6,}$/.test(password) || !/^[\w.-]+$/.test(user)) {
 
 const OPEN = "req.url.path == '/safinum/middleware' || req.url.path == '/collecte' || req.url.path.startsWith('/v1/collecte/') || req.url.path == '/tokens.css' || req.url.path == '/icon.svg'";
 const ADMIN = "req.url.path == '/admin' || req.url.path.startsWith('/v1/admin')";
-const policy = `# Généré par tools/tunnel-demo.ts — contient le mot de passe de démonstration : ne pas envoyer sur GitHub.
-on_http_request:
+// CT_DEMO_ADMIN=1 : /admin passe aussi par le tunnel, derrière le mot de passe de démonstration puis la clé
+// d'administration (CT_ADMIN_KEY). Sinon, /admin reste introuvable depuis Internet.
+const adminOpen = process.env.CT_DEMO_ADMIN === '1';
+const adminBlock = adminOpen ? '' : `
   - expressions:
       - "${ADMIN}"
     actions:
       - type: custom-response
         config:
           status_code: 404
-          body: "introuvable"
+          body: "introuvable"`;
+const policy = `# Généré par tools/tunnel-demo.ts — contient le mot de passe de démonstration : ne pas envoyer sur GitHub.
+on_http_request:${adminBlock}
   - expressions:
       - "!(${OPEN})"
     actions:
