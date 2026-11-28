@@ -100,5 +100,11 @@
  "atm.key_withdraw": "Withdraw",
  "atm.key_balance": "Balance",
  "atm.key_statement": "Mini statement",
- "atm.key_exit": "Return card"
+ "atm.key_exit": "Return card",
+ "atm.another": "Another operation?",
+ "atm.key_yes": "Yes",
+ "atm.key_no": "No",
+ "atm.take_card": "Take your card",
+ "atm.goodbye": "Thank you, goodbye",
+ "atm.balance_title": "Available balance"
 }

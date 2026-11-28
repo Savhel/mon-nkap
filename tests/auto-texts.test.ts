@@ -29,3 +29,11 @@ test('écrans SAFINUM : texte automatique non relu en dernier recours, compté �
     if (prev.auto === undefined) delete process.env.CT_AUTO_TEXTS; else process.env.CT_AUTO_TEXTS = prev.auto;
   }
 });
+
+test('écrans SAFINUM : une traduction sans chiffre est admise, un chiffre ajouté ou changé jamais', async () => {
+  const { fits } = await import('../src/channels/safinum-ui.ts');
+  assert.ok(fits('Service disponible 24h/24', 'Hidima a buɗe dare da rana'));
+  assert.ok(!fits('Service disponible 24h/24', 'Service dey open 24/7'));
+  assert.ok(!fits('{amount} envoyés', '{amount} 5 sent'));
+  assert.ok(fits('{amount} envoyés', '{amount} sent'));
+});

@@ -58,7 +58,8 @@ export function fits(src: string, out: string | undefined | null, max?: number |
   if (!out || !out.trim()) return false;
   if (placeholders(src) !== placeholders(out)) return false;
   const digits = (t: string) => t.replace(/\{[A-Za-z0-9_]+\}/g, '').replace(/\D/g, '');
-  if (digits(out) !== digits(src)) return false;
+  // Aucun chiffre ajouté ni changé ; une traduction sans chiffre du tout est admise (« 24h/24 » dit « jour et nuit »).
+  if (digits(out) && digits(out) !== digits(src)) return false;
   return !max || [...out].length <= max;
 }
 
