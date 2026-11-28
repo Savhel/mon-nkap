@@ -51,11 +51,11 @@ function disableAutoSelectFamily(): void {
  * entre deux touches : chaque tour USSD rouvrait donc la connexion et dépassait les 3 s. On garde deux connexions
  * ouvertes par une requête légère toutes les 3 s (deux, car frais et solde partent en même temps), mais seulement
  * pendant une session : jusqu'à 90 s après le dernier vrai appel (CT_SAFINUM_KEEPALIVE_IDLE_MS). Hors session, aucun
- * envoi : un serveur sollicité en continu finit par refuser notre adresse. CT_SAFINUM_KEEPALIVE_MS=0 désactive.
+ * envoi : un serveur sollicité en continu finit par refuser notre adresse. Désactivé par défaut depuis le 28 novembre : /health n’existe pas chez eux (404), et ces 404 répétés ont fait bloquer notre adresse deux fois. CT_SAFINUM_KEEPALIVE_MS=3000 le réactive.
  */
 const warm = new Map<string, { last: number; timer?: ReturnType<typeof setInterval> }>();
 function keepWarm(baseUrl: string): void {
-  const every = Number(process.env.CT_SAFINUM_KEEPALIVE_MS ?? 3000);
+  const every = Number(process.env.CT_SAFINUM_KEEPALIVE_MS ?? 0);
   const idle = Number(process.env.CT_SAFINUM_KEEPALIVE_IDLE_MS ?? 90_000);
   if (!every || process.env.NODE_TEST_CONTEXT) return;
   let w = warm.get(baseUrl);
