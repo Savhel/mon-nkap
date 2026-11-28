@@ -84,5 +84,21 @@
  "tx.status.pending": "Pending",
  "tx.transfer_in": "Received from {name}",
  "tx.transfer_out": "Sent to {name}",
- "tx.withdrawal": "Withdrawal"
+ "tx.withdrawal": "Withdrawal",
+ "history.col_date": "Date",
+ "atm.balance": "Check balance",
+ "atm.withdraw": "Cash withdrawal",
+ "atm.bank": "Safinum Bank",
+ "atm.cancel_hint": "Red key: cancel",
+ "atm.welcome": "Welcome",
+ "atm.insert_card": "Insert your card",
+ "atm.available": "Service available 24h/24",
+ "atm.pin_title": "Enter your PIN",
+ "atm.pin_hide": "Cover the keypad with your hand",
+ "atm.pin_confirm": "Then press the green key",
+ "atm.menu_title": "Choose an operation",
+ "atm.key_withdraw": "Withdraw",
+ "atm.key_balance": "Balance",
+ "atm.key_statement": "Mini statement",
+ "atm.key_exit": "Return card"
 }

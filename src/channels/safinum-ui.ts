@@ -16,6 +16,7 @@ import { matchPackFromFrench } from '../core/translate.ts';
 import { normalize } from '../core/text.ts';
 import { allowDraft } from '../linguistics/pack.ts';
 import { mboaTranslate } from '../linguistics/mboa-compose.ts';
+import { nativeResponse } from '../core/respond.ts';
 import { frenchTo, MT_ROUTES } from '../mt/flagship.ts';
 
 export interface UiString { text: string; context?: string; max_chars?: number | null }
@@ -23,6 +24,8 @@ export interface UiTranslationRequest { language?: string | null; source_languag
 export interface UiTranslationResponse { language: string; strings: Record<string, string> }
 
 const ALIASES: Record<string, string> = { pcm: 'wes', pidgin: 'wes', kamtok: 'wes' };
+// Boutons d'écran qui portent exactement l'action d'un libellé de menu déjà traduit par un natif.
+const SAME_AS: Record<string, string> = { 'atm.balance': 'menu_balance', 'atm.withdraw': 'menu_withdraw' };
 const dir = () => process.env.CT_UI_DIR ?? fileURLToPath(new URL('../../data/ui/', import.meta.url));
 const budget = () => Number(process.env.CT_UI_BUDGET_MS ?? 3000); // le simulateur attend 10 s ; la traduction automatique échoue presque toujours sur ces textes courts
 
@@ -130,6 +133,8 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
     if (fits(s.text, hit?.text, s.max_chars)) { out[k] = hit!.text; stats.native++; continue; }
     const mboa = mboaTranslate(lang, s.text);
     if (fits(s.text, mboa?.text, s.max_chars)) { out[k] = mboa!.text; stats.native++; continue; }
+    const same = SAME_AS[k] ? nativeResponse(lang, SAME_AS[k]) : null;
+    if (fits(s.text, same, s.max_chars)) { out[k] = same!; stats.native++; continue; }
     if (fits(s.text, cache[s.text], s.max_chars)) { out[k] = cache[s.text]; stats.machine++; continue; }
     out[k] = s.text;
     misses.push([k, s]);
