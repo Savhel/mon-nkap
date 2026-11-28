@@ -18,6 +18,7 @@ import { allowDraft } from '../linguistics/pack.ts';
 import { mboaTranslate } from '../linguistics/mboa-compose.ts';
 import { nativeResponse } from '../core/respond.ts';
 import { autoScreenText } from '../linguistics/auto-texts.ts';
+import { screenTextForFrench } from '../linguistics/screen-catalogue.ts';
 import { frenchTo, MT_ROUTES } from '../mt/flagship.ts';
 
 export interface UiString { text: string; context?: string; max_chars?: number | null }
@@ -26,7 +27,7 @@ export interface UiTranslationResponse { language: string; strings: Record<strin
 
 const ALIASES: Record<string, string> = { pcm: 'wes', pidgin: 'wes', kamtok: 'wes' };
 // Boutons d'écran qui portent exactement l'action d'un libellé de menu déjà traduit par un natif.
-const SAME_AS: Record<string, string> = { 'atm.balance': 'menu_balance', 'atm.withdraw': 'menu_withdraw' };
+const SAME_AS: Record<string, [string, string]> = { 'atm.balance': ['Solde', 'menu_balance'], 'atm.withdraw': ['Retrait', 'menu_withdraw'] };
 const dir = () => process.env.CT_UI_DIR ?? fileURLToPath(new URL('../../data/ui/', import.meta.url));
 const budget = () => Number(process.env.CT_UI_BUDGET_MS ?? 3000); // le simulateur attend 10 s ; la traduction automatique échoue presque toujours sur ces textes courts
 
@@ -130,12 +131,15 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
   const cache = read<Machine>('safinum-machine.json', {})[lang] ?? {};
   const misses: [string, UiString][] = [];
   for (const [k, s] of Object.entries(strings)) {
+    // Une seule traduction par mot : la première traduction d'écran d'une native pour ce même français fait foi.
+    const one = screenTextForFrench(lang, s.text) ?? cur[k];
+    if (fits(s.text, one, s.max_chars)) { out[k] = one!; stats.curated++; continue; }
     if (fits(s.text, cur[k], s.max_chars)) { out[k] = cur[k]; stats.curated++; continue; }
     const hit = matchPackFromFrench(lang, normalize(s.text), allowDraft());
     if (fits(s.text, hit?.text, s.max_chars)) { out[k] = hit!.text; stats.native++; continue; }
     const mboa = mboaTranslate(lang, s.text);
     if (fits(s.text, mboa?.text, s.max_chars)) { out[k] = mboa!.text; stats.native++; continue; }
-    const same = SAME_AS[k] ? nativeResponse(lang, SAME_AS[k]) : null;
+    const same = SAME_AS[k] ? screenTextForFrench(lang, SAME_AS[k][0]) ?? nativeResponse(lang, SAME_AS[k][1]) : null;
     if (fits(s.text, same, s.max_chars)) { out[k] = same!; stats.native++; continue; }
     const auto = autoScreenText(lang, k, s.text);
     if (fits(s.text, auto, s.max_chars)) { out[k] = auto!; stats.auto++; continue; }
@@ -161,5 +165,6 @@ export async function translateUiScreen(req: UiTranslationRequest): Promise<UiTr
     Object.assign(out, result);
   }
   stats.french = Object.keys(strings).length - stats.curated - stats.native - stats.auto - stats.machine;
+  for (const k of Object.keys(out)) out[k] = out[k].normalize('NFC'); // lettres et tons composés : affichage identique partout
   return { language: asked!, strings: out, stats };
 }

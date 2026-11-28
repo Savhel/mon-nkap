@@ -227,6 +227,7 @@
   "context": "Ligne d'opération",
   "max_chars": null,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -236,6 +237,7 @@
   "context": "Ligne d'opération",
   "max_chars": null,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -245,6 +247,7 @@
   "context": "Ligne d'opération",
   "max_chars": null,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -254,6 +257,7 @@
   "context": "Ligne d'opération",
   "max_chars": null,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -263,6 +267,7 @@
   "context": "Ligne d'opération",
   "max_chars": null,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -272,6 +277,7 @@
   "context": "Pastille de statut",
   "max_chars": 16,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -281,6 +287,7 @@
   "context": "Pastille de statut",
   "max_chars": 16,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -290,6 +297,7 @@
   "context": "Pastille de statut",
   "max_chars": 16,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -299,6 +307,7 @@
   "context": "Pastille de statut",
   "max_chars": 16,
   "screens": [
+   "atm_statement",
    "history",
    "home"
   ]
@@ -826,8 +835,16 @@
   "context": "GAB : bandeau en haut de l'écran",
   "max_chars": 40,
   "screens": [
+   "atm_amount",
+   "atm_balance",
+   "atm_cash",
+   "atm_confirm",
+   "atm_end",
    "atm_menu",
+   "atm_other",
    "atm_pin",
+   "atm_receipt",
+   "atm_statement",
    "atm_welcome"
   ]
  },
@@ -836,8 +853,16 @@
   "context": "GAB : rappel en bas de l'écran",
   "max_chars": 40,
   "screens": [
+   "atm_amount",
+   "atm_balance",
+   "atm_cash",
+   "atm_confirm",
+   "atm_end",
    "atm_menu",
+   "atm_other",
    "atm_pin",
+   "atm_receipt",
+   "atm_statement",
    "atm_welcome"
   ]
  },
@@ -846,8 +871,16 @@
   "context": "GAB : traitement en cours",
   "max_chars": 40,
   "screens": [
+   "atm_amount",
+   "atm_balance",
+   "atm_cash",
+   "atm_confirm",
+   "atm_end",
    "atm_menu",
+   "atm_other",
    "atm_pin",
+   "atm_receipt",
+   "atm_statement",
    "atm_welcome"
   ]
  },
@@ -937,6 +970,278 @@
   "max_chars": 18,
   "screens": [
    "atm_menu"
+  ]
+ },
+ "atm.balance_title": {
+  "text": "Solde disponible",
+  "context": "GAB : titre de l'écran de solde",
+  "max_chars": 40,
+  "screens": [
+   "atm_balance"
+  ]
+ },
+ "atm.another": {
+  "text": "Une autre opération ?",
+  "context": "GAB : question",
+  "max_chars": 40,
+  "screens": [
+   "atm_balance"
+  ]
+ },
+ "atm.key_yes": {
+  "text": "Oui",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_balance"
+  ]
+ },
+ "atm.key_no": {
+  "text": "Non",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_balance"
+  ]
+ },
+ "atm.take_card": {
+  "text": "Reprenez votre carte",
+  "context": "GAB : consigne de fin",
+  "max_chars": 40,
+  "screens": [
+   "atm_end"
+  ]
+ },
+ "atm.goodbye": {
+  "text": "Merci et à bientôt",
+  "context": "GAB : salutation de fin",
+  "max_chars": 40,
+  "screens": [
+   "atm_end"
+  ]
+ },
+ "atm.amount_title": {
+  "text": "Choisissez le montant",
+  "context": "GAB : titre du choix du montant",
+  "max_chars": 40,
+  "screens": [
+   "atm_amount"
+  ]
+ },
+ "atm.amount_rule": {
+  "text": "Billets de 5 000 et 10 000 FCFA",
+  "context": "GAB : rappel des coupures",
+  "max_chars": 40,
+  "screens": [
+   "atm_amount"
+  ]
+ },
+ "atm.key_other": {
+  "text": "Autre montant",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_amount"
+  ]
+ },
+ "atm.key_back": {
+  "text": "Retour",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_amount"
+  ]
+ },
+ "atm.error_step": {
+  "text": "Le montant doit être un multiple de {step}",
+  "context": "GAB : message d'erreur",
+  "max_chars": 40,
+  "screens": [
+   "atm_amount",
+   "atm_confirm",
+   "atm_other"
+  ]
+ },
+ "atm.error_max": {
+  "text": "Plafond de {max} par retrait",
+  "context": "GAB : message d'erreur",
+  "max_chars": 40,
+  "screens": [
+   "atm_amount",
+   "atm_confirm",
+   "atm_other"
+  ]
+ },
+ "atm.error_funds": {
+  "text": "Solde insuffisant",
+  "context": "GAB : message d'erreur",
+  "max_chars": 40,
+  "screens": [
+   "atm_amount",
+   "atm_confirm",
+   "atm_other"
+  ]
+ },
+ "atm.error_generic": {
+  "text": "Opération impossible",
+  "context": "GAB : message d'erreur",
+  "max_chars": 40,
+  "screens": [
+   "atm_amount",
+   "atm_confirm",
+   "atm_other"
+  ]
+ },
+ "atm.other_title": {
+  "text": "Saisissez le montant",
+  "context": "GAB : titre de la saisie libre",
+  "max_chars": 40,
+  "screens": [
+   "atm_other"
+  ]
+ },
+ "atm.other_rule": {
+  "text": "Multiple de {step}, au plus {max}",
+  "context": "GAB : règle du montant",
+  "max_chars": 40,
+  "screens": [
+   "atm_other"
+  ]
+ },
+ "atm.confirm_title": {
+  "text": "Confirmez le retrait",
+  "context": "GAB : titre de la confirmation",
+  "max_chars": 40,
+  "screens": [
+   "atm_confirm"
+  ]
+ },
+ "atm.confirm_amount": {
+  "text": "Montant : {amount}",
+  "context": "GAB : ligne du récapitulatif",
+  "max_chars": 40,
+  "screens": [
+   "atm_confirm"
+  ]
+ },
+ "atm.confirm_fee": {
+  "text": "Frais : {fee}",
+  "context": "GAB : ligne du récapitulatif",
+  "max_chars": 40,
+  "screens": [
+   "atm_confirm"
+  ]
+ },
+ "atm.confirm_total": {
+  "text": "Total débité : {total}",
+  "context": "GAB : ligne du récapitulatif",
+  "max_chars": 40,
+  "screens": [
+   "atm_confirm"
+  ]
+ },
+ "atm.key_confirm": {
+  "text": "Confirmer",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_confirm"
+  ]
+ },
+ "atm.key_cancel": {
+  "text": "Annuler",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_confirm"
+  ]
+ },
+ "atm.take_cash": {
+  "text": "Prenez vos billets",
+  "context": "GAB : consigne de retrait des billets",
+  "max_chars": 40,
+  "screens": [
+   "atm_cash"
+  ]
+ },
+ "atm.count_cash": {
+  "text": "Comptez-les devant le guichet",
+  "context": "GAB : conseil",
+  "max_chars": 40,
+  "screens": [
+   "atm_cash"
+  ]
+ },
+ "atm.receipt_question": {
+  "text": "Voulez-vous un reçu ?",
+  "context": "GAB : question",
+  "max_chars": 40,
+  "screens": [
+   "atm_receipt"
+  ]
+ },
+ "atm.receipt_title": {
+  "text": "Reçu de retrait",
+  "context": "Ticket imprimé : titre",
+  "max_chars": 32,
+  "screens": [
+   "atm_receipt"
+  ]
+ },
+ "atm.receipt_ref": {
+  "text": "Référence {ref}",
+  "context": "Ticket imprimé : ligne",
+  "max_chars": 32,
+  "screens": [
+   "atm_receipt"
+  ]
+ },
+ "atm.receipt_thanks": {
+  "text": "Merci de votre visite",
+  "context": "Ticket imprimé : pied",
+  "max_chars": 32,
+  "screens": [
+   "atm_receipt"
+  ]
+ },
+ "atm.key_receipt_yes": {
+  "text": "Oui, un reçu",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_receipt"
+  ]
+ },
+ "atm.key_receipt_no": {
+  "text": "Non merci",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_receipt"
+  ]
+ },
+ "atm.statement_title": {
+  "text": "Dernières opérations",
+  "context": "GAB : titre du mini-relevé",
+  "max_chars": 40,
+  "screens": [
+   "atm_statement"
+  ]
+ },
+ "atm.statement_empty": {
+  "text": "Aucune opération récente",
+  "context": "GAB : liste vide",
+  "max_chars": 40,
+  "screens": [
+   "atm_statement"
+  ]
+ },
+ "atm.key_done": {
+  "text": "Terminer",
+  "context": "GAB : touche latérale",
+  "max_chars": 18,
+  "screens": [
+   "atm_statement"
   ]
  }
 }

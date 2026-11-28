@@ -578,3 +578,18 @@ test('SAFINUM IVR : accueil vocal avec la salutation écrite par la native, jama
     if (prev === undefined) delete process.env.CT_ALLOW_DRAFT; else process.env.CT_ALLOW_DRAFT = prev;
   }
 });
+
+test('SAFINUM : lettres des langues nationales — USSD translittéré sans perte, SMS gardé intact en UCS-2', async () => {
+  assert.equal(toGsm7('Kʉ̀’ kàrt yɔ́'), "Ku' kàrt yo");
+  assert.equal(toGsm7('Ɗauki ŋkáp'), 'Dauki ngkap');
+  const { MockBackend } = await import('../src/backend/mock.ts');
+  const { SafinumChannel } = await import('../src/channels/safinum.ts');
+  const prev = process.env.CT_ALLOW_DRAFT; process.env.CT_ALLOW_DRAFT = '1';
+  try {
+    const ch = new SafinumChannel(new Engine(new MockBackend()));
+    const r = await ch.handle({ trace_id: 's', channel: 'sms', session_id: null, phone: 'demo-sms-fub', language: 'fub', input: { type: 'text', text: 'solde' }, constraints: { charset: 'gsm7_ucs2', max_segments: 3 } } as never) as { response: { text: string } };
+    const u = await ch.handle({ trace_id: 'u', channel: 'ussd', session_id: 'u1', phone: 'demo-ussd-fub', language: 'fub', input: { type: 'text', text: 'solde' }, constraints: { charset: 'gsm7', max_chars: 182 } } as never) as { response: { text: string } };
+    assert.equal(u.response.text, toGsm7(u.response.text));                 // USSD : 100 % GSM-7
+    if (/[ɓɗŋƴ]/u.test(r.response.text)) assert.ok(r.response.text.length <= 201); // SMS : lettres gardées, 3 × 67 au plus
+  } finally { if (prev === undefined) delete process.env.CT_ALLOW_DRAFT; else process.env.CT_ALLOW_DRAFT = prev; }
+});

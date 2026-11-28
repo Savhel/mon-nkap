@@ -86,6 +86,9 @@ const GSM7_REPLACEMENTS: Record<string, string> = {
   'ɓ': 'b', 'Ɓ': 'B',
   'ɗ': 'd', 'Ɗ': 'D',
   'ƴ': 'y', 'Ƴ': 'Y',
+  // Lettres du yemba, du medumba, du ghomala', du haoussa… qui disparaissaient sans équivalent (28 novembre).
+  'ʉ': 'u', 'Ʉ': 'U', 'ɨ': 'i', 'Ɨ': 'I', 'ɑ': 'a', 'Ɑ': 'A', 'ƙ': 'k', 'Ƙ': 'K',
+  'ɲ': 'ny', 'Ɲ': 'Ny', 'ɣ': 'gh', 'Ɣ': 'Gh', 'ʃ': 'sh', 'ʒ': 'zh', 'ʔ': "'", '→': '->', '≈': '~',
   '’': "'", '‘': "'", '`': "'", 'ʼ': "'",
   '«': '"', '»': '"', '“': '"', '”': '"',
   '—': '-', '–': '-', '−': '-', '·': '-',
@@ -182,6 +185,8 @@ function formatChannelText(text: string, maxChars: number | null, useGsm7: boole
   const cut = Math.max(slice.lastIndexOf('\n'), slice.lastIndexOf('. ') + 1, slice.lastIndexOf(' '));
   return (cut > slice.length * 0.5 ? slice.slice(0, cut) : slice).trimEnd();
 }
+
+const smsAllowsUcs2 = (c: SafinumGatewayRequest['constraints']) => !c?.charset || c.charset === 'gsm7_ucs2' || c.charset === 'ucs2';
 
 function resolveLimits(
   channel: Channel,
@@ -339,7 +344,14 @@ export class SafinumChannel {
         text = `${text}\n${menuLines.join('\n')}`;
       }
 
-      text = formatChannelText(text, maxChars, useGsm7);
+      // SMS en « gsm7_ucs2 » : un texte qui porte des lettres propres à la langue (ɓ, ŋ, ɛ, tons…) part en UCS-2, intact,
+      // dans la limite de 67 caractères par segment ; un texte déjà en GSM-7 garde les 153 caractères par segment.
+      const lettersLost = (t: string) => [...t.normalize('NFC')].some((ch) => /[\p{L}\p{M}]/u.test(ch) && toGsm7(ch) !== ch);
+      if (channel === 'sms' && useGsm7 && smsAllowsUcs2(req.constraints) && lang && lang !== 'fr' && lang !== 'en' && lettersLost(text)) {
+        text = formatChannelText(text.normalize('NFC'), Math.max(1, req.constraints?.max_segments ?? 3) * 67, false);
+      } else {
+        text = formatChannelText(text, maxChars, useGsm7);
+      }
 
       const parameters: Record<string, string | number> = {};
       if (typeof result.params.amount === 'number') parameters.amount = result.params.amount;

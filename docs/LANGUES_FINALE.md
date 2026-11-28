@@ -113,6 +113,8 @@ français, des traductions **automatiques, non relues par un locuteur** comblent
 | Traçabilité | comptés à part dans le journal (« automatiques non relus ») ; réponses de conversation marquées `quality: machine` |
 | Désactivation | `CT_AUTO_TEXTS=0` |
 
-Couverture des écrans (105 textes) : basaa, bulu, ghomala', medumba, haoussa, ewondo et duala sont couverts presque
+Couverture des écrans : basaa, bulu, ghomala', medumba, haoussa, yemba et duala sont couverts presque
 entièrement par ces textes automatiques ; fulfulde et pidgin le sont par les natives (quelques textes automatiques). Le yemba est couvert entièrement par ces textes automatiques.
 Chaque texte automatique doit être relu par un locuteur avant d'être considéré comme fiable.
+
+L'ewondo n'a pas de fichier automatique : celui reçu le 28 novembre mêlait du bulu ; il a été retiré.

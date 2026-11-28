@@ -14,6 +14,7 @@ import type { Transaction } from '../backend/types.ts';
 import { runtimeFor } from '../linguistics/runtime.ts';
 import { usable, type Entry } from '../linguistics/pack.ts';
 import { autoReply } from '../linguistics/auto-texts.ts';
+import { screenTextForFrench } from '../linguistics/screen-catalogue.ts';
 
 /** reference = français / anglais, langues de référence (jamais présentées comme langues nationales validées). */
 export type Quality = 'reference' | 'validated' | 'draft' | 'machine' | 'fallback';
@@ -292,7 +293,9 @@ export function uiLabels(lang: string): Record<string, { text: string; quality: 
   const out: Record<string, { text: string; quality: Quality }> = {};
   for (const [id, fr] of Object.entries(MENU_FR)) {
     const e = runtimeFor(lang)?.pack.responses[id];
+    const screen = lang === 'fr' || lang === 'en' ? null : screenTextForFrench(lang, fr); // une seule traduction par mot
     if (lang === 'fr') out[id] = { text: fr, quality: 'reference' };
+    else if (screen) out[id] = { text: screen, quality: 'draft' };
     else if (e && usable(e)) out[id] = { text: e.text, quality: e.validated ? 'validated' : 'draft' };
     else if (MENU_MBOA[id] && PACK_LANGS.has(lang) && label(MENU_MBOA[id], lang).ok) out[id] = { text: label(MENU_MBOA[id], lang).text, quality: 'draft' };
     else out[id] = { text: fr, quality: 'fallback' };
