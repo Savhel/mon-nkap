@@ -347,5 +347,55 @@
   "fr": "Confirmer",
   "valide": false,
   "remarque": "goonɗinde = confirmer (dictionnaire). À valider avec « djabbeh » (≈ jaɓude = accepter)."
+ },
+ "atm.insert_card": {
+  "text": "Wurtin karte maaɗa",
+  "fr": "Insérez votre carte",
+  "valide": false
+ },
+ "atm.available": {
+  "text": "Kuugal ɗon wondi 24h/24",
+  "fr": "Service disponible 24h/24",
+  "valide": false
+ },
+ "atm.pin_title": {
+  "text": "Wurtin kod ɓooyma",
+  "fr": "Saisissez votre code secret",
+  "valide": false
+ },
+ "atm.pin_hide": {
+  "text": "Ɓoorna kibordi be juŋŋgo ma",
+  "fr": "Cachez le clavier avec votre main",
+  "valide": false
+ },
+ "atm.pin_confirm": {
+  "text": "Nden, taɓu maɓol je green",
+  "fr": "Puis appuyez sur la touche verte",
+  "valide": false
+ },
+ "atm.menu_title": {
+  "text": "Suɓugo kuugal",
+  "fr": "Choisissez une opération",
+  "valide": false
+ },
+ "atm.key_statement": {
+  "text": "Mini-release",
+  "fr": "Mini-relevé",
+  "valide": false
+ },
+ "atm.key_exit": {
+  "text": "Wurtinugo karte man",
+  "fr": "Rendre la carte",
+  "valide": false
+ },
+ "atm.welcome": {
+  "text": "Jaɓɓorgo",
+  "fr": "Bienvenue",
+  "valide": false
+ },
+ "common.cancel": {
+  "text": "yaltinugo",
+  "fr": "Annuler",
+  "valide": false
  }
 }
